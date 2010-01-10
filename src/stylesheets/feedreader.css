@@ -1,0 +1,136 @@
+/* Changes to Palm styles*/
+.palm-page-header-wrapper > .icon {
+	background: url(../images/header-icon.png) center center no-repeat;
+}
+
+/* Custom styles */
+.list-title {
+	padding-top: 5px;
+	padding-left: 4px;
+    font-size: 15px;
+    color: black;
+}
+
+.list-text {
+	padding-left: 4px;
+	margin-top: -2px;
+    font-size: 14px;
+    color: gray;
+}
+
+.list-info-icon {
+    background: url(../images/info-icon.png) center center no-repeat;
+}
+
+.list-icon-spinner {
+	position: relative;
+	top: -36px;
+}
+
+.feed-icon-rss {
+    background: url(../images/list-icon-rssfeed.png) center no-repeat;
+}
+
+.feed-icon-atom {
+    background: url(../images/list-icon-atomfeed.png) center no-repeat;
+}
+
+.feed-icon-unknown {
+	background: url(../images/list-icon-unknown.png) center no-repeat;
+}
+
+.feed-icon-atom-disabled {
+	background: url(../images/list-icon-rssfeed-disabled.png) center no-repeat;
+}
+.feed-icon-atom-disabled {
+	background: url(../images/list-icon-atomfeed-disabled.png) center no-repeat;
+}
+
+.feed-icon-unknown-disabled {
+	background: url(../images/list-icon-unknown.png) center no-repeat;
+}
+
+.feed-newitem {
+ 	float: left;
+	font-weight: bold;
+ 	line-height: 30px;
+ 	height: 28px;
+ 	min-width: 24px;
+ 	margin-top: 24px;
+ 	margin-left: -15px;
+ 	text-align: center;
+ 	vertical-align: baseline;
+ 	-webkit-border-image: url(../images/list-icon-newitem.png) 0 12 0 12 repeat stretch;
+ 	-webkit-box-sizing: border-box;
+	border-width: 0px 12px 0px 12px;
+}
+
+.feed-newitem span {
+ 	position: relative;
+ 	top: -3px;
+ 	margin: 0 -6px;
+ 	font-size: 16px;
+}
+
+.feed-count {
+	color: white;
+}
+
+.togglebutton-title {
+	float: left;
+}
+
+.story-date {
+	color: gray;
+	font-size: 12px;
+}
+
+.story-title {
+	color: red;
+	font-size: 16px;
+}
+
+.story-title-read {
+	font-weight: normal; 
+}
+
+.story-title-unread {
+	font-weight: bold;
+}
+
+.story-content {
+	color: black;
+	font-size: 15px;
+}
+
+.story-content-read {
+	font-weight: normal;
+}
+
+.story-content-unread {
+	font-weight: normal;
+}
+
+.img_email {
+	position: relative;
+	left: 8px;
+	top: 10px;
+	width: 32px; 
+	height: 32px;
+	background: url(../images/email-icon.png) no-repeat bottom;
+	vertical-align: bottom;
+	padding: 0px 0px 0px 5px;
+	float:left;
+}
+
+.img_web {
+	position:relative;
+	left: 8px;
+	top: 10px;
+	width: 32px; 
+	height: 32px;
+	background: url(../images/web-icon.png) no-repeat bottom;
+	vertical-align: bottom;
+	padding: 0px 0px 0px 5px;
+	float:left;
+}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Komodo Project File - DO NOT EDIT -->
+<project id="CC10FCD7-8E2C-46CB-B17C-12F3D580E58E" kpf_version="4" name="FeedReader.kpf">
+<preference-set idref="CC10FCD7-8E2C-46CB-B17C-12F3D580E58E">
+  <boolean id="import_live">1</boolean>
+</preference-set>
+</project>

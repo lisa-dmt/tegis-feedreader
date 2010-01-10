@@ -1,0 +1,23 @@
+[
+    { "source": "app/assistants/app-assistant.js" },
+    { "source": "app/assistants/stage-assistant.js" },
+    { "source": "app/models/feeds.js" },
+    { "source": "app/models/prefs.js" },
+    {
+        "scenes": "feedlist",
+        "source": "app/assistants/feedlist-assistant.js"
+    },
+    {
+    	"scenes": "storylist",
+    	"source": "app/assistants/storylist-assistant.js"
+    },
+    {
+		"scenes": "preferences",
+		"source": "app/assistants/preferences-assistant.js"    	
+    },
+    {
+    	"scenes": "help",
+    	"source": "app/assistants/help-assistant.js"
+    },
+    { "source": "app/assistants/addfeed-assistant.js" }
+]
