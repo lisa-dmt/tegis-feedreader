@@ -1,0 +1,403 @@
+/*
+ * Changes to Palm styles
+ */
+
+.palm-dashboard-icon {
+    background: url(../midicon.png) center center no-repeat;	
+}
+
+.icon.rss {
+    background: url(../images/header/rss-icon.png) center center no-repeat;
+}
+
+.icon.atom {
+    background: url(../images/header/atom-icon.png) center center no-repeat;
+}
+
+.icon.allitems {
+    background: url(../images/header/icon-allitems.png) center center no-repeat;
+}
+
+.progress-widget-width {
+	width: 250px;
+}
+
+.palm-page-header .title {
+	min-width: 220px;
+	text-transform: none;
+}
+
+/* This should not be necessary, but ... */
+.textfield-group > .title > .label {
+	position: relative;
+	left: -30px;
+	margin-left: 33px;
+}
+
+.palm-page-header-wrapper > .title {
+	margin-right: 50px;
+}
+
+/*
+ * Custom styles
+ */
+
+/* general */
+div.hidden {
+	display: none;
+}
+
+span.bold {
+	font-weight: bold;
+}
+
+span.underline {
+	text-decoration: underline;
+}
+
+span.italic {
+	font-style: italic;	
+}
+
+/* images */
+img {
+	max-width: 95%;
+}
+
+#img-container {
+	margin-top: 5px;
+	margin-bottom: 5px;
+	text-align: center;
+	vertical-align: middle;
+	width: 100%;
+	float: none;
+}
+
+.picture-spinnner {
+	position: absolute;
+	left: 138px;
+}
+
+/* media player */
+#media-video {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	background-color: black;
+}
+
+#media-controls-wrapper {
+	font-size: 14px;
+	margin-bottom: 15px;
+	text-align: center;
+}
+
+#media-controls-wrapper.video {
+	position: fixed;
+	bottom: 40px;
+	left: 15px;
+	right: 15px;
+	text-align: center;
+	z-index: 5000;
+	color: red;
+	font-weight: bold;
+	background-color: transparent;
+}
+
+#media-info {
+	margin-top: -14px;
+	width: 100%;
+	display: table;
+}
+
+#media-currentPos {
+	width: 10%;
+	display: table-cell;
+	text-align: left;
+	margin-left: 10px;
+}
+
+#media-playState {
+	display: table-cell;
+	text-align: center;
+}
+
+#media-duration {
+	width: 10%;
+	display: table-cell;
+	text-align: right;
+	margin-right: 10px;
+}
+
+.player-button {
+	width: 56px;
+}
+
+.player-button.play {
+	background: url(../images/player/icon-play.png) center center no-repeat;
+}
+
+.player-button.pause {
+	background: url(../images/player/icon-pause.png) center center no-repeat;
+}
+
+.player-button.stop {
+	background: url(../images/player/icon-stop.png) center center no-repeat;
+}
+
+/* lists */
+.list-title {
+	padding-top: 5px;
+	padding-left: 4px;
+    font-size: 15px;
+    color: black;
+}
+
+.list-title.large {
+	font-size: 18px;
+}
+
+.list-text {
+	padding-left: 4px;
+	margin-top: -2px;
+    font-size: 14px;
+    color: gray;
+}
+
+.list-text.large {
+	font-size: 16px;
+}
+
+.list-info-icon {
+    background: url(../images/lists/info-icon.png) center center no-repeat;
+}
+
+.list-icon-spinner {
+	position: relative;
+	top: -36px;
+	left: -1px;
+}
+
+.list-fade-top {
+	position: fixed; 
+	top: 0; 
+	z-index: 10000;
+	height: 54px; 
+	width: 100%;
+	background: url(../images/fade-top.png) top center repeat-x;
+	-webkit-palm-mouse-target: ignore;
+}
+
+.list-fade-bottom {
+	position: fixed; 
+	bottom: 0; 
+	z-index: 10000;
+	height: 54px; 
+	width: 100%;
+	background: url(../images/fade-bottom.png) bottom center repeat-x;
+	-webkit-palm-mouse-target: ignore;
+}
+
+/* feed icons */
+.feed-icon.allitems {
+    background: url(../images/lists/icon-allitems.png) center no-repeat;	
+}
+
+.feed-icon.rss {
+    background: url(../images/lists/icon-rss.png) center no-repeat;
+}
+
+.feed-icon.atom {
+    background: url(../images/lists/icon-atom.png) center no-repeat;
+}
+
+.feed-icon.unknown {
+	background: url(../images/lists/icon-unknown.png) center no-repeat;
+}
+
+.feed-icon.rss.disabled {
+	background: url(../images/lists/icon-rss-disabled.png) center no-repeat;
+}
+.feed-icon.atom.disabled {
+	background: url(../images/lists/icon-atom-disabled.png) center no-repeat;
+}
+
+.feed-icon.unknown.disabled {
+	background: url(../images/lists/icon-unknown.png) center no-repeat;
+}
+
+/* item badges */
+.feed-newitem {
+	position: absolute;
+	display: inline;
+ 	float: left;
+	font-weight: bold;
+ 	line-height: 30px;
+ 	height: 28px;
+ 	min-width: 24px;
+ 	margin-top: 24px;
+ 	margin-left: -15px;
+ 	text-align: center;
+ 	vertical-align: baseline;
+ 	-webkit-border-image: url(../images/lists/icon-newitem.png) 0 12 0 12 repeat stretch;
+ 	-webkit-box-sizing: border-box;
+	border-width: 0px 12px 0px 12px;
+}
+
+.header-feed-unreaditem {
+	display: inline;
+	position: relative;
+ 	float: right;
+	top: 2px;
+	right: -10px; 
+	font-weight: bold;
+ 	line-height: 23px;
+ 	height: 24px;
+ 	min-width: 22px;
+ 	text-align: center;
+ 	vertical-align: baseline;
+ 	-webkit-border-image: url(../images/lists/icon-unreaditem.png) 0 10 0 10 stretch stretch;
+ 	-webkit-box-sizing: border-box;
+	border-width: 0px 10px 0px 10px;
+	z-index: 100000;
+}
+
+.header-feed-newitem {
+	display: inline;
+	position: relative;
+ 	float: left;
+	left: -7px;
+	top: 2px;
+	font-weight: bold;
+ 	line-height: 23px;
+ 	height: 24px;
+ 	min-width: 22px;
+ 	text-align: center;
+ 	vertical-align: baseline;
+ 	-webkit-border-image: url(../images/lists/icon-newitem.png) 0 10 0 10 stretch stretch;
+ 	-webkit-box-sizing: border-box;
+	border-width: 0px 10px 0px 10px;
+	z-index: 5000;
+}
+
+.feed-newitem span,
+.header-feed-newitem span,
+.header-feed-unreaditem span {
+ 	position: relative;
+ 	top: -3px;
+ 	margin: 0 -6px;
+ 	font-size: 16px;
+}
+
+.header-feed-newitem span,
+.header-feed-unreaditem span {
+	margin: 0 -4px;
+ 	font-size: 12px;
+}
+
+.feed-count {
+	color: white;
+}
+
+/* styles for the story list */
+.story-date {
+	color: gray;
+	font-size: 12px;
+}
+
+.story-title {
+	font-size: 16px;
+}
+
+.story-title.large {
+	font-size: 20px;
+}
+
+.story-content {
+	color: black;
+	font-size: 15px;
+}
+
+.story-content.large {
+	font-size: 17px;
+}
+
+/* Text styling */
+.red {
+	color: red;
+}
+
+.green {
+	color: green;
+}
+
+.blue {
+	color: blue;
+}
+
+.yellow {
+	color: yellow;
+}
+
+.purple {
+	color: #800080;
+}
+
+.black {
+	color: black;
+}
+
+.normal-text {
+	font-weight: normal; 
+}
+
+.bold-text {
+	font-weight: bold;
+}
+
+/* misc */
+h1 {
+	font-size: 20px;
+	font-weight: bold;
+}
+
+h2 {
+	font-size: 18px;
+	font-weight: bold;
+}
+
+h3 {
+	font-size: 16px;
+	font-weight: bold;
+}
+
+#licenseBody {
+	font-size: 15px;
+}
+
+.togglebutton-title {
+	float: left;
+}
+
+#sortIcon {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+    background: url(../images/lists/info-icon.png) center center no-repeat;
+	height: 32px;
+	width: 32px;
+}
+
+.webImage {
+	position:relative;
+	left: 8px;
+	top: 10px;
+	width: 32px; 
+	height: 32px;
+	background: url(../images/web-icon.png) no-repeat bottom;
+	vertical-align: bottom;
+	padding: 0px 0px 0px 5px;
+	float:left;
+}
