@@ -1,0 +1,53 @@
+[
+    {"source": "app/utils/spooler.js"},
+    {"source": "app/utils/codepages.js"},
+    {"source": "app/utils/date.js"},
+	{"source": "app/utils/migrator.js"},
+    {"source": "app/utils/base64.js"},
+    {"source": "app/utils/simplehtmlparser.js"},
+	{"source": "app/utils/scenecontrol.js"},
+	{"source": "app/utils/formatting.js"},
+	{"source": "app/utils/dashboard.js"},
+	{"source": "app/models/database.js"},
+    {"source": "app/models/feeds.js"},
+    {"source": "app/models/prefs.js"},
+    {"source": "app/assistants/app-assistant.js"},
+    {"source": "app/assistants/stage-assistant.js"},
+    {"source": "app/assistants/changelog-assistant.js"},
+    {
+        "scenes": "feedlist",
+        "source": "app/assistants/feedlist-assistant.js"
+    },
+    {
+        "scenes": "storylist",
+        "source": "app/assistants/storylist-assistant.js"
+    },
+    {
+        "scenes": "fullStory",
+        "source": "app/assistants/fullStory-assistant.js"
+    },
+    {
+        "scenes": "addfeed",
+        "source": "app/assistants/addfeed-assistant.js"
+    },
+    {
+        "scenes": "preferences",
+        "source": "app/assistants/preferences-assistant.js"
+    },
+    {
+        "scenes": "license",
+        "source": "app/assistants/license-assistant.js"
+    },
+    {
+        "scenes": "contributors",
+        "source": "app/assistants/contributors-assistant.js"
+    },
+    {
+        "scenes": "import",
+        "source": "app/assistants/import-assistant.js"
+    },
+	{
+		"scenes": "dashboard",
+		"source": "app/assistants/dashboard-assistant.js"
+	}
+]
