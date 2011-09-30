@@ -21,18 +21,16 @@
  */
 
 enyo.kind({
-	name:			"ListViewSkeleton",
-	kind:			"VFlexBox",
-	flex:			1,
+	name:				"ListViewSkeleton",
+	kind:				"VFlexBox",
+	flex:				1,
 
-	items:			[],
-	itemCount:		-1,
-	filter:			"",
+	items:				[],
+	itemCount:			-1,
+	filter:				"",
 
-	lastSelIndex:	-1,
-	selectedIndex:	-1,
-	selectedId:		-1,
-	deletedItem:	null,
+	selectedIndex:		-1,
+	deletedItem:		null,
 
 	refreshInProgress:	false,
 
@@ -61,55 +59,6 @@ enyo.kind({
 		}
 	},
 
-	acquirePage: function(sender, page) {
-		var count = this.$.list.getPageSize();
-		var offset = count * page;
-
-		// If we have the total count, check it first.
-		if((this.itemCount >= 0) && (offset + count <= this.itemCount)) {
-			this.$.list.acquiredPage(page);
-			return;
-		}
-
-		this.acquireData(this.filter, offset, count, enyo.bind(this, this.insertItems, page));
-	},
-
-	discardPage: function(sender, page) {
-		// Do not discard pages currently visible to avoid flicker.
-		if((page < this.$.list.getTopPage()) || (page > this.$.list.getBottomPage())) {
-			var count = this.$.list.getPageSize();
-			var offset = count * page;
-
-			for(var i = offset; i < offset + count; i++) {
-				this.items[i] = null; // delete items
-			}
-		}
-	},
-
-	finishReAcquire: function(sender) {
-		this.refreshInProgress = false;
-		if(this.selectedId < 0) {
-			// nothing to do
-			return;
-		}
-
-		// Scan the items for the selected item; its position might have changed.
-		for(var i = 0; i < this.items.length; i++) {
-			if(this.items[i] && (this.items[i].id == this.selectedId)) {
-				this.selectRow(i);
-				break;
-			}
-		}
-
-		// Check if we couldn't find the item. If not, reset the item highlighting.
-		if(this.selectedIndex < 0) {
-			this.deselectRow(this.lastSelIndex);
-		}
-
-		this.selectedId = -1;
-		this.lastSelIndex = -1;
-	},
-
 	itemClicked: function(sender, event) {
 		if(event.rowIndex == this.selectedIndex) {
 			return false;
@@ -133,6 +82,35 @@ enyo.kind({
 	},
 
 	//
+	// Helper functions
+	//
+
+	getSelectedId: function() {
+		return (this.selectedIndex >= 0 ? this.items[this.selectedIndex].id : -1);
+	},
+
+	restoreSelectedId: function(selectedId) {
+		// Remember, then reset the selected index
+		var lastSelIndex = this.selectedIndex;
+		this.selectedIndex = -1;
+
+		// Search for the formerly selected item
+		if(selectedId >= 0) {
+			for(var i = 0; i < this.items.length; i++) {
+				if(this.items[i] && (this.items[i].id == selectedId)) {
+					this.selectRow(i);
+					break;
+				}
+			}
+		}
+
+		// Check if we couldn't find the item. If not, reset the item highlighting.
+		if(this.selectedIndex < 0) {
+			this.deselectRow(lastSelIndex);
+		}
+	},
+
+	//
 	// Database interaction
 	//
 
@@ -140,20 +118,35 @@ enyo.kind({
 		this.itemCount = count;
 	},
 
-	insertItems: function(page, offset, items) {
+	insertItems: function(items) {
 		try {
-			var count = offset + this.$.list.getPageSize();
-			for(var i = offset; i < count; i++) {
-				if(i - offset >= items.length) {
-					this.items[i] = null;
-				} else {
-					this.items[i] = items[i - offset];
-				}
-			}
-			this.$.list.acquiredPage(page);
+			// Remember selected id
+			var selectedId = this.getSelectedId();
+
+			// Store the new items array
+			this.items = items;
+
+			// Restore the previous selection
+			this.restoreSelectedId(selectedId);
 		} catch(e) {
 			this.error("LV EXCEPTION>", e);
+		} finally {
+			this.refreshInProgress = false;
+			this.refreshFinished();
+			this.$.list.refresh();
 		}
+	},
+
+	/** @protected
+	 * Called right before the list itself is refreshed.
+	 */
+	refreshFinished: function() {},
+
+	/** @protected
+	 * Called to determine if a refresh can be done.
+	 */
+	canRefresh: function() {
+		return true;
 	},
 
 	//
@@ -162,22 +155,16 @@ enyo.kind({
 
 	refresh: function() {
 		if(this.refreshInProgress) {
-			return;
+			this.log("LV> refreshInProgress = true, ignoring request");
+		} else if(!this.canRefresh()){
+			this.log("LV> Cannot refresh, calling clear() instead");
+			this.clear();
 		} else {
+			this.log("LV> requesting refresh");
 			this.refreshInProgress = true;
+			this.updateCount(this.setItemCount);
+			this.acquireData(this.filter, this.insertItems);
 		}
-
-		// Remember selected id
-		this.selectedId = this.selectedIndex >= 0 ? this.items[this.selectedIndex].id : -1;
-		this.lastSelIndex = this.selectedIndex;
-
-		// Reset internal data.
-		this.itemCount = -1;
-		this.selectedIndex = -1;
-
-		// And now refresh the list.
-		this.updateCount(this.setItemCount);
-		this.$.list.reAcquirePages();
 	},
 
 	clear: function() {
@@ -196,5 +183,6 @@ enyo.kind({
 		this.inherited(arguments);
 
 		this.setItemCount = enyo.bind(this, this.setItemCount);
+		this.insertItems = enyo.bind(this, this.insertItems);
 	}
 });

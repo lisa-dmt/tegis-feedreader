@@ -69,7 +69,7 @@ enyo.kind({
 	published:	{
 		feed:		null,
 		story:		null,
-		isRefresh:	false
+		updateOnly:	false
 	},
 
 	urls:			[],
@@ -271,7 +271,7 @@ enyo.kind({
 	//
 
 	storyChanged: function() {
-		if(!this.isRefresh) {
+		if(!this.updateOnly) {
 			this.$.loadSpinner.hide();
 			this.$.backButton.setDisabled(true);
 			this.$.forwardButton.setDisabled(true);
@@ -289,7 +289,7 @@ enyo.kind({
 			this.$.audio.setSrc("");
 
 			this._mediaKind = mediaKinds.none;
-			this.isRefresh = false;
+			this.updateOnly = false;
 			this.originFeed = null;
 			this.urls = [];
 		} else {
@@ -326,7 +326,7 @@ enyo.kind({
 				this.log("STORY> retrieving picture from", this.story.picture);
 				this.$.picture.setSrc("");
 				this.$.picture.show();
-				if(!this.isRefresh) {
+				if(!this.updateOnly) {
 					this.$.loadSpinner.show();
 				}
 				this.$.picture.setSrc(this.story.picture);
@@ -339,7 +339,7 @@ enyo.kind({
 			this.$.loadSpinner.hide();
 		} else {
 			if(this.urls.length > 0) {
-				if(!this.isRefresh) {
+				if(!this.updateOnly) {
 					this.$.webView.clearHistory();
 					this.$.webView.setUrl(this.urls[0].href);
 					this.$.loadSpinner.show();
@@ -350,7 +350,7 @@ enyo.kind({
 		}
 
 		// Mark the story as being read.
-		if(!this.isRefresh && !this.story.isRead) {
+		if(!this.updateOnly && !this.story.isRead) {
 			enyo.application.feeds.markStoryRead(this.story);
 		}
 
@@ -367,7 +367,7 @@ enyo.kind({
 
 		this.setupMediaControls();
 
-		this.isRefresh = false;
+		this.updateOnly = false;
 	},
 
 	noConnection: function() {
@@ -594,7 +594,7 @@ enyo.kind({
 	//
 
 	refresh: function() {
-		this.isRefresh = true;
+		this.updateOnly = true;
 		this.storyChanged();
 	},
 

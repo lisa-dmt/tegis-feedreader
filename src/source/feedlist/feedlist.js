@@ -26,6 +26,7 @@ enyo.kind({
 
 	menuIndex:		0,
 	spinningIndex:	-1,
+	waitingForData:	true,
 
 	events:		{
 		onFeedSelected:	"",
@@ -40,72 +41,85 @@ enyo.kind({
 		className:	"enyo-toolbar-light",
 		content:	$L("Feed Subscriptions")
 	}, {
-		kind:					"EnhancedList",
-		name:					"list",
-		reorderable:			true,
-		dragBackgroundColor:	"rgb(200, 200, 200)",
-		dragOpacity:			0.7,
-		flex:					1,
+		name:		"listBox",
+		kind:		"VFlexBox",
+		flex:		1,
+		showing:	false,
+		components:	[{
+			kind:					"EnhancedList",
+			name:					"list",
+			reorderable:			true,
+			dragBackgroundColor:	"rgb(200, 200, 200)",
+			dragOpacity:			0.7,
+			flex:					1,
 
-		onSetupRow:			"setupFeed",
-		onAcquirePage:		"acquirePage",
-		onDiscardPage:		"discardPage",
-		onFinishReAcquire:	"finishReAcquire",
-		onReorder:			"reorderFeed",
+			onSetupRow:				"setupFeed",
+			onReorder:				"reorderFeed",
 
-		components: [{
-			kind: 		"SwipeableItem",
-			name:		"item",
-			onclick:	"itemClicked",
-			onConfirm:	"itemDeleted",
-			components:	[{
-				kind:		"HFlexBox",
+			components: [{
+				kind: 		"SwipeableItem",
+				name:		"item",
+				onclick:	"itemClicked",
+				onConfirm:	"itemDeleted",
 				components:	[{
-					name:		"feedInfoBox",
-					nodeTag:	"div",
-					className:	"feed-infobox",
+					kind:		"HFlexBox",
 					components:	[{
-						kind:	"Image",
-						name:	"feedIcon",
-						src:	"../../images/lists/icon-rss.png",
-						style:	"max-width: 40px; max-height: 40px;"
-					}, {
-						kind:	"Spinner",
-						name:	"feedSpinner",
-						style:	"position: absolute; left: 4px; top: 5px; z-index: 10000000"
-					}, {
-						name:		"unreadItemBadge",
-						className:	"feed-unreaditem",
+						name:		"feedInfoBox",
+						nodeTag:	"div",
+						className:	"feed-infobox",
 						components:	[{
-							name:		"unreadCount",
-							className:	"feed-countlabel",
-							content:	"0"
+							kind:	"Image",
+							name:	"feedIcon",
+							src:	"../../images/lists/icon-rss.png",
+							style:	"max-width: 40px; max-height: 40px;"
+						}, {
+							kind:	"Spinner",
+							name:	"feedSpinner",
+							style:	"position: absolute; left: 4px; top: 5px; z-index: 10000000"
+						}, {
+							name:		"unreadItemBadge",
+							className:	"feed-unreaditem",
+							components:	[{
+								name:		"unreadCount",
+								className:	"feed-countlabel",
+								content:	"0"
+							}]
+						}, {
+							name:		"newCountBadge",
+							className:	"feed-newitem",
+							components:	[{
+								name:		"newCount",
+								className:	"feed-countlabel",
+								content:	"0"
+							}]
 						}]
 					}, {
-						name:		"newCountBadge",
-						className:	"feed-newitem",
-						components:	[{
-							name:		"newCount",
-							className:	"feed-countlabel",
-							content:	"0"
+						kind:	"VFlexBox",
+						flex:	1,
+						components: [{
+							name:		"feedTitle",
+							className:	"feed-title"
+						}, {
+							name:		"feedURL",
+							className:	"feed-url"
 						}]
-					}]
-				}, {
-					kind:	"VFlexBox",
-					flex:	1,
-					components: [{
-						name:		"feedTitle",
-						className:	"feed-title"
 					}, {
-						name:		"feedURL",
-						className:	"feed-url"
+						kind:		"IconButton",
+						icon:		"../../images/lists/icon-edit.png",
+						onclick:	"editFeedClicked"
 					}]
-				}, {
-					kind:		"IconButton",
-					icon:		"../../images/lists/icon-edit.png",
-					onclick:	"editFeedClicked"
 				}]
 			}]
+		}]
+	}, {
+		name:		"loadSpinnerBox",
+		kind:		"HFlexBox",
+		flex:		1,
+		align:		"center",
+		pack:		"center",
+		components:	[{
+			name:		"loadSpinner",
+			kind:		"SpinnerLarge"
 		}]
 	}, {
 		kind:		"Toolbar",
@@ -154,16 +168,25 @@ enyo.kind({
 		return true;
 	},
 
-	acquireData: function(filter, offset, count, inserter) {
-		enyo.application.feeds.getFeeds(filter, offset, count, inserter);
+	acquireData: function(filter, inserter) {
+		enyo.application.feeds.getFeeds(filter, inserter);
 	},
 
 	reorderFeed: function(sender, toIndex, fromIndex) {
-		this.log("REORDER> from", fromIndex, "to", toIndex);
+		var selectedId = this.getSelectedId();
 		enyo.application.feeds.moveFeed(fromIndex, toIndex);
+		this.restoreSelectedId(selectedId);
 	},
 
-	finishReAcquire: function(sender) {
+	refreshFinished: function() {
+		if(this.waitingForData) {
+			this.waitingForData = false;
+			this.$.loadSpinner.stop();
+			this.$.loadSpinnerBox.hide();
+			this.$.listBox.show();
+			this.$.listBox.render();
+		}
+
 		this.inherited(arguments);
 		if(this.selectedIndex >= 0) {
 			this.doFeedSelected(this.items[this.selectedIndex]);
@@ -223,14 +246,16 @@ enyo.kind({
 	},
 
 	setFeedSpinner: function(index, state) {
-		if(state && (this.spinningIndex >= 0) && (this.spinningIndex != index)) {
-			this.setFeedSpinner(this.spinningIndex, false);
-			enyo.nextTick(this, this.setFeedSpinner, index, state);
-			return;
+		if(!this.waitingForData) {
+			if(state && (this.spinningIndex >= 0) && (this.spinningIndex != index)) {
+				this.setFeedSpinner(this.spinningIndex, false);
+				enyo.nextTick(this, this.setFeedSpinner, index, state);
+				return;
+			}
+			this.$.list.prepareRow(index);
+			this.$.feedSpinner.setShowing(state);
+			this.spinningIndex = state ? index : -1;
 		}
-		this.$.list.prepareRow(index);
-		this.$.feedSpinner.setShowing(state);
-		this.spinningIndex = state ? index : -1;
 	},
 
 	//
@@ -297,5 +322,15 @@ enyo.kind({
 
 	spoolerRunningChanged: function(state) {
 		this.$.refreshButton.setDisabled(state);
+	},
+
+	//
+	// Other functions
+	//
+
+	rendered: function() {
+		if(this.waitingForData) {
+			this.$.loadSpinner.show();
+		}
 	}
 });

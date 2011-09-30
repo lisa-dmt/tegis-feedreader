@@ -63,9 +63,6 @@ enyo.kind({
 				}]
 			}]
 		}, {
-			name:					"scrim",
-			kind:					"ScrimSpinner"
-		}, {
 			name:					"preferences",
 			kind:					"Preferences",
 			onPrefsSaved:			"prefsSaved"
@@ -122,7 +119,7 @@ enyo.kind({
 		enyo.asyncMethod(this, function() {
 			var selectedFeed = this.$.storyList.getFeed();
 			if(selectedFeed && feed && (selectedFeed.id == feed.id)) {
-				this.$.storyList.setIsRefresh(true);
+				this.$.storyList.setUpdateOnly(true);
 			} else {
 				this.$.storyView.setStory(null);
 			}
@@ -155,7 +152,7 @@ enyo.kind({
 		enyo.asyncMethod(this, function() {
 			var selectedStory = this.$.storyView.getStory();
 			if(selectedStory && story && (selectedStory.id == story.id)) {
-				this.$.storyView.setIsRefresh(true);
+				this.$.storyView.setUpdateOnly(true);
 			} else {
 				var orientation = enyo.getWindowOrientation();
 				if(story && ((orientation == "left") || (orientation == "right"))) {
@@ -239,10 +236,7 @@ enyo.kind({
 		enyo.application.mainView = this;
 		enyo.application.isActive = true;
 
-		if(!enyo.application.db.isReady) {
-			this.$.scrim.show();
-			this.$.scrim.render();
-		} else {
+		if(enyo.application.db.isReady) {
 			this.notifyDBReady();
 		}
 
@@ -276,7 +270,6 @@ enyo.kind({
 	//
 
 	notifyDBReady: function() {
-		this.$.scrim.hide();
 		this.$.feedList.refresh();
 	},
 

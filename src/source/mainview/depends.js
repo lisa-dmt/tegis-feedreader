@@ -11,7 +11,6 @@ enyo.depends(
 	// Controls
 	"../controls/toggleitem.js",
 	"../controls/selectoritem.js",
-	"../controls/scrimspinner.js",
 	"../controls/errordialog.js",
 	"../controls/reorderablelist.js",
 	"../controls/enhancedlist.js",
