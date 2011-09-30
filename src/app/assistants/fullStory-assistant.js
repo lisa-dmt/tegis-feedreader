@@ -32,6 +32,8 @@ function FullStoryAssistant(feeds, feed, storyID) {
 	this.feed = feed;
 	this.storyID = storyID;
 
+	this.formatting = this.feeds.formatting;
+
 	this.setupComplete = false;
 	this.commandModel = {
 		label:	"",
@@ -172,7 +174,7 @@ FullStoryAssistant.prototype.dataHandler = function(feed, story, urls) {
 			if(this.originFeed.allowHTML) {
 				this.controller.get("story-content").update(this.story.summary);
 			} else {
-				this.controller.get("story-content").update(Formatting.stripHTML(this.story.summary));
+				this.controller.get("story-content").update(this.formatting.stripHTML(this.story.summary));
 			}
 
 			this.prependHyperLinks(this.controller.get("story-content"));

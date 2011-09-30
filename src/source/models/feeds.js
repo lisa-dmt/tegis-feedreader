@@ -33,19 +33,15 @@ enyo.kind({
 		onSuccess:	"updateFeedSuccess",
 		onFailure:	"updateFeedFailed"
 	}, {
-		name:		"storyFormatter",
-		kind:		"StoryFormatter"
-	}, {
 		name:		"dateFormatter",
 		kind:		"DateFormatter"
-	}, {
-		name:		"cpConverter",
-		kind:		"CodePageConverter"
 	}],
 
 	interactiveUpdate: false,		// true if the update is interactive
 	changingFeed: false,			// true if a feed is changed
 	updateWhenReady: true,
+	formatting:	null,
+	cpConverter: null,
 
 	/**
 	 * Constructor.
@@ -53,13 +49,8 @@ enyo.kind({
 	create: function() {
 		this.inherited(arguments);
 		this.updateWhenReady = enyo.application.prefs.updateOnStart;
-	},
-
-	/**
-	 * Returns the story formatter.
-	 */
-	getStoryFormatter: function() {
-		return this.$.storyFormatter;
+		this.formatting = new Formatting();
+		this.cpConverter = new codepageConverter();
 	},
 
 	/**
@@ -236,15 +227,15 @@ enyo.kind({
 
 					if(atomItems[i].getElementsByTagName("title") &&
 					   atomItems[i].getElementsByTagName("title").item(0)) {
-						story.title = this.$.storyFormatter.stripBreaks(this.$.cpConverter.convert(contentType, unescape(atomItems[i].getElementsByTagName("title").item(0).textContent)));
+						story.title = this.formatting.stripBreaks(this.cpConverter.convert(contentType, unescape(atomItems[i].getElementsByTagName("title").item(0).textContent)));
 					}
 
 					if(atomItems[i].getElementsByTagName("content") &&
 					   atomItems[i].getElementsByTagName("content").item(0)) {
-						story.summary = this.$.storyFormatter.reformatSummary(this.$.cpConverter.convert(contentType, atomItems[i].getElementsByTagName("content").item(0).textContent));
+						story.summary = this.formatting.reformatSummary(this.cpConverter.convert(contentType, atomItems[i].getElementsByTagName("content").item(0).textContent));
 					} else if (atomItems[i].getElementsByTagName("summary") &&
 						atomItems[i].getElementsByTagName("summary").item(0)) {
-						story.summary = this.$.storyFormatter.reformatSummary(this.$.cpConverter.convert(contentType, atomItems[i].getElementsByTagName("summary").item(0).textContent));
+						story.summary = this.formatting.reformatSummary(this.cpConverter.convert(contentType, atomItems[i].getElementsByTagName("summary").item(0).textContent));
 					}
 
 					// Analyse the enclosures.
@@ -272,7 +263,7 @@ enyo.kind({
 										}
 									}
 									story.url.push({
-										title:	this.$.cpConverter.convert(contentType, title),
+										title:	this.cpConverter.convert(contentType, title),
 										href:	url
 									});
 								} else if(rel && rel.match(/enclosure/i)) {
@@ -303,15 +294,15 @@ enyo.kind({
 					if (atomItems[i].getElementsByTagName("updated") &&
 						atomItems[i].getElementsByTagName("updated").item(0)) {
 						story.pubdate = this.$.dateFormatter.dateToInt(atomItems[i].getElementsByTagName("updated").item(0).textContent,
-																	   this.$.storyFormatter);
+																	   this.formatting);
 					}
 
 					// Set the unique id.
 					if (atomItems[i].getElementsByTagName("id") &&
 						atomItems[i].getElementsByTagName("id").item(0)) {
-						story.uuid = this.$.storyFormatter.stripBreaks(atomItems[i].getElementsByTagName("id").item(0).textContent);
+						story.uuid = this.formatting.stripBreaks(atomItems[i].getElementsByTagName("id").item(0).textContent);
 					} else {
-						story.uuid = this.$.storyFormatter.stripBreaks(story.title);
+						story.uuid = this.formatting.stripBreaks(story.title);
 					}
 
 					enyo.application.db.addOrEditStory(feed, story);
@@ -356,17 +347,17 @@ enyo.kind({
 
 					if(rssItems[i].getElementsByTagName("title") &&
 					   rssItems[i].getElementsByTagName("title").item(0)) {
-						story.title = this.$.storyFormatter.stripBreaks(this.$.cpConverter.convert(contentType, unescape(rssItems[i].getElementsByTagName("title").item(0).textContent)));
+						story.title = this.formatting.stripBreaks(this.cpConverter.convert(contentType, unescape(rssItems[i].getElementsByTagName("title").item(0).textContent)));
 					}
 					if(rssItems[i].getElementsByTagName("description") &&
 					   rssItems[i].getElementsByTagName("description").item(0)) {
-						story.summary = this.$.storyFormatter.reformatSummary(this.$.cpConverter.convert(contentType, rssItems[i].getElementsByTagName("description").item(0).textContent));
+						story.summary = this.formatting.reformatSummary(this.cpConverter.convert(contentType, rssItems[i].getElementsByTagName("description").item(0).textContent));
 					}
 					if(rssItems[i].getElementsByTagName("link") &&
 					   rssItems[i].getElementsByTagName("link").item(0)) {
 						story.url.push({
 							title:	"Weblink",
-							href:	this.$.storyFormatter.stripBreaks(rssItems[i].getElementsByTagName("link").item(0).textContent)
+							href:	this.formatting.stripBreaks(rssItems[i].getElementsByTagName("link").item(0).textContent)
 						});
 					}
 
@@ -403,11 +394,11 @@ enyo.kind({
 					if(rssItems[i].getElementsByTagName("pubDate") &&
 					   rssItems[i].getElementsByTagName("pubDate").item(0)) {
 					   story.pubdate = this.$.dateFormatter.dateToInt(rssItems[i].getElementsByTagName("pubDate").item(0).textContent,
-																	  this.$.storyFormatter);
+																	  this.formatting);
 					} else if (rssItems[i].getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", "date") &&
 							   rssItems[i].getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", "date").item(0)) {
 						story.pubdate = this.$.dateFormatter.dateToInt(rssItems[i].getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", "date").item(0).textContent,
-																	   this.$.storyFormatter);
+																	   this.formatting);
 					} else {
 						this.log("FEEDS> no pubdate given");
 					}
@@ -415,9 +406,9 @@ enyo.kind({
 					// Set the unique id.
 					if(rssItems[i].getElementsByTagName("guid") &&
 					   rssItems[i].getElementsByTagName("guid").item(0)) {
-						story.uuid = this.$.storyFormatter.stripBreaks(rssItems[i].getElementsByTagName("guid").item(0).textContent);
+						story.uuid = this.formatting.stripBreaks(rssItems[i].getElementsByTagName("guid").item(0).textContent);
 					} else {
-						story.uuid = this.$.storyFormatter.stripBreaks(story.title);
+						story.uuid = this.formatting.stripBreaks(story.title);
 					}
 
 					enyo.application.db.addOrEditStory(feed, story);

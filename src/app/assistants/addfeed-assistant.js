@@ -25,15 +25,15 @@ function AddfeedAssistant(feeds, feed) {
 	this.feed = feed;
 
 	if(!this.feed) {
-		this.feed = new feedProto();
+		this.feed = new Feed();
 		this.feed.feedType = feedTypes.ftRSS;
 		this.isAdd = true;
 	} else {
-		this.feed = new feedProto(feed);
+		this.feed = new Feed(feed);
 		this.feed.feedType = feed.feedType;
 		this.isAdd = false;
 	}
-	
+
 	if(this.feed.showListSummary && this.feed.showListCaption) {
 		this.listMode = 0;
 	} else if(this.feed.showListCaption) {
@@ -49,7 +49,7 @@ function AddfeedAssistant(feeds, feed) {
 	} else if(this.feed.showDetailSummary) {
 		this.detailMode = 2;
 	}
-	
+
 	this.feedUpdateFailed = this.feedUpdateFailed.bind(this);
 	this.feedUpdateSuccess = this.feedUpdateSuccess.bind(this);
 }
@@ -74,7 +74,7 @@ AddfeedAssistant.prototype.setup = function() {
 								{ hintText: $L("Password"), limitResize: true,
 								  textCase: Mojo.Widget.steModeLowerCase, enterSubmits: false },
 								this.passwordModel = { value: this.feed.password });
-    
+
 	this.controller.setupWidget("listMode", {
 		label: $L("Show"),
         choices: [
@@ -98,7 +98,7 @@ AddfeedAssistant.prototype.setup = function() {
 			value: this.feed.sortMode,
 			disabled: false
 		});
-	
+
 	this.controller.setupWidget("detailMode", {
 		label: $L("Show"),
         choices: [
@@ -110,7 +110,7 @@ AddfeedAssistant.prototype.setup = function() {
 			value: this.detailMode,
 			disabled: false
 		});
-	
+
 	this.controller.setupWidget("feedEnabled", {
 		property: "value",
 		trueLabel: $L("Yes"),
@@ -166,7 +166,7 @@ AddfeedAssistant.prototype.setup = function() {
 		value: this.feed.allowHTML,
 		disabled: false
 	});
-    
+
 	this.okButton = this.controller.get("okButton");
 	this.controller.setupWidget("okButton", { type: Mojo.Widget.activityButton },
 								this.okButtonModel = {
@@ -175,7 +175,7 @@ AddfeedAssistant.prototype.setup = function() {
 									disabled: false
 								});
 	this.controller.listen("okButton", Mojo.Event.tap, this.updateFeed.bindAsEventListener(this));
-	
+
 	this.controller.setupWidget("cancelButton",
 								{ type: Mojo.Widget.defaultButton }, {
 									buttonClass: "negative",
@@ -183,13 +183,13 @@ AddfeedAssistant.prototype.setup = function() {
 									disabled: false
 								});
 	this.controller.listen("cancelButton", Mojo.Event.tap, this.cancelClick.bindAsEventListener(this));
-	
+
 	if (this.isAdd) {
 		this.controller.get("addfeed-title").update($L("Add new Feed"));
 	} else {
 		this.controller.get("addfeed-title").update($L("Edit Feed"));
 	}
-	
+
 	this.controller.get("feedEnabled-title").update($L("Activate Feed"));
 	this.controller.get("feedURL-title").update($L("URL"));
 	this.controller.get("feedTitle-title").update($L("Title"));
@@ -198,12 +198,12 @@ AddfeedAssistant.prototype.setup = function() {
 	this.controller.get("auth-group-title").update($L("Authentication"));
 	this.controller.get("storylist-group-title").update($L("Story list"));
 	this.controller.get("detail-group-title").update($L("Story details"));
-	
+
 	this.controller.get("fullStory-title").update($L("Show details"));
 	this.controller.get("showMedia-title").update($L("Show media"));
 	this.controller.get("showPicture-title").update($L("Show picture"));
 	this.controller.get("allowHTML-title").update($L("Allow HTML"));
-	
+
 	SceneControl.endSceneSetup(this);
 };
 
@@ -219,7 +219,7 @@ AddfeedAssistant.prototype.updateFeed = function() {
 		this.controller.stageController.popScene();
 		return;
 	}
-	
+
     this.feed.url = this.urlModel.value;
 	this.feed.title = this.titleModel.value;
 	this.feed.enabled = this.enabledModel.value;
@@ -238,17 +238,17 @@ AddfeedAssistant.prototype.updateFeed = function() {
 	this.feed.sortMode = this.sortModeModel.value;
 	this.feed.allowHTML = this.allowHTMLModel.value;
 	this.feed.fullStory = this.fullStoryModel.value;
-	
+
     if(/^[a-z]{1,5}:/.test(this.feed.url) === false) {
-        this.feed.url = this.feed.url.replace(/^\/{1,2}/, "");                                
+        this.feed.url = this.feed.url.replace(/^\/{1,2}/, "");
         this.feed.url = "http://" + this.feed.url;
     }
-	
+
     // Update the entered URL & model.
     this.urlModel.value = this.feed.url;
     this.controller.modelChanged(this.urlModel);
 
-	// Update the OK button.	
+	// Update the OK button.
 	this.okButtonModel.label = this.isAdd ? $L("Adding Feed...") : $L("Updating Feed...");
 	this.okButtonModel.disabled = true;
 	this.controller.modelChanged(this.okButtonModel);
@@ -272,7 +272,7 @@ AddfeedAssistant.prototype.feedUpdateFailed = function(transaction, error) {
 	this.okButton.mojo.deactivate();
 
 	Mojo.Log.error("DB>", error.message);
-	
+
 	var errorMsg = new Template($L("Editing the Feed '#{title}' failed."));
 	FeedReader.showError(errorMsg, { title: this.feed.url } );
 };

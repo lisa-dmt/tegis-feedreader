@@ -22,37 +22,37 @@
 
 function ImportAssistant(feeds) {
 	this.feeds = feeds;
-	
+
 	this.htmlparser = new SimpleHtmlParser();
-	
+
 	this.parserHandler = {
 		startElement: 	this.parseStartTag.bind(this),
 		endElement:		this.parseEndTag.bind(this),
 		characters:		this.parseCharacters.bind(this),
 		comment:		this.parseComment.bind(this)
 	};
-	
+
 	this.feedList = [];
-	
+
 	this.loadingSpinnerAttribs = {
 		spinnerSize: "large"
 	};
 	this.loadingSpinnerModel = {
 		spinning: false
 	};
-	
+
 	this.importModeModel = {
 		value: 0,
 		disabled: true
 	};
-	
+
 	this.inHeader = false;
-	
+
 	this.getConnStatusSuccess = this.getConnStatusSuccess.bind(this);
 	this.getConnStatusFailed = this.getConnStatusFailed.bind(this);
 	this.ajaxRequestSuccess = this.ajaxRequestSuccess.bind(this);
 	this.ajaxRequestFailed = this.ajaxRequestFailed.bind(this);
-	
+
 	this.addFeed = this.addFeed.bindAsEventListener(this);
 	this.searchForFeeds = this.searchForFeeds.bindAsEventListener(this);
 }
@@ -70,7 +70,7 @@ ImportAssistant.prototype.setup = function() {
 		label: $L("Mode"),
         choices: [
             { label: $L("From a Website"),	value: 0 },
-            { label: $L("From OPML"),		value: 1 }		
+            { label: $L("From OPML"),		value: 1 }
 		]},
 		this.importModeModel);
 
@@ -78,7 +78,7 @@ ImportAssistant.prototype.setup = function() {
 	this.controller.get("import-group-title").update($L("Source"));
 	this.controller.get("importURL-title").update($L("URL"));
 	this.controller.get("feedlist-title").update($L("Feeds"));
-	
+
 	this.searchButton = this.controller.get("searchButton");
 	this.controller.setupWidget("searchButton", { type: Mojo.Widget.defaultButton },
 								this.okButtonModel = {
@@ -86,10 +86,10 @@ ImportAssistant.prototype.setup = function() {
 									disabled: false
 								});
 	this.controller.listen("searchButton", Mojo.Event.tap, this.searchForFeeds);
-	
+
 	this.controller.setupWidget("importList", {
-        itemTemplate:	"import/importRowTemplate", 
-        listTemplate:	"import/importListTemplate", 
+        itemTemplate:	"import/importRowTemplate",
+        listTemplate:	"import/importListTemplate",
         swipeToDelete:	false,
         renderLimit: 	40,
         reorderable:	false
@@ -97,8 +97,8 @@ ImportAssistant.prototype.setup = function() {
     this.importListModel = {
 		items: this.feedList
 	});
-	
-    this.controller.listen("importList", Mojo.Event.listTap, this.addFeed);	
+
+    this.controller.listen("importList", Mojo.Event.listTap, this.addFeed);
 };
 
 ImportAssistant.prototype.activate = function(event) {
@@ -109,14 +109,14 @@ ImportAssistant.prototype.deactivate = function(event) {
 
 ImportAssistant.prototype.cleanup = function(event) {
 	this.controller.stopListening("searchButton", Mojo.Event.tap, this.searchForFeeds);
-    this.controller.stopListening("importList", Mojo.Event.listTap, this.addFeed);	
+    this.controller.stopListening("importList", Mojo.Event.listTap, this.addFeed);
 };
 
 ImportAssistant.prototype.showScrim = function(visible) {
 	this.loadingSpinnerModel.spinning = visible;
 	this.controller.get("load-scrim").className = "palm-scrim" + (visible ? "" : " hidden");
 	this.controller.modelChanged(this.loadingSpinnerModel);
-	
+
 	this.importListModel.items = this.feedList;
 	this.controller.modelChanged(this.importListModel);
 
@@ -126,13 +126,13 @@ ImportAssistant.prototype.showScrim = function(visible) {
 ImportAssistant.prototype.searchForFeeds = function(event) {
 	this.feedList.splice(0, this.feedList.length);
 	this.showScrim(true);
-	
+
     if(/^[a-z]{1,5}:/.test(this.urlModel.value) === false) {
-        this.urlModel.value = this.urlModel.value.replace(/^\/{1,2}/, "");                                
+        this.urlModel.value = this.urlModel.value.replace(/^\/{1,2}/, "");
         this.urlModel.value = "http://" + this.urlModel.value;
 		this.controller.modelChanged(this.urlModel);
     }
-	
+
 	FeedReader.connection.checkConnection(this.getConnStatusSuccess, this.getConnStatusFailed);
 };
 
@@ -162,16 +162,16 @@ ImportAssistant.prototype.ajaxRequestSuccess = function(transport) {
 			Mojo.Log.logException(e);
 		}
 	} else {
-		Mojo.Log.info("No data retrieved.");		
+		Mojo.Log.info("No data retrieved.");
 	}
-	
+
 	this.controller.get("conn-status").update("");
 	this.showScrim(false);
 };
 
 ImportAssistant.prototype.ajaxRequestFailed = function(transport) {
 	this.controller.get("conn-status").update($L("Unable to retrieve data."));
-	this.showScrim(false);	
+	this.showScrim(false);
 };
 
 ImportAssistant.prototype.parseStartTag = function(tag, attr) {
@@ -206,7 +206,7 @@ ImportAssistant.prototype.parseStartTag = function(tag, attr) {
 				}
 			}
 		}
-		
+
 		if((possibility == 3) && (href.length > 0)) {
 		    if(/^[a-z]{1,5}:/.test(href) === false) {	// relative URL
 				if(/^\//.test(href)) {					// relative to server root
@@ -215,7 +215,7 @@ ImportAssistant.prototype.parseStartTag = function(tag, attr) {
 					href = this.urlModel.value.replace(/(.*)\//, "$1") + "/" + href;
 				}
 			}
-			
+
 			this.feedList.push({
 				type: type,
 				title: title,
@@ -241,7 +241,7 @@ ImportAssistant.prototype.parseComment = function(s) {
 ImportAssistant.prototype.addFeed = function(event) {
 	var itemIndex = this.feedList.indexOf(event.item);
 	var title = new Template($L("Subscribe to feed #{title}?"));
-	
+
 	this.controller.showAlertDialog({
 		onChoose: this.doAddFeed.bind(this, itemIndex, this.feedList[itemIndex]),
 		title: title.evaluate(this.feedList[itemIndex]),
@@ -253,7 +253,7 @@ ImportAssistant.prototype.addFeed = function(event) {
 			}, {
 				label: $LL("Cancel"),
 				value: "cancel",
-				type: "negative"				
+				type: "negative"
 			}
 		]
 	});
@@ -261,11 +261,11 @@ ImportAssistant.prototype.addFeed = function(event) {
 
 ImportAssistant.prototype.doAddFeed = function(index, feed, value) {
 	if(value == "add") {
-		var f = new feedProto();
+		var f = new Feed();
 		f.title = feed.title;
 		f.url = feed.url;
 		this.feeds.addOrEditFeed(f);
-		
+
 		this.feedList.splice(index, 1);
 		this.importListModel.items = this.feedList;
 		this.controller.modelChanged(this.importListModel);
@@ -277,11 +277,11 @@ ImportAssistant.prototype.updateURL = function(newURL) {
 	if((url == this.urlModel.value) || (!url)) {
 		return;
 	}
-	
+
 	if(/$\//.test(url) === false) {
 		url = url.replace(/(.*)\/[^\/]*/, "$1") + "/";
 	}
-		
+
 	this.urlModel.value = url;
 	this.controller.modelChanged(this.urlModel);
 };

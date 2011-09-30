@@ -20,86 +20,15 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-var feedProto = Class.create({
-	title:				"",
-	url:				"",
-	feedType:			feedTypes.ftRSS,
-	feedOrder:			0,
-	enabled:			1,
-	showPicture:		1,
-	showMedia:			1,
-	showListSummary:	1,
-	showDetailSummary:	1,
-	showListCaption:	1,
-	showDetailCaption:	1,
-	sortMode:			0,
-	allowHTML:			1,
-	numNew:				0,
-	numUnRead:			0,
-	preventDelete:		false,
-	username:			"",
-	password:			"",
-	fullStory:			true,
-	category:			0,
-	categoryName:		"Uncategorized",
-	
-	/**
-	 * Constructor.
-	 *
-	 * @param	proto		{object}		feed object to clone
-	 */
-	initialize: function(proto) {
-		if(proto) {
-			this.title = proto.title || this.title;
-			this.url = proto.url || this.url;
-			this.feedType = proto.feedType;
-			this.feedOrder = proto.feedOrder;
-			this.enabled = proto.enabled;
-			this.showPicture = proto.showPicture;
-			this.showMedia = proto.showMedia;
-			this.showListSummary = proto.showListSummary;
-			this.showListCaption = proto.showListCaption;
-			this.showDetailSummary = proto.showDetailSummary;
-			this.showDetailCaption = proto.showDetailCaption;
-			this.sortMode = proto.sortMode;
-			this.allowHTML = proto.allowHTML;
-			if(proto.numNew) {
-				this.numNew = proto.numNew;
-			}
-			if(proto.numUnRead) {
-				this.numUnRead = proto.numUnRead;
-			}
-			if(proto.id !== null) {
-				this.id = proto.id;
-			}
-			if(proto.fullStory !== null) {
-				this.fullStory = proto.fullStory;
-			}
-			if(this.feedType < feedTypes.ftUnknown) {
-				this.preventDelete = true;
-			}
-			if(proto.username && proto.password) {
-				this.username = proto.username;
-				this.password = proto.password;
-			}
-			if(proto.category !== null) {
-				this.category = proto.category;
-			}
-			if(proto.categoryName !== null) {
-				this.categoryName = proto.categoryName;
-			}
-		}
-	}
-});
-
 var feeds = Class.create ({
 	list: [],			// contains the individual feeds
 
-	db: {},				// takes the feed database
-	connStatus: {},		// takes the connection state service
-	spooler: {},		// action spooler
-	cpConverter: {},	// codepage converter
-	dateConverter: {},	// date converter
+	db: null,				// takes the feed database
+	connStatus: null,		// takes the connection state service
+	spooler: null,			// action spooler
+	cpConverter: null,		// codepage converter
+	dateConverter: null,	// date converter
+	formatting: null,		// formatting functions
 
 	interactiveUpdate: false,		// true if the update is interactive
 	changingFeed: false,			// true if a feed is changed
@@ -107,25 +36,26 @@ var feeds = Class.create ({
 
 	/**
 	 * Constructor.
-	 */	
+	 */
 	initialize: function() {
 		this.spooler = new spooler();
+		this.formatting = new Formatting();
 		this.cpConverter = new codepageConverter();
-		this.dateConverter = new dateConverter();
+		this.dateConverter = new dateConverter(this.formatting);
 		this.db = new database();
 		this.updateWhenReady = FeedReader.prefs.updateOnStart;
 	},
-	
+
 	/**
 	 * Updates a feed.
-	 * 
+	 *
 	 * @param feed	{Object} 	feed to update
 	 */
 	enqueueUpdate: function(feed) {
 		this.updateInProgress = true;
 		this.spooler.addAction(this.doUpdateFeed.bind(this, feed), feed.id, true);
 	},
-	
+
 	/**
 	 * Update all feeds.
 	 */
@@ -133,7 +63,7 @@ var feeds = Class.create ({
 		Mojo.Log.info("FEEDLIST> Full update requested");
 		this.db.getUpdatableFeeds(this.enqueueUpdateList.bind(this));
 	},
-	
+
 	/** @private
 	 *
 	 * Called from the database with a list of all updatable feeds.
@@ -148,7 +78,7 @@ var feeds = Class.create ({
 			this.spooler.endUpdate();
 		}
 	},
-	
+
 	/** @private
 	 *
 	 * Called by the spooler to update a feed.
@@ -171,12 +101,12 @@ var feeds = Class.create ({
 	},
 
 	/** @private
-	 * 
+	 *
 	 * Called when the connection status could be retrieved.
 	 *
 	 * @param feed		{object}	feed object to be updated
 	 * @param result	{object}	information about the connection status
-	 */	
+	 */
 	getConnStatusSuccess: function(feed, result) {
 		try {
 			if(result.isInternetConnectionAvailable) {
@@ -205,23 +135,23 @@ var feeds = Class.create ({
 			this.spooler.nextAction();
 		}
 	},
-	
+
 	/** @private
-	 * 
+	 *
 	 * Called when the connection status could not be retrieved.
 	 *
 	 * @param feed		{object}	feed object to be updated
 	 * @param result	{object}	information about the connection status
-	 */	
+	 */
 	getConnStatusFailed: function(feed, result) {
 		Mojo.Log.warn("FEEDS> Unable to determine connection status");
 		this.spooler.nextAction();
 	},
-	
+
 	/** @private
-	 * 
+	 *
 	 * Determine the type of the given feed.
-	 * 
+	 *
 	 * @param 	feed		{object}	feed object
 	 * @param 	transport	{object}	AJAX transport
 	 * @return 				{boolean}	true if type is supported
@@ -230,7 +160,7 @@ var feeds = Class.create ({
 		try {
 			var feedType = transport.responseXML.getElementsByTagName("rss");
 			var errorMsg = {};
-			
+
 			if(transport.responseText.length === 0) {
 				if(this.changingFeed) {
 					errorMsg = new Template($L("The Feed '#{title}' does not return data."));
@@ -239,10 +169,10 @@ var feeds = Class.create ({
 				Mojo.Log.info("FEEDS> Empty responseText in", feed.url);
 				return this.db.setFeedType(feed, feedTypes.ftUnknown);
 			}
-	
+
 			if(feedType.length > 0) {
 				return this.db.setFeedType(feed, feedTypes.ftRSS);
-			} else {    
+			} else {
 				feedType = transport.responseXML.getElementsByTagName("RDF");
 				if (feedType.length > 0) {
 					return this.db.setFeedType(feed, feedTypes.ftRDF);
@@ -265,7 +195,7 @@ var feeds = Class.create ({
 		}
 		return this.db.setFeedType(feed.url, feedTypes.ftUnknown);
 	},
-	
+
 	/** @private
 	 *
 	 * Parse RDF Feed data.
@@ -279,7 +209,7 @@ var feeds = Class.create ({
 			var url = "", enc = 0, type = "", title = "";
 			var el = 0;
 			var contentType = transport.getHeader("Content-Type");
-			
+
 			var atomItems = transport.responseXML.getElementsByTagName("entry");
 			var l = atomItems.length;
 			for (var i = 0; i < l; i++) {
@@ -294,20 +224,20 @@ var feeds = Class.create ({
 						pubdate:	0,
 						uuid:		""
 					};
-					
+
 					if(atomItems[i].getElementsByTagName("title") &&
 					   atomItems[i].getElementsByTagName("title").item(0)) {
-						story.title = Formatting.stripBreaks(this.cpConverter.convert(contentType, unescape(atomItems[i].getElementsByTagName("title").item(0).textContent)));
+						story.title = this.formatting.stripBreaks(this.cpConverter.convert(contentType, unescape(atomItems[i].getElementsByTagName("title").item(0).textContent)));
 					}
 
 					if(atomItems[i].getElementsByTagName("content") &&
 					   atomItems[i].getElementsByTagName("content").item(0)) {
-						story.summary = Formatting.reformatSummary(this.cpConverter.convert(contentType, atomItems[i].getElementsByTagName("content").item(0).textContent));
+						story.summary = this.formatting.reformatSummary(this.cpConverter.convert(contentType, atomItems[i].getElementsByTagName("content").item(0).textContent));
 					} else if (atomItems[i].getElementsByTagName("summary") &&
 						atomItems[i].getElementsByTagName("summary").item(0)) {
-						story.summary = Formatting.reformatSummary(this.cpConverter.convert(contentType, atomItems[i].getElementsByTagName("summary").item(0).textContent));
+						story.summary = this.formatting.reformatSummary(this.cpConverter.convert(contentType, atomItems[i].getElementsByTagName("summary").item(0).textContent));
 					}
-					
+
 					// Analyse the enclosures.
 					enclosures = atomItems[i].getElementsByTagName("link");
 					if(enclosures && (enclosures.length > 0)) {
@@ -315,7 +245,7 @@ var feeds = Class.create ({
 						for(enc = 0; enc < el; enc++) {
 							rel = enclosures.item(enc).getAttribute("rel");
 							url = enclosures.item(enc).getAttribute("href");
-							type = enclosures.item(enc).getAttribute("type");	
+							type = enclosures.item(enc).getAttribute("type");
 							if(!type) {
 								type = "";
 							}
@@ -359,21 +289,21 @@ var feeds = Class.create ({
 							}
 						}
 					}
-					
+
 					// Set the publishing date.
 					if (atomItems[i].getElementsByTagName("updated") &&
 						atomItems[i].getElementsByTagName("updated").item(0)) {
 						story.pubdate = this.dateConverter.dateToInt(atomItems[i].getElementsByTagName("updated").item(0).textContent);
 					}
-					
+
 					// Set the unique id.
 					if (atomItems[i].getElementsByTagName("id") &&
 						atomItems[i].getElementsByTagName("id").item(0)) {
-						story.uuid = Formatting.stripBreaks(atomItems[i].getElementsByTagName("id").item(0).textContent);
+						story.uuid = this.formatting.stripBreaks(atomItems[i].getElementsByTagName("id").item(0).textContent);
 					} else {
-						story.uuid = Formatting.stripBreaks(story.title);
+						story.uuid = this.formatting.stripBreaks(story.title);
 					}
-					
+
 					this.db.addOrEditStory(feed, story);
 				} catch(e) {
 					Mojo.Log.logException(e, "FEEDS>");
@@ -383,7 +313,7 @@ var feeds = Class.create ({
 			Mojo.Log.logException(ex, "FEEDS>");
 		}
 	},
-	
+
 	/** @private
 	 *
 	 * Parse RSS Feed data.
@@ -397,7 +327,7 @@ var feeds = Class.create ({
 			var url = "", type = "", enc = 0;
 			var el = 0;
 			var contentType = transport.getHeader("Content-Type");
-			
+
 			var rssItems = transport.responseXML.getElementsByTagName("item");
 			var l = rssItems.length;
 			for (var i = 0; i < l; i++) {
@@ -412,26 +342,26 @@ var feeds = Class.create ({
 						pubdate:	0,
 						uuid:		""
 					};
-					
+
 					if(rssItems[i].getElementsByTagName("title") &&
 					   rssItems[i].getElementsByTagName("title").item(0)) {
-						story.title = Formatting.stripBreaks(this.cpConverter.convert(contentType, unescape(rssItems[i].getElementsByTagName("title").item(0).textContent)));
+						story.title = this.formatting.stripBreaks(this.cpConverter.convert(contentType, unescape(rssItems[i].getElementsByTagName("title").item(0).textContent)));
 					}
 					if(rssItems[i].getElementsByTagName("description") &&
 					   rssItems[i].getElementsByTagName("description").item(0)) {
-						story.summary = Formatting.reformatSummary(this.cpConverter.convert(contentType, rssItems[i].getElementsByTagName("description").item(0).textContent));
+						story.summary = this.formatting.reformatSummary(this.cpConverter.convert(contentType, rssItems[i].getElementsByTagName("description").item(0).textContent));
 					}
 					if(rssItems[i].getElementsByTagName("link") &&
 					   rssItems[i].getElementsByTagName("link").item(0)) {
 						story.url.push({
 							title:	"Weblink",
-							href:	Formatting.stripBreaks(rssItems[i].getElementsByTagName("link").item(0).textContent)
+							href:	this.formatting.stripBreaks(rssItems[i].getElementsByTagName("link").item(0).textContent)
 						});
 					}
-					
+
 					// Analyse the enclosures.
 					enclosures = rssItems[i].getElementsByTagName("enclosure");
-					if(enclosures && (enclosures.length > 0)) {					
+					if(enclosures && (enclosures.length > 0)) {
 						el = enclosures.length;
 						for(enc = 0; enc < el; enc++) {
 							url = enclosures.item(enc).getAttribute("url");
@@ -460,7 +390,7 @@ var feeds = Class.create ({
 							}
 						}
 					}
-					
+
 					// Set the publishing date.
 					if(rssItems[i].getElementsByTagName("pubDate") &&
 					   rssItems[i].getElementsByTagName("pubDate").item(0)) {
@@ -471,15 +401,15 @@ var feeds = Class.create ({
 					} else {
 						Mojo.Log.info("FEEDS> no pubdate given");
 					}
-					
+
 					// Set the unique id.
 					if(rssItems[i].getElementsByTagName("guid") &&
 					   rssItems[i].getElementsByTagName("guid").item(0)) {
-						story.uuid = Formatting.stripBreaks(rssItems[i].getElementsByTagName("guid").item(0).textContent);
+						story.uuid = this.formatting.stripBreaks(rssItems[i].getElementsByTagName("guid").item(0).textContent);
 					} else {
-						story.uuid = Formatting.stripBreaks(story.title);
+						story.uuid = this.formatting.stripBreaks(story.title);
 					}
-					
+
 					this.db.addOrEditStory(feed, story);
 				} catch(e) {
 					Mojo.Log.logException(e, "FEEDS>");
@@ -489,7 +419,7 @@ var feeds = Class.create ({
 			Mojo.Log.logException(ex, "FEEDS>");
 		}
 	},
-	
+
 	/** @private
 	 *
 	 * Parse RDF Feed data.
@@ -500,11 +430,11 @@ var feeds = Class.create ({
 	parseRDF: function(feed, transport) {
 		this.parseRSS(feed, transport);		// Currently we do the same as for RSS.
 	},
-	
+
 	/** @private
-	 * 
+	 *
 	 * Called when an Ajax request succeeds.
-	 * 
+	 *
 	 * @param 	feed		{object}	feed object
 	 * @param 	transport	{object} 	AJAX transport
 	 */
@@ -516,21 +446,21 @@ var feeds = Class.create ({
 				transport.responseXML = new DOMParser().parseFromString(transport.responseText, "text/xml");
 				Mojo.Log.info(transport.responseText);
 			}
-			
+
 			var type = this.determineFeedType(feed, transport);
 			switch(type) {
 				case feedTypes.ftRDF:
 					this.parseRDF(feed, transport);
 					break;
-					
+
 				case feedTypes.ftRSS:
 					this.parseRSS(feed, transport);
 					break;
-					
+
 				case feedTypes.ftATOM:
 					this.parseAtom(feed, transport);
 					break;
-			}				
+			}
 			this.db.endStoryUpdate(feed, type != feedTypes.ftUnknown);
 		} catch(e) {
 			Mojo.Log.logException(e);
@@ -538,11 +468,11 @@ var feeds = Class.create ({
 		}
 		this.spooler.nextAction();
 	},
-	
+
 	/** @private
-	 * 
+	 *
 	 * Called when an Ajax request fails.
-	 * 
+	 *
 	 * @param 	feed		{object}	feed object
 	 * @param 	transport	{object} 	AJAX transport
 	 */
@@ -552,7 +482,7 @@ var feeds = Class.create ({
 			switch(transport.status) {
 				case 400:
 					error = $L("Bad Request");
-					break;			
+					break;
 				case 401:
 					error = $L("Unauthorized");
 					break;
@@ -575,7 +505,7 @@ var feeds = Class.create ({
 						error = $L("Unexpected error");
 					}
 					break;
-			}	
+			}
 			Mojo.Log.warn("FEEDS> Feed", feed.url, "is defect; error:", error);
 			if (this.changingFeed) {
 				this.db.disableFeed(feed);
@@ -588,7 +518,7 @@ var feeds = Class.create ({
 		this.db.endStoryUpdate(feed, false);	// Don't delete old storys.
 		this.spooler.nextAction();
 	},
-	
+
 	/** @private
 	 *
 	 * Get the count of new stories and post a notification.
@@ -596,7 +526,7 @@ var feeds = Class.create ({
 	getNewCount: function() {
 		this.db.getNewStoryCount(this.postNotification.bind(this));
 	},
-	
+
 	/** @private
 	 *
 	 * Post a notification about new story count.
@@ -605,7 +535,7 @@ var feeds = Class.create ({
 	 */
 	postNotification: function(count) {
 		try {
-			if(count > 0) {		
+			if(count > 0) {
 				if((!FeedReader.isActive) && (!this.interactiveUpdate) && (FeedReader.prefs.notificationEnabled)) {
 					Mojo.Log.info("FEEDS> About to post notification for new items; count =", count);
 					DashboardControl.postNotification(count);
@@ -616,10 +546,10 @@ var feeds = Class.create ({
 		}
 		this.spooler.nextAction();
 	},
-	
+
 	/**
 	 * Mark all stories of the given feed as being read.
-	 * 
+	 *
 	 * @param {Object}	feed		feed object
 	 */
 	markAllRead: function(feed) {
@@ -627,7 +557,7 @@ var feeds = Class.create ({
 			Mojo.Controller.getAppController().sendToNotificationChain({ type: "feedlist-changed" });
 		});
 	},
-	
+
 	/**
 	 * Mark a given story as being read.
 	 *
@@ -636,10 +566,10 @@ var feeds = Class.create ({
 	markStoryRead: function(story) {
 		this.db.markStoryRead(story);
 	},
-	
+
 	/**
 	 * Mark all stories of the given feed as being unread.
-	 *  
+	 *
 	 * @param {Object} feed		feed object
 	 */
 	markAllUnRead: function(feed) {
@@ -655,7 +585,7 @@ var feeds = Class.create ({
 	 */
 	markStarred: function(story) {
 		this.db.markStarred(story);
-		
+
 		var storyMarker = function(feed, story, urls) {
 			if(urls.length <= 0) {
 				return;
@@ -667,7 +597,7 @@ var feeds = Class.create ({
 		};
 		this.db.getStory(story.id, storyMarker.bind(this));
 	},
-	
+
 	/**
 	 * Remove the star state from all feeds of a given feed.
 	 *
@@ -682,7 +612,7 @@ var feeds = Class.create ({
 		this.db.getFeedURLList(feed, storyMarker.bind(this));
 		this.db.markAllUnStarred(feed);
 	},
-	
+
 	/**
 	 * Delete a given feed.
 	 *
@@ -714,7 +644,7 @@ var feeds = Class.create ({
 		};
 		this.db.deleteStory(story, onSuccess, onFail);
 	},
-	
+
 	/**
 	 * Move a feed in the list.
 	 *
@@ -725,10 +655,10 @@ var feeds = Class.create ({
 		if(fromIndex == toIndex) {
 			return;
 		}
-		
+
 		this.db.reOrderFeed(fromIndex, toIndex);
 	},
-	
+
 	/** @private
 	 *
 	 * Called when editing a feed succeeds.
@@ -742,10 +672,10 @@ var feeds = Class.create ({
 			this.enqueueUpdate(feed);
 		}
 	},
-	
+
 	/**
 	 * Add a new feed or edit an existing one.
-	 * 
+	 *
 	 * @param feed		{object} 	feed object
 	 * @param onSuccess	{function}	called on success
 	 * @param onFail	{function}	called on failure
@@ -757,10 +687,10 @@ var feeds = Class.create ({
 		}
 		this.db.addOrEditFeed(feed, onSuccess, onFail);
 	},
-	
+
 	/**
 	 * Get the effective title of a feed.
-	 * 
+	 *
 	 * @param		feed		{object} 	feed object
 	 * @returns					{string}	title
 	 */
@@ -771,10 +701,10 @@ var feeds = Class.create ({
 		}
 		return feed.title;
 	},
-	
+
 	/**
 	 * Get the effective url of a feed.
-	 * 
+	 *
 	 * @param		feed		{object} 	feed object
 	 * @returns					{string}	url
 	 */
@@ -782,10 +712,10 @@ var feeds = Class.create ({
 		switch(feed.feedType) {
 			case feedTypes.ftStarred:	return $L("All starred items");
 			case feedTypes.ftAllItems:	return $L("Aggregation of all items");
-		}	
-		return feed.url;		
+		}
+		return feed.url;
 	},
-	
+
 	/**
 	 * Return a feeds icon class.
 	 *
@@ -795,7 +725,7 @@ var feeds = Class.create ({
 	getFeedIconClass: function(feed, ignoreEnabled, ignoreUnknown) {
 		if(FeedReader.scrimMode) {
 			return "starred";
-		} else {		
+		} else {
 			var iconClass = "";
 			switch(feed.feedType) {
 				case feedTypes.ftAllItems:	iconClass = "allitems";	break;
@@ -811,7 +741,7 @@ var feeds = Class.create ({
 			return iconClass;
 		}
 	},
-		
+
 	getFeeds: function(filter, offset, count, onSuccess) {
 		this.db.getFeeds(filter, offset, count, onSuccess);
 	},
@@ -819,27 +749,27 @@ var feeds = Class.create ({
 	getFeed: function(id, onSuccess) {
 		this.db.getFeed(id, onSuccess);
 	},
-	
+
 	getFeedURLList: function(feed, onSuccess) {
 		this.db.getFeedURLList(feed, onSuccess);
 	},
-	
+
 	getFeedIDList: function(onSuccess) {
 		this.db.getFeedIDList(onSuccess);
 	},
-	
+
 	getFeedCount: function(filter, onSuccess) {
 		this.db.getFeedCount(filter, onSuccess);
 	},
-	
+
 	getStories: function(feed, filter, offset, count, onSuccess) {
 		this.db.getStories(feed, filter, offset, count, onSuccess);
 	},
-	
+
 	getStoryCount: function(feed, filter, onSuccess) {
 		this.db.getStoryCount(feed, filter, onSuccess);
 	},
-	
+
 	getStoryIDList: function(feed, onSuccess) {
 		this.db.getStoryIDList(feed, onSuccess);
 	},
@@ -847,10 +777,10 @@ var feeds = Class.create ({
 	getStory: function(id, onSuccess) {
 		this.db.getStory(id, onSuccess);
 	},
-	
+
 	/**
 	 * Set the sort mode of a feed.
-	 * 
+	 *
 	 * @param		feed		{object} 	feed object
 	 */
 	setSortMode: function(feed) {
@@ -866,22 +796,22 @@ var feeds = Class.create ({
 
 	/**
 	 * Returns true, if initialization is complete.
-	 * 
+	 *
 	 * @returns		{bool}	readyness state
 	 */
 	isReady: function() {
 		return (this.db.ready && (!this.db.loading));
 	},
-	
+
 	/**
 	 * Returns true, if an update is in progress.
-	 * 
+	 *
 	 * @returns		{bool}		update state
 	 */
 	isUpdating: function() {
 		return this.spooler.hasWork();
 	},
-	
+
 	/**
 	 * Return a single pseudo-feed used for the main scrim.
 	 *
@@ -889,8 +819,8 @@ var feeds = Class.create ({
 	 */
 	getCopyrightFeed: function() {
 		var list = [];
-		
-		list.push(new feedProto({
+
+		list.push(new Feed({
 			title:		FeedReader.appName,
 			url:		"© " + FeedReader.copyrightYears + " " + FeedReader.appAuthor,
 			feedType:	feedTypes.ftRSS,

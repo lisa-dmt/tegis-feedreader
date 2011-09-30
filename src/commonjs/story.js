@@ -1,5 +1,5 @@
 /*
- *		source/models/story.js - Story data model
+ *		commonjs/story.js - Story data model
  */
 
 /* FeedReader - A RSS Feed Aggregator for Palm WebOS
@@ -33,20 +33,22 @@ function Story(proto) {
 		this.feedTitle = proto.feedTitle;
 	}
 
-	this.id = proto.id;
-	this.fid = proto.fid;
-	this.uuid = proto.uuid;
-	this.title = proto.title;
-	this.summary = proto.summary;
-	this.picture = proto.picture;
-	this.audio = proto.audio;
-	this.video = proto.video;
-	this.isRead = proto.isRead;
-	this.isNew = proto.isNew;
-	this.isStarred = proto.isStarred;
-	this.pubdate = proto.pubdate;
-	this.flag = proto.flag;
-	this.deleted = proto.deleted;
+	if(proto) {
+		this.id = proto.id;
+		this.fid = proto.fid;
+		this.uuid = proto.uuid;
+		this.title = proto.title;
+		this.summary = proto.summary;
+		this.picture = proto.picture;
+		this.audio = proto.audio;
+		this.video = proto.video;
+		this.isRead = proto.isRead;
+		this.isNew = proto.isNew;
+		this.isStarred = proto.isStarred;
+		this.pubdate = proto.pubdate;
+		this.flag = proto.flag;
+		this.deleted = proto.deleted;
+	}
 }
 
 Story.prototype.id = 0;

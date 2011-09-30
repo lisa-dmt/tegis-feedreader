@@ -5,19 +5,21 @@ enyo.depends(
 	// Models
 	"source/models/prefs.js",
 	"source/models/database.js",
-	"source/models/feed.js",
-	"source/models/story.js",
 	"source/models/feeds.js",
 	"source/models/readitlater.js",
+
+	// Commons
+	"commonjs/story.js",
+	"commonjs/feed.js",
+	"commonjs/simplehtmlparser.js",
+	"commonjs/codepages.js",
+	"commonjs/formatting.js",
 
 	// Utilities
 	"source/utils/timer.js",
 	"source/utils/connection.js",
 	"source/utils/spooler.js",
-	"source/utils/codepages.js",
-	"source/utils/formatting.js",
 	"source/utils/date.js",
-	"source/utils/simplehtmlparser.js",
 
 	// Stylesheets
 	"stylesheets/feedreader_enyo.css"

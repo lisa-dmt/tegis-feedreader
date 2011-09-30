@@ -171,7 +171,7 @@ enyo.kind({
 		var summary = "";
 		if(this.feed.showListSummary) {
 			var summaryLength = parseInt(enyo.application.prefs.summaryLength, 10);
-			summary = enyo.application.feeds.getStoryFormatter().stripHTML(story.summary);
+			summary = enyo.application.feeds.formatting.stripHTML(story.summary);
 			if(summary.length > (summaryLength + 10)) {
 				summary = summary.slice(0, summaryLength - 1) + "...";
 			}

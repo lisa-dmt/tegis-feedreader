@@ -4,16 +4,22 @@
 
 var dateConverter = Class.create({
 
+	formatting: null,
+
+	initialize: function(formatting) {
+		this.formatting = formatting;
+	},
+
 	convertRFC822: function(dateString) {
 		var d = new Date(dateString);
 		return d.getTime();
 	},
-	
+
 	convertRFC2822: function(dateString) {
 		// Wed Mar 31 12:00 EDT 2010
 		var d = new Date();
 		var parts = dateString.split(" ");
-		
+
 		switch(parts[1]) {
 			case "Jan":	d.setMonth(0); break;
 			case "Feb": d.setMonth(1); break;
@@ -30,7 +36,7 @@ var dateConverter = Class.create({
 		}
 		d.setDate(parseInt(parts[2], 10));
 		d.setYear(parseInt(parts[5], 10));
-		
+
 		parts = parts[3].split(":");
 		if(parts[0]) {
 			d.setHours(parts[0]);
@@ -43,13 +49,13 @@ var dateConverter = Class.create({
 		} else {
 			d.setSeconds(0);
 		}
-		
+
 		return d.getTime();
 	},
 
 	convertDCDate: function(dateString) {
 		var d = new Date();
-		
+
 		// Dublin core date. See: http://www.w3.org/TR/NOTE-datetime
 		var parts = dateString.split("T");
 		if(parts[0]) {
@@ -89,7 +95,7 @@ var dateConverter = Class.create({
 		}
 		return d.getTime();
 	},
-	
+
 	convertSimpleDate: function(dateString) {
 		var d = new Date();
 		var parts = dateString.split('.');
@@ -102,19 +108,19 @@ var dateConverter = Class.create({
 		if(parts[2]) {
 			d.setFullYear(parseInt(parts[2], 10));
 		}
-		
+
 		d.setHours(0);
 		d.setMinutes(0);
 		d.setSeconds(0);
-		
+
 		return d.getTime();
 	},
-	
+
 	convertDiggDate: function(dateString) {
 		// example: Thu, 04 November 2010 09:25:28
 		var d = new Date();
 		var parts = dateString.split(" ");
-		
+
 		switch(parts[2]) {
 			case "January":		d.setMonth(0); break;
 			case "February": 	d.setMonth(1); break;
@@ -131,7 +137,7 @@ var dateConverter = Class.create({
 		}
 		d.setDate(parseInt(parts[1], 10));
 		d.setYear(parseInt(parts[3], 10));
-		
+
 		parts = parts[4].split(":");
 		if(parts[0]) {
 			d.setHours(parts[0]);
@@ -144,15 +150,15 @@ var dateConverter = Class.create({
 		} else {
 			d.setSeconds(0);
 		}
-		
+
 		return d.getTime();
 	},
-	
+
 	convertSimpleDate2: function(dateString) {
 		// example: 26 Nov 2010 02:30:00 +0100
 		var d = new Date();
 		var parts = dateString.split(" ");
-		
+
 		switch(parts[1]) {
 			case "Jan":		d.setMonth(0); break;
 			case "Feb": 	d.setMonth(1); break;
@@ -169,7 +175,7 @@ var dateConverter = Class.create({
 		}
 		d.setDate(parseInt(parts[0], 10));
 		d.setYear(parseInt(parts[2], 10));
-		
+
 		parts = parts[3].split(":");
 		if(parts[0]) {
 			d.setHours(parts[0]);
@@ -182,22 +188,22 @@ var dateConverter = Class.create({
 		} else {
 			d.setSeconds(0);
 		}
-		
+
 		return d.getTime();
 	},
 
 	/**
 	 * Convert a date string to an integer; supports dc:date and RFC 822 format.
-	 * 
+	 *
 	 * @param {String}		date string to reformat
 	 */
 	dateToInt: function(dateString) {
 		var intDate;
-		
-		dateString = Formatting.stripBreaks(dateString);
-		
+
+		dateString = this.formatting.stripBreaks(dateString);
+
 		try {
-			dateString = Formatting.stripCDATA(dateString);
+			dateString = this.formatting.stripCDATA(dateString);
 			if(!dateString) {
 				var d = new Date();
 				intDate = d.getTime();
@@ -221,17 +227,17 @@ var dateConverter = Class.create({
 				intDate = this.convertDCDate(dateString);
 			}
 		} catch(e) {
-			
+
 			Mojo.Log.error("Exception during date processing:", e);
 			var d2 = new Date();
 			intDate = d2.getTime();
-			
+
 		}
 		return intDate;
 	},
-	
+
 	dateToLocalTime: function(date) {
-		if(date > 0) {		
+		if(date > 0) {
 			var d = new Date();
 			d.setTime(date);
 			return Mojo.Format.formatDate(d, "medium");
@@ -239,12 +245,12 @@ var dateConverter = Class.create({
 			return $L("No date provided");
 		}
 	},
-	
+
 	formatTimeString: function(secs) {
         if(secs > 0) {
 			var mins = Math.floor(secs / 60);
 			secs = Math.floor(secs % 60);
-			
+
 			// Pad with zeros if needed.
 			// ToDo: Replace this, once a proper sprintf() replacement is found.
 			if (mins < 10) {
