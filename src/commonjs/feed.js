@@ -1,5 +1,5 @@
 /*
- *		source/models/feed.js - Feed data model
+ *		commonjs/feed.js - Feed data model
  */
 
 /* FeedReader - A RSS Feed Aggregator for Palm WebOS

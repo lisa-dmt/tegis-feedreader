@@ -32,6 +32,7 @@ enyo.kind({
 	url:			"",
 	initialized:	false,
 	inHeader:		false,
+	parser:			null,
 	parserHandler:	null,
 	index:			0,
 
@@ -123,9 +124,6 @@ enyo.kind({
 		}, {
 			kind:		"Spacer"
 		}]
-	}, {
-		name:	"parser",
-		kind:	"SimpleHtmlParser"
 	}, {
 		name:					"webService",
 		kind:					"WebService",
@@ -237,7 +235,7 @@ enyo.kind({
 			this.log("Got response from web!");
 			try {
 				this.inHeader = true;
-				this.$.parser.parse(response, this.parserHandler);
+				this.parser.parse(response, this.parserHandler);
 			} catch(e) {
 				this.error("PARSE EXCEPTION>", e);
 			}
@@ -320,7 +318,7 @@ enyo.kind({
 
 	parseEndTag: function(tag) {
 		if(tag.match(/head/i)) {
-			this.$.parser.finished = true;
+			this.parser.finished = true;
 		}
 	},
 
@@ -337,6 +335,7 @@ enyo.kind({
 
 		this.connectionAvailable = enyo.bind(this, this.connectionAvailable);
 		this.connectionNotAvailable = enyo.bind(this, this.connectionNotAvailable);
+		this.parser = new SimpleHtmlParser();
 
 		this.parserHandler = {
 			startElement: 	enyo.bind(this, this.parseStartTag),

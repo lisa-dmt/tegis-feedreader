@@ -25,6 +25,7 @@ function StorylistAssistant(feeds, feed) {
 	this.feed = feed;
 
 	this.dateConverter = this.feeds.dateConverter;
+	this.formatting = this.feeds.formatting;
 
 	this.filter = "dummyFilter";
 	this.viewMode = feed.sortMode;
@@ -177,7 +178,7 @@ StorylistAssistant.prototype.listFormatter = function(attribute, property, model
 
 		case "summary":
 			if(model.showSummary) {
-				var baseSummary = Formatting.stripHTML(property);
+				var baseSummary = this.formatting.stripHTML(property);
 				if(baseSummary.length > (parseInt(FeedReader.prefs.summaryLength, 10) + 10)) {
 					return { shortSummary: baseSummary.slice(0, parseInt(FeedReader.prefs.summaryLength, 10) - 1) + '...' };
 				} else {
@@ -322,7 +323,7 @@ StorylistAssistant.prototype.sortModeTap = function(event) {
 };
 
 StorylistAssistant.prototype.sortModeChoose = function(command) {
-	var feed = new feedProto(this.feed);
+	var feed = new Feed(this.feed);
 
 	switch(command) {
 		case "sort-all":

@@ -1,9 +1,14 @@
 enyo.depends(
+	// Scene
 	"mainview.js",
 
-	"../utils/simplehtmlparser.js",
+	// Commons
+	"../../commonjs/simplehtmlparser.js",
+
+	// Utilities
 	"../utils/connection.js",
 
+	// Controls
 	"../controls/toggleitem.js",
 	"../controls/selectoritem.js",
 	"../controls/scrimspinner.js",
@@ -17,8 +22,10 @@ enyo.depends(
 	"../controls/starbutton.js",
 	"../controls/enhancedaudio.js",
 
+	// Models
 	"../models/feed.js",
 
+	// Scenes
 	"../feedlist/feedlist.js",
 	"../storylist/storylist.js",
 	"../story/story.js",
@@ -28,5 +35,6 @@ enyo.depends(
 	"../help/help.js",
 	"../importer/importer.js",
 
+	// Stylesheets
 	"../../stylesheets/feedreader_enyo.css"
 );
