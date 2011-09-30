@@ -150,7 +150,7 @@ enyo.kind({
 	reInitialize: function() {
 		this.url = "";
 		this.items = [];
-		this.$.list.refresh();
+		this.$.list.punt();
 		this.$.url.setValue("");
 		this.resetScanButton();
 
@@ -214,7 +214,7 @@ enyo.kind({
 	},
 
 	connectionAvailable: function() {
-		enyo.application.webService.call({}, {
+		this.$.webService.call({}, {
 			url: this.url
 		});
 	},
@@ -239,7 +239,6 @@ enyo.kind({
 			} catch(e) {
 				this.error("PARSE EXCEPTION>", e);
 			}
-			this.$.list.punt();
 		} else {
 			this.log("No data retrieved.");
 		}
@@ -247,6 +246,9 @@ enyo.kind({
 		if(this.items.length > 0) {
 			this.$.noDataLabel.hide();
 			this.$.list.show();
+			enyo.asyncMethod(this, function() {
+				this.$.list.punt();
+			});
 		} else {
 			this.$.list.hide();
 			this.$.noDataLabel.show();
