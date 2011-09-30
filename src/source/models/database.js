@@ -614,12 +614,10 @@ enyo.kind({
 	 * Retrieve a list of feeds.
 	 *
 	 * @param	filter		{String}		filter string
-	 * @param	offset		{int}			first feed to return
-	 * @param	count		{int}			count of feeds to return
 	 * @param	onSuccess	{function}		function to be called on success
 	 * @param	onFail		{function}		function to be called on failure
 	 */
-	getFeeds: function(filter, offset, count, onSuccess, onFail) {
+	getFeeds: function(filter, onSuccess, onFail) {
 		enyo.application.assert(onSuccess, "DB> getFeeds needs data handler");
 		onFail = onFail || this.errorHandler;
 		this.transaction(
@@ -627,15 +625,14 @@ enyo.kind({
 				transaction.executeSql(commonSQL.csGetFeedData +
 									   "  WHERE feeds.title LIKE '%' || ? || '%'" +
 									   "  GROUP BY feeds.id" +
-									   "  ORDER BY feedOrder" +
-									   "  LIMIT ? OFFSET ?",
-					[feedTypes.ftStarred, feedTypes.ftAllItems, filter, count, offset],
+									   "  ORDER BY feedOrder",
+					[feedTypes.ftStarred, feedTypes.ftAllItems, filter],
 					function(transaction, result) {
 						var list = [];
 						for(var i = 0; i < result.rows.length; i++) {
 							list.push(new Feed(result.rows.item(i)));
 						}
-						onSuccess(offset, list);
+						onSuccess(list);
 					}, onFail);
 			});
 	},
@@ -770,12 +767,10 @@ enyo.kind({
 	 *
 	 * @param	feed		{Object}		feed object
 	 * @param	filter		{String}		filter string
-	 * @param	offset		{int}			first story to return
-	 * @param	count		{int}			count of stories to return
 	 * @param	onSuccess	{function}		function to be called on success
 	 * @param	onFail		{function}		function to be called on failure
 	 */
-	getStories: function(feed, filter, offset, limit, onSuccess, onFail) {
+	getStories: function(feed, filter, onSuccess, onFail) {
 		enyo.application.assert(onSuccess, "DB> getStories needs data handler");
 		onFail = onFail || this.errorHandler;
 
@@ -785,7 +780,7 @@ enyo.kind({
 			for(var i = 0; i < result.rows.length; i++) {
 				list.push(new Story(result.rows.item(i)));
 			}
-			onSuccess(offset, list);
+			onSuccess(list);
 		};
 
 		// Build the basic SELECT statement.
@@ -801,32 +796,32 @@ enyo.kind({
 		}
 
 		// Build the ORDER clause.
-		var orderAndLimit = " ORDER BY ";
+		var orderClause = " ORDER BY ";
 		if((feed.sortMode & 0xFF00) != 0x0100) {
-			orderAndLimit += "f.feedOrder, ";
+			orderClause += "f.feedOrder, ";
 		}
-		orderAndLimit += "s.pubdate DESC LIMIT ? OFFSET ?";
+		orderClause += "s.pubdate DESC";
 
 		switch(feed.feedType) {
 			case feedTypes.ftAllItems:
 				this.transaction(function(transaction) {
-					transaction.executeSql(selectStmt + orderAndLimit,
-										   [filter, limit, offset],
+					transaction.executeSql(selectStmt + orderClause,
+										   [filter],
 										   handleResult, onFail);
 				});
 				break;
 
 			case feedTypes.ftStarred:
 				this.transaction(function(transaction) {
-					transaction.executeSql(selectStmt + " AND s.isStarred = 1" + orderAndLimit,
-										   [filter, limit, offset], handleResult, onFail);
+					transaction.executeSql(selectStmt + " AND s.isStarred = 1" + orderClause,
+										   [filter], handleResult, onFail);
 				});
 				break;
 
 			default:
 				this.transaction(function(transaction) {
-					transaction.executeSql(selectStmt + " AND s.fid = ?" + orderAndLimit,
-										   [filter, feed.id, limit, offset],
+					transaction.executeSql(selectStmt + " AND s.fid = ?" + orderClause,
+										   [filter, feed.id],
 										   handleResult, onFail);
 				});
 				break;
@@ -862,26 +857,26 @@ enyo.kind({
 						 "  INNER JOIN storyurls AS su ON (s.id = su.sid)";
 
 		// Build the ORDER clause.
-		var orderAndLimit = " ORDER BY s.pubdate DESC";
+		var orderClause = " ORDER BY s.pubdate DESC";
 
 		switch(feed.feedType) {
 			case feedTypes.ftAllItems:
 				this.transaction(function(transaction) {
-					transaction.executeSql(selectStmt + orderAndLimit,
+					transaction.executeSql(selectStmt + orderClause,
 										   [], handleResult, onFail);
 				});
 				break;
 
 			case feedTypes.ftStarred:
 				this.transaction(function(transaction) {
-					transaction.executeSql(selectStmt + " WHERE s.isStarred = 1" + orderAndLimit,
+					transaction.executeSql(selectStmt + " WHERE s.isStarred = 1" + orderClause,
 										   [], handleResult, onFail);
 				});
 				break;
 
 			default:
 				this.transaction(function(transaction) {
-					transaction.executeSql(selectStmt + " WHERE s.fid = ?" + orderAndLimit,
+					transaction.executeSql(selectStmt + " WHERE s.fid = ?" + orderClause,
 										   [feed.id],
 										   handleResult, onFail);
 				});
@@ -922,18 +917,18 @@ enyo.kind({
 		}
 
 		// Build the ORDER clause.
-		var orderAndLimit = " ORDER BY ";
+		var orderClause = " ORDER BY ";
 		if((feed.sortMode & 0xFF00) != 0x0100) {
-			orderAndLimit += "f.feedOrder, ";
+			orderClause += "f.feedOrder, ";
 		}
-		orderAndLimit += "s.pubdate DESC";
+		orderClause += "s.pubdate DESC";
 
 		switch(feed.feedType) {
 			case feedTypes.ftAllItems:
 				this.transaction(function(transaction) {
 					transaction.executeSql(selectStmt +
 										   (whereClauseAddOn ? whereClauseAddOn : "") +
-										   orderAndLimit, [],
+										   orderClause, [],
 										   handleResult, onFail);
 				});
 				break;
@@ -942,7 +937,7 @@ enyo.kind({
 				this.transaction(function(transaction) {
 					transaction.executeSql(selectStmt + " AND (s.isStarred = 1)" +
 										   (whereClauseAddOn ? whereClauseAddOn : "") +
-										   orderAndLimit,
+										   orderClause,
 										   [], handleResult, onFail);
 				});
 				break;
@@ -951,7 +946,7 @@ enyo.kind({
 				this.transaction(function(transaction) {
 					transaction.executeSql(selectStmt + " AND (s.fid = ?) " +
 										   (whereClauseAddOn ? whereClauseAddOn : "") +
-										   orderAndLimit, [feed.id],
+										   orderClause, [feed.id],
 										   handleResult, onFail);
 				});
 				break;

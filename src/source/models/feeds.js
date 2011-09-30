@@ -772,8 +772,8 @@ enyo.kind({
 		return prefix + icon + suffix + '.png';
 	},
 
-	getFeeds: function(filter, offset, count, onSuccess) {
-		enyo.application.db.getFeeds(filter, offset, count, onSuccess);
+	getFeeds: function(filter, onSuccess) {
+		enyo.application.db.getFeeds(filter, onSuccess);
 	},
 
 	getFeed: function(id, onSuccess) {
@@ -792,8 +792,8 @@ enyo.kind({
 		enyo.application.db.getFeedCount(filter, onSuccess);
 	},
 
-	getStories: function(feed, filter, offset, count, onSuccess) {
-		enyo.application.db.getStories(feed, filter, offset, count, onSuccess);
+	getStories: function(feed, filter, onSuccess) {
+		enyo.application.db.getStories(feed, filter, onSuccess);
 	},
 
 	getStoryCount: function(feed, filter, onSuccess) {

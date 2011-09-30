@@ -30,52 +30,11 @@ enyo.kind({
 	name:	"EnhancedList",
 	kind:	"ReorderableVirtualList",
 
-	updateCounter:	0,
-
-	events: {
-		onAcquirePage: 		"",
-		onDiscardPage: 		"",
-		onFinishReAcquire:	""	// fired when all pages have been acquired
-	},
-
-	/**
-	 * Re-acquire all pages currently loaded.
-	 */
-	reAcquirePages: function() {
-		for(var i = this.$.buffer.top; i <= this.$.buffer.bottom; i++) {
-			this._discardPage(this, i);
-			this._acquirePage(this, i);
-		}
-	},
-
 	/** @private
-	 * Custom acquire handler.
+	 * Called after the list has been scrolled.
 	 */
-	_acquirePage: function(sender, index) {
-		this.updateCounter++;
-		this.doAcquirePage(index);
-	},
+	_scrolled: function(sender) {
 
-	/**
-	 * Call this, once a page has been acquired. Once all pages requested
-	 * are acquired, the list will automatically be refreshed.
-	 */
-	acquiredPage: function(page) {
-		this.updateCounter--;
-		if(this.updateCounter == 0) {
-			// It seems, this needs to be executed asynchronously...
-			enyo.asyncMethod(this, function() {
-				this.refresh();
-			});
-			this.doFinishReAcquire();
-		}
-	},
-
-	/** @private
-	 * Custom discard handler.
-	 */
-	_discardPage: function(sender, index) {
-		this.doDiscardPage(index);
 	},
 
 	/** @protected

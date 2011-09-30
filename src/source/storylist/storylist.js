@@ -26,7 +26,7 @@ enyo.kind({
 
 	published:	{
 		feed:		undefined,
-		isRefresh:	false
+		updateOnly:	false
 	},
 
 	events:	{
@@ -57,11 +57,7 @@ enyo.kind({
 			name:		"list",
 			flex:		1,
 
-			onSetupRow: 		"setupStory",
-			onAcquirePage:		"acquirePage",
-			onDiscardPage:		"discardPage",
-			onFinishReAcquire:	"finishReAcquire",
-
+			onSetupRow: "setupStory",
 			showing:	false,
 
 			components: [{
@@ -233,17 +229,15 @@ enyo.kind({
 		return true;
 	},
 
-	acquirePage: function(sender, page) {
-		if(this.feed) {
-			this.inherited(arguments);
-		}
+	acquireData: function(filter, inserter) {
+		enyo.application.feeds.getStories(this.feed, filter, inserter);
 	},
 
-	acquireData: function(filter, offset, count, inserter) {
-		enyo.application.feeds.getStories(this.feed, filter, offset, count, inserter);
+	canRefresh: function() {
+		return ((this.feed != null) && (this.feed != undefined));
 	},
 
-	finishReAcquire: function(sender) {
+	refreshFinished: function() {
 		this.inherited(arguments);
 		if(this.selectedIndex >= 0) {
 			this.doStorySelected(this.items[this.selectedIndex]);
@@ -444,13 +438,12 @@ enyo.kind({
 		this.$.shareButton.setDisabled(feedInvalid);
 		this.$.searchButton.setDisabled(feedInvalid);
 
-		if(!this.isRefresh) {
-			this.clear();
+		if(!this.updateOnly) {
 			this.hideSearchBox(true);
-		} else {
-			this.refresh();
+			this.clear();
 		}
-		this.isRefresh = false;
+		this.refresh();
+		this.updateOnly = false;
 	},
 
 	//
@@ -459,12 +452,6 @@ enyo.kind({
 
 	updateCount: function(setter) {
 		enyo.application.feeds.getStoryCount(this.feed, this.filter, setter);
-	},
-
-	gotFeed: function(feed) {
-		this.feed = feed;
-		this.isRefreshing = true;
-		this.feedChanged();
 	},
 
 	//
@@ -487,9 +474,6 @@ enyo.kind({
 
 	create: function() {
 		this.inherited(arguments);
-
-		this.gotFeed = enyo.bind(this, this.gotFeed);
-
 		this.feedChanged();
 	}
 });
