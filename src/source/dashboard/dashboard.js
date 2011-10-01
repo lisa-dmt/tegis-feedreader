@@ -93,9 +93,11 @@ enyo.kind({
 			this.$.countContainer.hide();
 			this.$.title.setContent($L("Updating feeds..."));
 			this.$.message.setContent($L("Please do not close"));
+			this.updateLEDThrobber(false);
 		} else if(this.params.newCount <= 0) {
 			this.warn("DASHBOARD> Invalid new count received; closing");
 			window.close();
+			this.updateLEDThrobber(false);
 		} else {
 			var msg = enyo.macroize($L("Received {$num} new stories"), { num: this.params.newCount });
 			this.$.countContainer.show();
@@ -106,9 +108,9 @@ enyo.kind({
 			// The Mojo version used a launch parameter here. I currently see
 			// no reason to add one, thus we pass empty parameters here.
 			if((this.params.newCount != oldCount) && (!enyo.application.prefs.unobtrusiveNotifications)) {
-				enyo.windows.addBannerMessage(msg, "{}");
+				enyo.windows.addBannerMessage(msg, "{}", undefined, enyo.application.prefs.notifyWithSound ? "alerts" : undefined);
 			}
-			this.updateLEDThrobber(this.params.newCount != oldCount);
+			this.updateLEDThrobber(true);
 		}
 	},
 
@@ -124,10 +126,5 @@ enyo.kind({
 		if(activate && enyo.application.prefs.blinkingEnabled) {
 			this.throbberID = window.PalmSystem.addNewContentIndicator();
 		}
-	},
-
-	create: function() {
-		this.inherited(arguments);
-		this.updateDisplay();
 	}
 });

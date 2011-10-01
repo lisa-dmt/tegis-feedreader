@@ -36,6 +36,7 @@ PreferencesAssistant.prototype.setup = function() {
 	this.controller.get("prefs-ril-note").update($L("If you provide 'Read it Later' credentials, FeedReader will sync starred items to 'Read it Later'."));
 
 	this.controller.get("notify-title").update($L("Show notification"));
+	this.controller.get("notify-unobtrusive-title").update($L("Show notifications unobtrusively"));
 	this.controller.get("notify-sound-title").update($L("Play sound on new stories"));
 	this.controller.get("blinking-title").update($L("Blink on new stories"));
 	this.controller.get("notifyRunning-title").update($L("Notify when running, but not in main scene"));
@@ -52,10 +53,12 @@ PreferencesAssistant.prototype.setup = function() {
 	this.controller.setupWidget("enableRotation",
     							{ property: "value", trueLabel: $L("Yes"), falseLabel: $L("No")},
          						this.enableRotationModel = {value: this.prefs.enableRotation, disabled: false});
-
 	this.controller.setupWidget("notificationEnabled",
     							{ property: "value", trueLabel: $L("Yes"), falseLabel: $L("No")},
          						this.notificationModel = {value: this.prefs.notificationEnabled, disabled: false});
+	this.controller.setupWidget("unobtrusiveNotifications",
+    							{ property: "value", trueLabel: $L("Yes"), falseLabel: $L("No")},
+         						this.unobtrusiveNotificationsModel = {value: this.prefs.unobtrusiveNotifications, disabled: false});
 	this.controller.setupWidget("blinkingEnabled",
     							{ property: "value", trueLabel: $L("Yes"), falseLabel: $L("No")},
          						this.blinkingModel = {value: this.prefs.blinkingEnabled, disabled: false});
@@ -150,6 +153,7 @@ PreferencesAssistant.prototype.cleanup = function(event) {
 	this.prefs.notificationEnabled = this.notificationModel.value;
 	this.prefs.blinkingEnabled = this.blinkingModel.value;
 	this.prefs.notifyWhileRunning = this.notifyWhileRunningModel.value;
+	this.prefs.unobtrusiveNotifications = this.unobtrusiveNotificationsModel.value;
 	this.prefs.notifyWithSound = this.notifySoundModel.value;
 	this.prefs.wakingEnabled = this.wakingModel.value;
 	this.prefs.updateInterval = this.updateIntervalModel.value;
