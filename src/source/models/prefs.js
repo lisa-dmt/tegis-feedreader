@@ -42,13 +42,13 @@ enyo.kind({
 	enableRotation: 			true,		// not used in enyo version
 	showChanges: 				false,
 
-	rilUser: 				"",	// Read it Later
-	rilPassword:			"",
+	rilUser: 					"",	// Read it Later
+	rilPassword:				"",
 
-	gReaderUser:			"",	// Google Reader
-	gReaderPassword:		"",
+	gReaderUser:				"",	// Google Reader
+	gReaderPassword:			"",
 
-	timer: 					null,
+	timer: 						null,
 
 	constructor: function() {
 		this.cookie = enyo.getCookie(this.cookieName);

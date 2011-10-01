@@ -44,18 +44,26 @@ DashboardAssistant.prototype.renderDashboard = function() {
 			message: t.evaluate({ num: this.count }),
 			count: this.count
 		};
+		if(!FeedReader.prefs.unobtrusiveNotifications && this.countChanged) {
+			Mojo.Log.info("DASHBOARD> showing banner notification");
+			var bannerParams = {
+				messageText:	info.message,
+				soundClass:		FeedReader.prefs.notifyWithSound ? "alerts" : undefined
+			};
+			Mojo.Controller.getAppController().showBanner(bannerParams, { action: "bannerPressed" });
+		}
 	} else {
 		info = {
 			message: $L("Updating feeds..."),
 			count: ""
 		};
 	}
-	
+
     var infoElement = this.controller.get("dashboardinfo").update(Mojo.View.render({
 		object: info,
 		template: "dashboard/dashboard-item"
 	}));
-	
+
 	if(this.count > 0) {
 		if(FeedReader.prefs.blinkingEnabled) {
 			Mojo.Log.info("DASHBOARD> making the core navi button blink");
@@ -79,7 +87,8 @@ DashboardAssistant.prototype.updateDashboard = function(count) {
 	} else {
 		this.count = count;
 	}
-	
+	this.countChanged = this.count != count;
+
     this.renderDashboard();
 };
 

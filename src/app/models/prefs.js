@@ -21,28 +21,29 @@
  */
 
 var prefs = Class.create({
-	updateInterval:			30,
-	storyKeepTime:			24 * 3,
-	updateOnStart:			true,
-	notificationEnabled:	true,
-	notifyWithSound:		false,
-	blinkingEnabled:		true,
-	notifyWhileRunning:		true,
-	wakingEnabled:			false,
-	titleColor:				"red",
-	summaryLength: 			120,
-	largeFont: 				false,
-	showChanges: 			false,
-	leftHanded: 			true,
-	enableRotation: 		true,
+	updateInterval:				30,
+	storyKeepTime:				24 * 3,
+	updateOnStart:				true,
+	notificationEnabled:		true,
+	notifyWithSound:			false,
+	blinkingEnabled:			true,
+	notifyWhileRunning:			true,
+	unobtrusiveNotifications:	true,
+	wakingEnabled:				false,
+	titleColor:					"red",
+	summaryLength: 				120,
+	largeFont: 					false,
+	showChanges: 				false,
+	leftHanded: 				true,
+	enableRotation: 			true,
 
-	rilUser: 				"",	// Read it Later
-	rilPassword:			"",
+	rilUser: 					"",	// Read it Later
+	rilPassword:				"",
 
-	gReaderUser:			"",	// Google Reader
-	gReaderPassword:		"",
+	gReaderUser:				"",	// Google Reader
+	gReaderPassword:			"",
 
-	timer: {},
+	timer: 						null,
 
 	initialize: function() {
 		this.cookie = new Mojo.Model.Cookie("comtegi-stuffAppFeedReaderPrefs");
@@ -78,6 +79,9 @@ var prefs = Class.create({
 			if(settings.storyKeepTime !== undefined) {
 				this.storyKeepTime = settings.storyKeepTime;
 			}
+			if(settings.unobtrusiveNotifications !== undefined) {
+				this.unobtrusiveNotifications = settings.unobtrusiveNotifications;
+			}
 			if(settings.notifyWithSound !== undefined) {
 				this.notifyWithSound = settings.notifyWithSound;
 			}
@@ -97,24 +101,25 @@ var prefs = Class.create({
 
 	save: function(showCredentialsWarning) {
 		this.cookie.put({
-			version: 				FeedReader.versionInt,
-			updateInterval: 		this.updateInterval,
-			updateOnStart:			this.updateOnStart,
-			notificationEnabled: 	this.notificationEnabled,
-			blinkingEnabled:		this.blinkingEnabled,
-			notifyWhileRunning:		this.notifyWhileRunning,
-			notifyWithSound:		this.notifyWithSound,
-			wakingEnabled: 			this.wakingEnabled,
-			summaryLength: 			this.summaryLength,
-			titleColor: 			this.titleColor,
-			largeFont:				this.largeFont,
-			leftHanded:				this.leftHanded,
-			enableRotation:			this.enableRotation,
-			storyKeepTime:			this.storyKeepTime,
-			rilUser:				this.rilUser,
-			rilPassword:			this.rilPassword,
-			gReaderUser:			this.gReaderUser,
-			gReaderPassword:		this.gReaderPassword
+			version: 					FeedReader.versionInt,
+			updateInterval: 			this.updateInterval,
+			updateOnStart:				this.updateOnStart,
+			notificationEnabled: 		this.notificationEnabled,
+			blinkingEnabled:			this.blinkingEnabled,
+			notifyWhileRunning:			this.notifyWhileRunning,
+			unobtrusiveNotifications:	this.unobtrusiveNotifications,
+			notifyWithSound:			this.notifyWithSound,
+			wakingEnabled: 				this.wakingEnabled,
+			summaryLength: 				this.summaryLength,
+			titleColor: 				this.titleColor,
+			largeFont:					this.largeFont,
+			leftHanded:					this.leftHanded,
+			enableRotation:				this.enableRotation,
+			storyKeepTime:				this.storyKeepTime,
+			rilUser:					this.rilUser,
+			rilPassword:				this.rilPassword,
+			gReaderUser:				this.gReaderUser,
+			gReaderPassword:			this.gReaderPassword
 		});
 		this.setTimer();
 		FeedReader.ril.checkCredentials(showCredentialsWarning);
