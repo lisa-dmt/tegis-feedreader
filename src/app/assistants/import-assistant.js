@@ -274,12 +274,12 @@ ImportAssistant.prototype.doAddFeed = function(index, feed, value) {
 
 ImportAssistant.prototype.updateURL = function(newURL) {
 	var url = newURL;
-	if((url == this.urlModel.value) || (!url)) {
+	if((url == this.urlModel.value) || (!url) || (url.length <= 0)) {
 		return;
 	}
 
 	if(/$\//.test(url) === false) {
-		url = url.replace(/(.*)\/[^\/]*/, "$1") + "/";
+		url = url.replace(/^(.*)\/{0,1}[^\/]*$/, "$1") + "/";
 	}
 
 	this.urlModel.value = url;
