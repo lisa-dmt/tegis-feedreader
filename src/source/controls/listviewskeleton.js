@@ -39,11 +39,13 @@ enyo.kind({
 	//
 
 	selectRow: function(index) {
-		this.deselectRow();
-		this.$.list.select(index);
-		this.$.list.prepareRow(index);
-		this.$.item.addClass("enyo-item-selected");
-		this.selectedIndex = index;
+		if(this.selectedIndex != index) {
+			this.deselectRow();
+			this.$.list.select(index);
+			this.$.list.prepareRow(index);
+			this.$.item.addClass("enyo-item-selected");
+			this.selectedIndex = index;
+		}
 	},
 
 	deselectRow: function(index) {
@@ -93,6 +95,7 @@ enyo.kind({
 		// Remember, then reset the selected index
 		var lastSelIndex = this.selectedIndex;
 		this.selectedIndex = -1;
+		this.deselectRow(lastSelIndex);
 
 		// Search for the formerly selected item
 		if(selectedId >= 0) {
@@ -102,11 +105,6 @@ enyo.kind({
 					break;
 				}
 			}
-		}
-
-		// Check if we couldn't find the item. If not, reset the item highlighting.
-		if(this.selectedIndex < 0) {
-			this.deselectRow(lastSelIndex);
 		}
 	},
 

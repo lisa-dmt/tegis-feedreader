@@ -173,9 +173,7 @@ enyo.kind({
 	},
 
 	reorderFeed: function(sender, toIndex, fromIndex) {
-		var selectedId = this.getSelectedId();
 		enyo.application.feeds.moveFeed(fromIndex, toIndex);
-		this.restoreSelectedId(selectedId);
 	},
 
 	refreshFinished: function() {
