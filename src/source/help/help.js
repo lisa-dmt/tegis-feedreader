@@ -77,6 +77,44 @@ enyo.kind({
 			}]
 		}]
 	}, {
+		kind:		"DividerDrawer",
+		caption:	$L("Contributors"),
+		open:		false,
+		components:	[{
+			kind:		"Scroller",
+			style:		"height: 80px;",
+			components:	[{
+				content:	"The following people helped me to make FeedReader what it is now.<br>Thanks for your great support!",
+				style:		"font-size: 15px;",
+				allowHtml:	true
+			}, {
+				content:	"- Timo Tegtmeier",
+				style:		"margin-left: 10px; margin-bottom: 12px; font-style: italic; font-size: 15px;"
+			}, {
+				style:		"font-size: 15px;",
+				allowHtml:	true,
+				content:	"<li>" +
+							'	<a href="mailto:roubal@keyserver.cz"><b>Milan Roubal</b></a><br>' +
+							"	Tester and author of the czech locale" +
+							"</li>" +
+							"<li>" +
+							'	<a href="mailto:stephan.w.paul@googlemail.com"><b>Stephan PAUL</b></a><br>' +
+							"	Author of the french locale" +
+							"<li>" +
+							'	<a href="mailto:franciscojrivash@gmail.com"><b>Francisco Rivas</b></a><br>' +
+							"	Author of the spanish locale" +
+							"</li>" +
+							"<li>" +
+							'	<a href="mailto:voronov@pisem.net"><b>Vladimir Voronov</b></a><br>' +
+							"	Author of the russian locale" +
+							"</li>" +
+							"<li>" +
+							"	<b>Yannick LE NY</b><br>" +
+							"	Original Author of the french locale" +
+							"</li>"
+			}]
+		}]
+	}, {
 		kind:		"Button",
 		className:	"enyo-button-affirmative",
 		caption:	$L("OK"),
