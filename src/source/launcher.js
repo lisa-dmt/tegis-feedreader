@@ -50,7 +50,7 @@ enyo.kind({
 		// Set some globals.
 		enyo.application.appName 		= "FeedReader";
 		enyo.application.appAuthor 		= "Timo Tegtmeier";
-		enyo.application.versionString 	= "3.0.0";
+		enyo.application.versionString 	= "3.0.1";
 		enyo.application.versionInt 	= 22;
 		enyo.application.copyrightYears	= "2009-2011";
 

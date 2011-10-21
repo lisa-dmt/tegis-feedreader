@@ -27,29 +27,29 @@
 FeedReader = {
 	appName:			"FeedReader",
 	appAuthor:			"Timo Tegtmeier",
-	versionString:		"3.0.0",
+	versionString:		"3.0.1",
 	versionInt:			22,
 	copyrightYears:		"2009-2011",
 
 	mainStageName: 		"FeedReaderStage",
 	dashboardStageName:	"FeedReaderDashboard",
-	
+
 	isActive: 			false,
 	showChangeLog:		false,
-	
+
 	connection:			null,
 	feeds:				null,
 	prefs: 				null,
 	ril:				null,
 	mediaExtensionLib:	null,
-	
+
 	controller:			{},
-	
+
 	scrimMode:			false,	// Set to true, if a new scrim screenshot is needed
-	
+
 	/**
 	 * Show an alert.
-	 * 
+	 *
 	 * @param {Template} 	message
 	 * @param {Hash} 		values
 	 */
@@ -59,12 +59,12 @@ FeedReader = {
 		if (!cardStageController) {
 			return;
 		}
-		
+
 		var topScene = cardStageController.topScene();
 		if (!topScene) {
 			return;
 		}
-	
+
 		topScene.showAlertDialog({
 			title: $LL("Error"),
 			message: message.evaluate(values),
@@ -74,7 +74,7 @@ FeedReader = {
 			}]
 		});
 	},
-	
+
 	/**
 	 *
 	 * Send a SMS
@@ -92,7 +92,7 @@ FeedReader = {
 			   }
 		});
 	},
-	
+
 	/**
 	 *
 	 * Send an E-Mail
@@ -112,7 +112,7 @@ FeedReader = {
 			}
 		});
 	},
-	
+
 	/**
 	 * Get media extension library.
 	 *
@@ -132,7 +132,7 @@ FeedReader = {
 /**
  * Constructor for the AppAssistant.
  * The AppAssistant has global lifetime.
- * 
+ *
  * @param {Object} appController
  */
 function AppAssistant (appController) {
@@ -146,13 +146,13 @@ function AppAssistant (appController) {
 /**
  * Setup function for the AppAssistant.
  */
-AppAssistant.prototype.setup = function() {	
+AppAssistant.prototype.setup = function() {
 	FeedReader.prefs.setTimer();
 };
 
 /**
  * Handle the app launch.
- * 
+ *
  * @param {Object} launchParams
  */
 AppAssistant.prototype.handleLaunch = function (launchParams) {
@@ -161,16 +161,16 @@ AppAssistant.prototype.handleLaunch = function (launchParams) {
 	FeedReader.controller = this.controller;
     var cardStageController = this.controller.getStageController(FeedReader.mainStageName);
     var appController = Mojo.Controller.getAppController();
-    
+
     if (!launchParams) {
         if (cardStageController) {
 			if(FeedReader.prefs.enableRotation) {
 				cardStageController.setWindowOrientation("free");
 			}
-            cardStageController.popScenesTo("feedlist");    
+            cardStageController.popScenesTo("feedlist");
             cardStageController.activate();
         } else {
-            this.controller.createStageWithCallback({name: FeedReader.mainStageName, lightweight: true}, 
+            this.controller.createStageWithCallback({name: FeedReader.mainStageName, lightweight: true},
                 									function(stageController) {
 														stageController.enableManualSplashScreenMode();
 														if(FeedReader.prefs.enableRotation) {
@@ -191,7 +191,7 @@ AppAssistant.prototype.handleLaunch = function (launchParams) {
 					FeedReader.feeds.updateWhenReady = true;
 				}
 				break;
-        
+
 			case "bannerPressed":
 				if (cardStageController) {
 					if(FeedReader.prefs.enableRotation) {
@@ -211,7 +211,7 @@ AppAssistant.prototype.handleLaunch = function (launchParams) {
 							stageController.setWindowOrientation("free");
 						}
 	                	stageController.pushScene("feedlist", FeedReader.feeds);
-	                }, "card");        
+	                }, "card");
 	            }
 				break;
 		}
@@ -220,13 +220,13 @@ AppAssistant.prototype.handleLaunch = function (launchParams) {
 
 /**
  * Handle the various menu commands.
- * 
+ *
  * @param {Object} event
  */
-AppAssistant.prototype.handleCommand = function(event) {    
+AppAssistant.prototype.handleCommand = function(event) {
     var stageController = this.controller.getActiveStageController();
     var currentScene = stageController.activeScene();
-    
+
     if (event.type == Mojo.Event.commandEnable) {
         if (FeedReader.feeds.updateInProgress && (event.command == "do-feedUpdate")) {
             event.preventDefault();
@@ -239,7 +239,7 @@ AppAssistant.prototype.handleCommand = function(event) {
 				case "do-import":
 					stageController.pushScene("import", FeedReader.feeds);
 					break;
-				
+
                 case "do-about":
 					var t = new Template($L("#{appName} — v#{version}"));
 					var m = new Template($L("Copyright #{years} #{author}, published under the terms of the GNU GPL v3. See License for details."));
@@ -248,26 +248,26 @@ AppAssistant.prototype.handleCommand = function(event) {
                             title:  t.evaluate({
 								appName: FeedReader.appName,
 								version: FeedReader.versionString
-							}), 
+							}),
                             message: m.evaluate({
 								years: FeedReader.copyrightYears,
 								author: FeedReader.appAuthor
 							}),
                             choices:[{ label:$LL("OK"), value:"" }]});
                 	break;
-                
+
 				case "do-license":
 					stageController.pushScene("license");
 					break;
-				
+
                 case Mojo.Menu.prefsCmd:
                     stageController.pushScene("preferences");
                 	break;
-                
+
                 case Mojo.Menu.helpCmd:
                     stageController.pushAppSupportInfoScene();
                 	break;
-            
+
                 case "do-feedUpdate":
                     FeedReader.feeds.enqueueUpdateAll();
                 	break;
