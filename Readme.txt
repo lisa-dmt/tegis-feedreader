@@ -32,6 +32,10 @@ Contributors
 Changelog
 =========
 
+Version 3.0.1 (bug fix)
+-----------------------
+ * fixed enyo versions
+
 Version 3.0.0 (feature release)
 -------------------------------
  * support for TouchPad added

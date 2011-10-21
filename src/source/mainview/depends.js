@@ -4,6 +4,7 @@ enyo.depends(
 
 	// Commons
 	"../../commonjs/simplehtmlparser.js",
+	"../../commonjs/feed.js",
 
 	// Utilities
 	"../utils/connection.js",
