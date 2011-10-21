@@ -22,9 +22,6 @@ enyo.depends(
 	"../controls/starbutton.js",
 	"../controls/enhancedaudio.js",
 
-	// Models
-	"../models/feed.js",
-
 	// Scenes
 	"../feedlist/feedlist.js",
 	"../storylist/storylist.js",
