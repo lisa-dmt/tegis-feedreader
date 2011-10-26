@@ -53,11 +53,13 @@ enyo.kind({
 				kind:		"RowGroup",
 				caption:	$L("Origin"),
 				components:	[{
-					name:			"url",
-					kind:			"Input",
-					autoCapitalize:	"lowercase",
-					inputType:		"url",
-					hint:			$L("URL of website...")
+					name:				"url",
+					kind:				"Input",
+					autoCapitalize:		"lowercase",
+					inputType:			"url",
+					autoCorrect:		false,
+					autoWordComplete:	false,
+					hint:				$L("URL of website...")
 				}]
 			}, {
 				name:		"scanButton",

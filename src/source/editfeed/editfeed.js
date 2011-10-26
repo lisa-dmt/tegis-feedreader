@@ -44,11 +44,13 @@ enyo.kind({
 			kind:		"RowGroup",
 			caption:	$L("Basic settings"),
 			components:	[{
-				name:			"url",
-				kind:			"Input",
-				autoCapitalize:	"lowercase",
-				inputType:		"url",
-				hint:			$L("URL of RSS/ATOM Feed...")
+				name:				"url",
+				kind:				"Input",
+				autoCapitalize:		"lowercase",
+				inputType:			"url",
+				autoCorrect:		false,
+				autoWordComplete:	false,
+				hint:				$L("URL of RSS/ATOM Feed...")
 			}, {
 				name:		"name",
 				kind:		"Input",
@@ -63,9 +65,12 @@ enyo.kind({
 			kind:		"RowGroup",
 			caption:	$L("Credentials"),
 			components:	[{
-				name:	"username",
-				kind:	"Input",
-				hint:	$L("User name")
+				name:				"username",
+				kind:				"Input",
+				autoCapitalize:		"lowercase",
+				autoCorrect:		false,
+				autoWordComplete:	false,
+				hint:				$L("User name")
 			}, {
 				name:	"password",
 				kind:	"PasswordInput",
