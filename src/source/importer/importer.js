@@ -57,7 +57,8 @@ enyo.kind({
 					kind:				"Input",
 					autoCapitalize:		"lowercase",
 					inputType:			"url",
-					autoCorrect:		false,
+					autocorrect:		false,
+					spellcheck:			false,
 					autoWordComplete:	false,
 					hint:				$L("URL of website...")
 				}]
