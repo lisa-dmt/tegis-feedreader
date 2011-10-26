@@ -25,16 +25,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 Contributors
 ============
  * Milan Roubal <roubal@keyserver.cz>
- * Yannick LE NY
+ * Stephan PAUL <stephan.w.paul@googlemail.com>
  * Francisco Rivas <franciscojrivash@gmail.com>
  * Vladimir Voronov <voronov@pisem.net>
+ * Yannick LE NY
 
 Changelog
 =========
 
+Version 3.0.2 (maintenance release)
+-----------------------------------
+ * deleting a feed via the context menu works correctly
+ * improved the textfield handling
+ * updated contributors list in readme
+
 Version 3.0.1 (bug fix)
 -----------------------
- * fixed enyo versions
+ * fixed enyo version
 
 Version 3.0.0 (feature release)
 -------------------------------
