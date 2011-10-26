@@ -281,7 +281,7 @@ enyo.kind({
 	},
 
 	menuDeleteFeed: function(sender, event) {
-		this.itemDeleted(sender, event.rowIndex);
+		this.itemDeleted(sender, this.menuIndex);
 	},
 
 	//
