@@ -1,3 +1,4 @@
 glob:*.ipk
 syntax: glob
 screenshots/*
+.idea/*
