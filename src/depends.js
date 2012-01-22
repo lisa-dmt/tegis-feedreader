@@ -9,11 +9,13 @@ enyo.depends(
 	"source/models/readitlater.js",
 
 	// Commons
+    "commonjs/helper.js",
 	"commonjs/story.js",
 	"commonjs/feed.js",
 	"commonjs/simplehtmlparser.js",
 	"commonjs/codepages.js",
 	"commonjs/formatting.js",
+    "commonjs/prefs.js",
 
 	// Utilities
 	"source/utils/timer.js",

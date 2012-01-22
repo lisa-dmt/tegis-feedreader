@@ -36,8 +36,9 @@ Changelog
 Version 3.0.2 (maintenance release)
 -----------------------------------
  * deleting a feed via the context menu works correctly
- * improved the textfield handling
+ * improved textfield handling
  * updated contributors list in readme
+ * ability to select which information is shown in the feed list
 
 Version 3.0.1 (bug fix)
 -----------------------

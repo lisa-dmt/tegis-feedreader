@@ -33,6 +33,8 @@ var prefs = Class.create({
 	titleColor:					"red",
 	summaryLength: 				120,
 	largeFont: 					false,
+    showNewCount:               true,
+    showUnreadCount:            true,
 	showChanges: 				false,
 	leftHanded: 				true,
 	enableRotation: 			true,
@@ -85,6 +87,12 @@ var prefs = Class.create({
 			if(settings.notifyWithSound !== undefined) {
 				this.notifyWithSound = settings.notifyWithSound;
 			}
+            if(settings.showNewCount !== undefined) {
+                this.showNewCount = settings.showNewCount;
+            }
+            if(settings.showUnreadCount !== undefined) {
+                this.showUnreadCount = settings.showUnreadCount;
+            }
 
 			this.rilUser = settings.rilUser || "";
 			this.rilPassword = settings.rilPassword || "";
