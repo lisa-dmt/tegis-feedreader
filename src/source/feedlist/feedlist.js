@@ -77,7 +77,7 @@ enyo.kind({
 							name:	"feedSpinner",
 							style:	"position: absolute; left: 4px; top: 5px; z-index: 10000000"
 						}, {
-							name:		"unreadItemBadge",
+							name:		"unreadCountBadge",
 							className:	"feed-unreaditem",
 							components:	[{
 								name:		"unreadCount",
@@ -163,7 +163,9 @@ enyo.kind({
 		this.$.feedIcon.setSrc("../../" + enyo.application.feeds.getFeedIcon(feed));
 
 		this.$.unreadCount.setContent(feed.numUnRead);
+        this.$.unreadCountBadge.setShowing((feed.numUnRead > 0) && enyo.application.prefs.showUnreadCount);
 		this.$.newCount.setContent(feed.numNew);
+        this.$.newCountBadge.setShowing((feed.numNew > 0) && enyo.application.prefs.showNewCount);
 
 		return true;
 	},
