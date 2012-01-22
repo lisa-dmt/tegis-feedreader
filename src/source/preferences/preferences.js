@@ -139,6 +139,15 @@ enyo.kind({
 						{	caption: 	$L("200 characters"),	value: 200 },
 						{	caption:	$L("250 characters"),	value: 250 }
 					]
+                }, {
+                    name:       "badgeMode",
+                    kind:       "SelectorItem",
+                    caption:    $L("Item badges"),
+                    items:      [
+                        {   caption:    $L("New story count & unread story count"), value: 0 },
+                        {   caption:    $L("Only unread story count"),              value: 1 },
+                        {   caption:    $L("Only new story count"),                 value: 2 }
+                    ]
 				}]
 			}, {
 				kind:		"RowGroup",
@@ -198,6 +207,10 @@ enyo.kind({
 		enyo.application.prefs.summaryLength = this.$.summaryLength.getValue();
 		enyo.application.prefs.largeFont = this.$.largeFonts.getValue();
 
+        var badgeMode = this.$.badgeMode.getValue();
+        enyo.application.prefs.showUnreadCount = (badgeMode == 0) || (badgeMode == 1);
+        enyo.application.prefs.showNewCount = (badgeMode == 0) || (badgeMode == 2);
+
 		enyo.application.prefs.rilUser = this.$.rilUsername.getValue();
 		enyo.application.prefs.rilPassword = this.$.rilPassword.getValue();
 
@@ -226,6 +239,14 @@ enyo.kind({
 
 		this.$.rilUsername.setValue(enyo.application.prefs.rilUser);
 		this.$.rilPassword.setValue(enyo.application.prefs.rilPassword);
+
+        if(enyo.application.prefs.showUnreadCount && enyo.application.prefs.showNewCount) {
+            this.$.badgeMode.setValue(0);
+        } else if(enyo.application.prefs.showUnreadCount) {
+            this.$.badgeMode.setValue(1);
+        } else if(enyo.application.prefs.showNewCount) {
+            this.$.badgeMode.setValue(2);
+        }
 
 		this.updateIntervalChanged();
 		this.notificationEnabledChanged();
