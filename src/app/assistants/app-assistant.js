@@ -3,7 +3,7 @@
  */
 
 /* FeedReader - A RSS Feed Aggregator for Palm WebOS
- * Copyright (C) 2009, 2010, 2011 Timo Tegtmeier
+ * Copyright (C) 2009-2012 Timo Tegtmeier
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -29,7 +29,7 @@ FeedReader = {
 	appAuthor:			"Timo Tegtmeier",
 	versionString:		"3.0.2",
 	versionInt:			22,
-	copyrightYears:		"2009-2011",
+	copyrightYears:		"2009-2012",
 
 	mainStageName: 		"FeedReaderStage",
 	dashboardStageName:	"FeedReaderDashboard",
