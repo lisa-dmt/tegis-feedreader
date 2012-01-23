@@ -101,6 +101,10 @@ FullStoryAssistant.prototype.setup = function() {
 	this.controller.listen("media-progress", Mojo.Event.sliderDragStart, this.startSeeking);
 	this.controller.listen("media-progress", Mojo.Event.sliderDragEnd, this.stopSeeking);
 
+    // Setup feed badges.
+    this.controller.get("unread-item-badge").className += " " + this.feeds.getFeedUnreadItemBadgeClass(this.feed);
+    this.controller.get("new-item-badge").className += " " + this.feeds.getFeedNewItemBadgeClass(this.feed);
+
 	// Setup the picture spinner.
 	this.pictureSpinner = this.controller.get("picture-spinner");
 	this.controller.setupWidget("picture-spinner",

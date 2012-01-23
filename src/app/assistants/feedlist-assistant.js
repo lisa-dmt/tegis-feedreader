@@ -57,10 +57,12 @@ FeedlistAssistant.prototype.setup = function() {
 						"feedlist/feedlistRowTemplate",
         listTemplate:	"feedlist/feedlistListTemplate", 
 		formatters: 	{
-			feedIcon: 	this.listFormatter.bind(this, "feedIcon"),
-			title:		this.listFormatter.bind(this, "title"),
-			url:		this.listFormatter.bind(this, "url"),
-			large:		this.listFormatter.bind(this, "large")
+			feedIcon: 	        this.listFormatter.bind(this, "feedIcon"),
+			title:		        this.listFormatter.bind(this, "title"),
+			url:		        this.listFormatter.bind(this, "url"),
+			large:		        this.listFormatter.bind(this, "large"),
+            newItemBadge:       this.listFormatter.bind(this, "newItemBadge"),
+            unreadItemBadge:    this.listFormatter.bind(this, "unreadItemBadge")
 		},
 		preventDeleteProperty:	"preventDelete",
 		uniquenessProperty: 	"id",
@@ -111,10 +113,12 @@ FeedlistAssistant.prototype.listFormatter = function(attribute, property, model)
 	}
 
 	switch(attribute) {
-		case "feedIcon":	return { feedIcon: this.feeds.getFeedIconClass(model) };
-		case "title":		return { title: this.feeds.getFeedTitle(model) };
-		case "url":			return { url: this.feeds.getFeedURL(model) };
-		case "large":		return { large: FeedReader.prefs.largeFont ? "large" : "" };
+		case "feedIcon":	        return { feedIcon: this.feeds.getFeedIconClass(model) };
+		case "title":   	    	return { title: this.feeds.getFeedTitle(model) };
+		case "url":	        		return { url: this.feeds.getFeedURL(model) };
+		case "large":		        return { large: FeedReader.prefs.largeFont ? "large" : "" };
+        case "newItemBadge":        return { newItemBadge: this.feeds.getFeedNewItemBadgeClass(model) };
+        case "unreadItemBadge":     return { unreadItemBadge: this.feeds.getFeedUnreadItemBadgeClass(model) };
 	}
 	
 	return {};

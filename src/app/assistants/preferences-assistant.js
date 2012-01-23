@@ -47,13 +47,28 @@ PreferencesAssistant.prototype.setup = function() {
 	this.controller.get("enableRotation-title").update($L("Auto-rotate screen"));
 	this.controller.get("largeFont-title").update($L("Use large fonts"));
 
+    var badgeMode = 1;
+    if(this.prefs.showUnreadCount && this.prefs.showNewCount) {
+        badgeMode = 2;
+    } else if(this.prefs.showUnreadCount) {
+        badgeMode = 0;
+    }
+    this.controller.setupWidget("badgeMode", {
+        label: $L("Feed badges"),
+        choices: [
+            { label: $L("Unread count"),	    value: 0},
+            { label: $L("New count"),	        value: 1},
+            { label: $L("Unread & new count"),	value: 2}
+        ]
+    }, this.itemBadgeModel = { value: badgeMode });
 	this.controller.setupWidget("leftHanded",
     							{ property: "value", trueLabel: $L("Yes"), falseLabel: $L("No")},
          						this.leftHandedModel = {value: this.prefs.leftHanded, disabled: false});
 	this.controller.setupWidget("enableRotation",
     							{ property: "value", trueLabel: $L("Yes"), falseLabel: $L("No")},
          						this.enableRotationModel = {value: this.prefs.enableRotation, disabled: false});
-	this.controller.setupWidget("notificationEnabled",
+
+    this.controller.setupWidget("notificationEnabled",
     							{ property: "value", trueLabel: $L("Yes"), falseLabel: $L("No")},
          						this.notificationModel = {value: this.prefs.notificationEnabled, disabled: false});
 	this.controller.setupWidget("unobtrusiveNotifications",
@@ -166,6 +181,8 @@ PreferencesAssistant.prototype.cleanup = function(event) {
 	this.prefs.storyKeepTime = this.storyKeepTimeModel.value;
 	this.prefs.rilUser = this.rilUserModel.value;
 	this.prefs.rilPassword = this.rilPasswordModel.value;
+    this.prefs.showUnreadCount = (this.itemBadgeModel.value == 0) || (this.itemBadgeModel.value == 2);
+    this.prefs.showNewCount = (this.itemBadgeModel.value == 1) || (this.itemBadgeModel.value == 2);
 
 	this.prefs.save(true);
 
