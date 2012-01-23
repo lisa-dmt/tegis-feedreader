@@ -1,5 +1,5 @@
 FeedReader - A RSS Feed Aggregator for Palm WebOS
-Copyright (C) 2009, 2010, 2011 Timo Tegtmeier
+Copyright (C) 2009-2012 Timo Tegtmeier
 
 The icons icon-play.png, icon-pause.png, web-icon.png,
 email-icon.png, player-icon are Copyright Palm, Inc.
