@@ -61,6 +61,8 @@ StorylistAssistant.prototype.setup = function() {
 
 	this.controller.get("feed-title").update(this.feeds.getFeedTitle(this.feed));
 	this.controller.get("appIcon").className += " " + this.feeds.getFeedIconClass(this.feed, true, true);
+    this.controller.get("unread-item-badge").className += " " + this.feeds.getFeedUnreadItemBadgeClass(this.feed);
+    this.controller.get("new-item-badge").className += " " + this.feeds.getFeedNewItemBadgeClass(this.feed);
 
 	this.feedDataHandler(this.feed);
 	this.feeds.getFeedIDList(this.listDataHandler);

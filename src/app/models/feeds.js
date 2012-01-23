@@ -742,6 +742,16 @@ var feeds = Class.create ({
 		}
 	},
 
+    getFeedNewItemBadgeClass: function(feed) {
+        var badgeVisible = (feed.numNew > 0) && (FeedReader.prefs.showNewCount);
+        return badgeVisible ? "" : "hidden";
+    },
+
+    getFeedUnreadItemBadgeClass: function(feed) {
+        var badgeVisible = (feed.numUnRead > 0) && (FeedReader.prefs.showUnreadCount);
+        return badgeVisible ? "" : "hidden";
+    },
+
 	getFeeds: function(filter, offset, count, onSuccess) {
 		this.db.getFeeds(filter, offset, count, onSuccess);
 	},
