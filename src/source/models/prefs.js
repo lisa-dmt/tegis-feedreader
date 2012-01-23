@@ -36,13 +36,13 @@ enyo.kind({
 		if(this.cookie) {
 			settings = enyo.json.parse(this.cookie);
 		}
-        var loader = new PrefsLoader(settings);
+        var loader = new PrefsLoader(settings, enyo.application.versionInt);
         loader.loadInto(this);
 	},
 
 	save: function(showCredentialsWarning) {
         var settings = {};
-        var saver = new PrefsSaver(this);
+        var saver = new PrefsSaver(this, enyo.application.versionInt);
         saver.saveInto(settings);
 		enyo.setCookie(this.cookieName, enyo.json.stringify(settings));
 		enyo.application.timer.setTimer();

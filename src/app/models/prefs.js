@@ -21,30 +21,6 @@
  */
 
 var prefs = Class.create({
-	updateInterval:				30,
-	storyKeepTime:				24 * 3,
-	updateOnStart:				true,
-	notificationEnabled:		true,
-	notifyWithSound:			false,
-	blinkingEnabled:			true,
-	notifyWhileRunning:			true,
-	unobtrusiveNotifications:	true,
-	wakingEnabled:				false,
-	titleColor:					"red",
-	summaryLength: 				120,
-	largeFont: 					false,
-    showNewCount:               true,
-    showUnreadCount:            true,
-	showChanges: 				false,
-	leftHanded: 				true,
-	enableRotation: 			true,
-
-	rilUser: 					"",	// Read it Later
-	rilPassword:				"",
-
-	gReaderUser:				"",	// Google Reader
-	gReaderPassword:			"",
-
 	timer: 						null,
 
 	initialize: function() {
@@ -54,81 +30,17 @@ var prefs = Class.create({
 	},
 
 	load: function() {
-		var settings = this.cookie.get();
-		if(settings) {
-			this.updateInterval = settings.updateInterval;
-			this.notificationEnabled = settings.notificationEnabled;
-			this.wakingEnabled = settings.wakingEnabled;
-
-			if(settings.version > 0) {
-				this.summaryLength = settings.summaryLength;
-				this.titleColor = settings.titleColor;
-			}
-			if(settings.version > 1) {
-				this.largeFont = settings.largeFont;
-			}
-			if(settings.version > 3) {
-				this.leftHanded = settings.leftHanded;
-			}
-			if(settings.version > 5) {
-				this.updateOnStart = settings.updateOnStart;
-			}
-			if(settings.version > 6) {
-				this.blinkingEnabled = settings.blinkingEnabled;
-				this.notifyWhileRunning = settings.notifyWhileRunning;
-				this.enableRotation = settings.enableRotation;
-			}
-			if(settings.storyKeepTime !== undefined) {
-				this.storyKeepTime = settings.storyKeepTime;
-			}
-			if(settings.unobtrusiveNotifications !== undefined) {
-				this.unobtrusiveNotifications = settings.unobtrusiveNotifications;
-			}
-			if(settings.notifyWithSound !== undefined) {
-				this.notifyWithSound = settings.notifyWithSound;
-			}
-            if(settings.showNewCount !== undefined) {
-                this.showNewCount = settings.showNewCount;
-            }
-            if(settings.showUnreadCount !== undefined) {
-                this.showUnreadCount = settings.showUnreadCount;
-            }
-
-			this.rilUser = settings.rilUser || "";
-			this.rilPassword = settings.rilPassword || "";
-			this.gReaderUser = settings.gReaderUser || "";
-			this.gReaderPassword = settings.gReaderPassword || "";
-
-			if(settings.version < FeedReader.versionInt) {
-				this.showChanges = true;
-				this.save(false);
-			}
-		}
+		var settings = this.cookie.get() || {};
+        var loader = new PrefsLoader(settings);
+        loader.loadInto(this, FeedReader.versionInt);
 		FeedReader.ril.checkCredentials();
 	},
 
 	save: function(showCredentialsWarning) {
-		this.cookie.put({
-			version: 					FeedReader.versionInt,
-			updateInterval: 			this.updateInterval,
-			updateOnStart:				this.updateOnStart,
-			notificationEnabled: 		this.notificationEnabled,
-			blinkingEnabled:			this.blinkingEnabled,
-			notifyWhileRunning:			this.notifyWhileRunning,
-			unobtrusiveNotifications:	this.unobtrusiveNotifications,
-			notifyWithSound:			this.notifyWithSound,
-			wakingEnabled: 				this.wakingEnabled,
-			summaryLength: 				this.summaryLength,
-			titleColor: 				this.titleColor,
-			largeFont:					this.largeFont,
-			leftHanded:					this.leftHanded,
-			enableRotation:				this.enableRotation,
-			storyKeepTime:				this.storyKeepTime,
-			rilUser:					this.rilUser,
-			rilPassword:				this.rilPassword,
-			gReaderUser:				this.gReaderUser,
-			gReaderPassword:			this.gReaderPassword
-		});
+        var settings = {};
+        var saver = new PrefsSaver(this, FeedReader.versionInt);
+        saver.saveInto(settings);
+		this.cookie.put(settings);
 		this.setTimer();
 		FeedReader.ril.checkCredentials(showCredentialsWarning);
 	},
