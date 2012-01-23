@@ -76,6 +76,7 @@ function PrefsSaver(source) {
     this.source = source;
 }
 
-PrefsSaver.prototype.saveInto = function(target) {
+PrefsSaver.prototype.saveInto = function(target, currentVersion) {
     _copyPrefs(this.source, target);
+    target["version"] = currentVersion;
 };
