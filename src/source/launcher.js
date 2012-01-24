@@ -47,13 +47,10 @@ enyo.kind({
 	},
 
 	startup: function() {
-		// Set some globals.
-		enyo.application.appName 		= "FeedReader";
-		enyo.application.appAuthor 		= "Timo Tegtmeier";
-		enyo.application.versionString 	= "3.0.2";
-		enyo.application.versionInt 	= 22;
-		enyo.application.copyrightYears	= "2009-2012";
+		// Set global constants.
+        applyGlobalConstants(enyo.application);
 
+        // Pre-bind some handlers
 		enyo.application.notifyFeedUpdated = enyo.bind(this, this.notifyFeedUpdated);
 		enyo.application.notifyDBReady = enyo.bind(this, this.notifyDBReady);
 		enyo.application.notifyFeedListChanged = enyo.bind(this, this.notifyFeedListChanged);

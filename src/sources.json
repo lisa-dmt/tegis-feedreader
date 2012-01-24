@@ -1,4 +1,5 @@
 [
+    {"source": "commonjs/constants.js"},
 	{"source": "commonjs/feed.js"},
 	{"source": "commonjs/story.js"},
     {"source": "commonjs/simplehtmlparser.js"},

@@ -9,6 +9,7 @@ enyo.depends(
 	"source/models/readitlater.js",
 
 	// Commons
+    "commonjs/constants.js",
     "commonjs/helper.js",
 	"commonjs/story.js",
 	"commonjs/feed.js",
