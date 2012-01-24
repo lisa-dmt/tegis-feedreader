@@ -24,13 +24,11 @@
  * Global object that contains various global variables and some
  * utility functions. It also contains the main model (feeds).
  */
-FeedReader = {
-	appName:			"FeedReader",
-	appAuthor:			"Timo Tegtmeier",
-	versionString:		"3.0.2",
-	versionInt:			22,
-	copyrightYears:		"2009-2012",
+function Globals() {
+    applyGlobalConstants(this);
+}
 
+Globals.prototype = {
 	mainStageName: 		"FeedReaderStage",
 	dashboardStageName:	"FeedReaderDashboard",
 
@@ -128,6 +126,8 @@ FeedReader = {
 		return this.mediaExtensionLib;
 	}
 };
+
+var FeedReader = new Globals();
 
 /**
  * Constructor for the AppAssistant.
