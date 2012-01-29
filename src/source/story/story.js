@@ -129,6 +129,7 @@ enyo.kind({
 			className:	"header-shadow"
 		}, {
 			kind:			"Scroller",
+            name:           "contentScroller",
 			style:			"margin: 10px",
 			flex:			1,
 			components:		[{
@@ -142,9 +143,9 @@ enyo.kind({
 					onload:			"pictureLoaded"
 				}]
 			}, {
-				name:			"content",
-				kind:			"HtmlContent",
-				onLinkClick:	"innerLinkClicked"
+				name:			    "content",
+				kind:			    "HtmlContent",
+				onLinkClick:	    "innerLinkClicked"
 			}, {
 				kind:				"SilverSeparator"
 			}, {
@@ -318,6 +319,7 @@ enyo.kind({
 		this.$.shareButton.setDisabled(false);
 
 		if(this.originFeed.fullStory) {
+            this.$.contentScroller.scrollIntoView(0, 0);
 			this.$.content.setContent(this.story.summary);
 			if(!this.story.picture || (this.story.picture.length <= 0)) {
 				this.$.picture.hide();
