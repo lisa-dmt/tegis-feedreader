@@ -54,6 +54,7 @@ enyo.kind({
 
 	db:					null,
 	openTransactions:	0,
+    openRTransactions:  0,
 	isReady:			false,
 
 	updateSqls:			[
@@ -79,7 +80,7 @@ enyo.kind({
 		try {
 			this.db = openDatabase("ext:FeedReader", "", "FeedReader Database");
 
-			this.transaction(function(transaction) {
+			this.writeTransaction(function(transaction) {
 				transaction.executeSql("SELECT MAX(version) AS version FROM system",
 									   [], checkVersion, initDB);
 			});
@@ -90,17 +91,31 @@ enyo.kind({
 
 	/** @private
 	 *
-	 * Open a transaction.
+	 * Open a read/write transaction.
 	 *
 	 * @param	fnc			{function}		function to be called with opened transaction
 	 */
-	transaction: function(fnc, onSuccess, onFail) {
+	writeTransaction: function(fnc, onSuccess, onFail) {
 		onSuccess = onSuccess || this.transactionSuccess;
 		onFail = onFail || this.transactionFailed;
 
 		this.openTransactions++;
 		this.db.transaction(fnc, onFail, onSuccess);
 	},
+
+    /** @private
+     *
+     * Open a read-only transaction.
+     *
+     * @param	fnc			{function}		function to be called with opened transaction
+     */
+    readTransaction: function(fnc, onSuccess, onFail) {
+        onSuccess = onSuccess || this.readTransactionSuccess;
+        onFail = onFail || this.readTransactionFailed;
+
+        this.openRTransactions++;
+        this.db.readTransaction(fnc, onFail, onSuccess);
+    },
 
 	/** @private
 	 *
@@ -113,6 +128,11 @@ enyo.kind({
 		this.openTransactions--;
 	},
 
+    readTransactionFailed: function(error) {
+        this.error("DB> Read transaction failed; error code:", error.code, "; message:", error.message);
+        this.openRTransactions--;
+    },
+
 	/** @private
 	 *
 	 * Event handler for successful transactions.
@@ -120,6 +140,10 @@ enyo.kind({
 	transactionSuccess: function() {
 		this.openTransactions--;
 	},
+
+    readTransactionSuccess: function() {
+        this.openRTransactions--;
+    },
 
 	/** @private
 	 *
@@ -348,7 +372,7 @@ enyo.kind({
 
 		this.log("DB> deleting category", category.id);
 
-		this.transaction(function(transaction) {
+		this.writeTransaction(function(transaction) {
 			transaction.executeSql("DELETE FROM categories WHERE id = ?",
 				[category.id], onSuccess, onFail);
 		});
@@ -374,7 +398,7 @@ enyo.kind({
 			}
 		};
 
-		this.transaction(function(transaction) {
+		this.writeTransaction(function(transaction) {
 			transaction.executeSql("UPDATE categories SET catOrder = -1 WHERE catOrder = ?",
 								   [oldOrder], successWrapper, onFail);
 			transaction.executeSql("UPDATE categories SET catOrder = catOrder - 1 WHERE catOrder > ?",
@@ -449,7 +473,7 @@ enyo.kind({
 									getID, onFail);
 		};
 
-		this.transaction(function(transaction) {
+		this.writeTransaction(function(transaction) {
 			if(id !== null) {
 				doUpdate(transaction);
 			} else {
@@ -470,7 +494,7 @@ enyo.kind({
 		onSuccess = onSuccess || this.nullData;
 		onFail = onFail || this.errorHandler;
 
-		this.transaction(function(transaction) {
+		this.writeTransaction(function(transaction) {
 			transaction.executeSql("UPDATE feeds SET feedType = ? WHERE id = ?",
 								   [type, feed.id], onSuccess, onFail);
 		});
@@ -488,7 +512,7 @@ enyo.kind({
 		onSuccess = onSuccess || this.nullData;
 		onFail = onFail || this.errorHandler;
 
-		this.transaction(function(transaction) {
+		this.writeTransaction(function(transaction) {
 			transaction.executeSql("UPDATE feeds SET sortMode = ? WHERE id = ?",
 								   [feed.sortMode, feed.id], onSuccess, onFail);
 		});
@@ -506,7 +530,7 @@ enyo.kind({
 		onSuccess = onSuccess || this.nullData;
 		onFail = onFail || this.errorHandler;
 
-		this.transaction(function(transaction) {
+		this.writeTransaction(function(transaction) {
 			transaction.executeSql("UPDATE feeds SET feedType = ?, enabled = 0 WHERE id = ?",
 								   [feedTypes.ftUnknown, feed.id], onSuccess, onFail);
 		});
@@ -525,7 +549,7 @@ enyo.kind({
 
 		this.log("DB> deleting feed", feed.id);
 
-		this.transaction(function(transaction) {
+		this.writeTransaction(function(transaction) {
 			transaction.executeSql("DELETE FROM feeds WHERE id = ?",
 				[feed.id], onSuccess, onFail);
 		});
@@ -551,7 +575,7 @@ enyo.kind({
 			}
 		};
 
-		this.transaction(function(transaction) {
+		this.writeTransaction(function(transaction) {
 			transaction.executeSql("UPDATE feeds SET feedOrder = -1 WHERE feedOrder = ?",
 								   [oldOrder], successWrapper, onFail);
 			transaction.executeSql("UPDATE feeds SET feedOrder = feedOrder - 1 WHERE feedOrder > ?",
@@ -573,7 +597,7 @@ enyo.kind({
 		enyo.application.assert(onSuccess, "DB> getUpdatableFeeds needs data handler");
 		onFail = onFail || this.errorHandler;
 
-		this.transaction(function(transaction) {
+		this.readTransaction(function(transaction) {
 			transaction.executeSql("SELECT id, feedOrder, url, username, password" +
 								   "  FROM feeds" +
 								   "  WHERE feedType >= ? AND enabled = 1" +
@@ -599,7 +623,7 @@ enyo.kind({
 		enyo.application.assert(onSuccess, "DB> getFeedCount needs data handler");
 		onFail = onFail || this.errorHandler;
 
-		this.transaction(
+		this.readTransaction(
 			function(transaction) {
 				transaction.executeSql("SELECT COUNT(id) AS feedcount" +
 									   "  FROM feeds" +
@@ -620,7 +644,7 @@ enyo.kind({
 	getFeeds: function(filter, onSuccess, onFail) {
 		enyo.application.assert(onSuccess, "DB> getFeeds needs data handler");
 		onFail = onFail || this.errorHandler;
-		this.transaction(
+		this.readTransaction(
 			function(transaction) {
 				transaction.executeSql(commonSQL.csGetFeedData +
 									   "  WHERE feeds.title LIKE '%' || ? || '%'" +
@@ -656,7 +680,7 @@ enyo.kind({
 			onSuccess(list);
 		};
 
-		this.transaction(function(transaction) {
+		this.readTransaction(function(transaction) {
 			transaction.executeSql("SELECT id FROM feeds ORDER BY feedOrder", [],
 								   handleResult, onFail);
 		});
@@ -672,7 +696,7 @@ enyo.kind({
 	getFeed: function(id, onSuccess, onFail) {
 		enyo.application.assert(onSuccess, "DB> getFeed needs data handler");
 		onFail = onFail || this.errorHandler;
-		this.transaction(
+		this.readTransaction(
 			function(transaction) {
 				transaction.executeSql(commonSQL.csGetFeedData +
 									   "  WHERE feeds.id = ?",
@@ -718,20 +742,20 @@ enyo.kind({
 
 		switch(feed.feedType) {
 			case feedTypes.ftAllItems:
-				this.transaction(function(transaction) {
+				this.readTransaction(function(transaction) {
 					transaction.executeSql(selectStmt, [filter], handleResult, onFail);
 				});
 				break;
 
 			case feedTypes.ftStarred:
-				this.transaction(function(transaction) {
+				this.readTransaction(function(transaction) {
 					transaction.executeSql(selectStmt + " AND isStarred = 1",
 										   [filter], handleResult, onFail);
 				});
 				break;
 
 			default:
-				this.transaction(function(transaction) {
+				this.readTransaction(function(transaction) {
 					transaction.executeSql(selectStmt + " AND fid = ?",
 										   [filter, feed.id],
 										   handleResult, onFail);
@@ -750,7 +774,7 @@ enyo.kind({
 		enyo.application.assert(onSuccess, "DB> getNewStoryCount needs data handler");
 		onFail = onFail || this.errorHandler;
 
-		this.transaction(function(transaction) {
+		this.readTransaction(function(transaction) {
 			transaction.executeSql("SELECT COUNT(*) AS newCount FROM stories WHERE (isNew = 1) AND (deleted = 0)", [],
 				function(transaction, result) {
 					if(result.rows.length > 0) {
@@ -804,7 +828,7 @@ enyo.kind({
 
 		switch(feed.feedType) {
 			case feedTypes.ftAllItems:
-				this.transaction(function(transaction) {
+				this.readTransaction(function(transaction) {
 					transaction.executeSql(selectStmt + orderClause,
 										   [filter],
 										   handleResult, onFail);
@@ -812,14 +836,14 @@ enyo.kind({
 				break;
 
 			case feedTypes.ftStarred:
-				this.transaction(function(transaction) {
+				this.readTransaction(function(transaction) {
 					transaction.executeSql(selectStmt + " AND s.isStarred = 1" + orderClause,
 										   [filter], handleResult, onFail);
 				});
 				break;
 
 			default:
-				this.transaction(function(transaction) {
+				this.readTransaction(function(transaction) {
 					transaction.executeSql(selectStmt + " AND s.fid = ?" + orderClause,
 										   [filter, feed.id],
 										   handleResult, onFail);
@@ -861,21 +885,21 @@ enyo.kind({
 
 		switch(feed.feedType) {
 			case feedTypes.ftAllItems:
-				this.transaction(function(transaction) {
+				this.readTransaction(function(transaction) {
 					transaction.executeSql(selectStmt + orderClause,
 										   [], handleResult, onFail);
 				});
 				break;
 
 			case feedTypes.ftStarred:
-				this.transaction(function(transaction) {
+				this.readTransaction(function(transaction) {
 					transaction.executeSql(selectStmt + " WHERE s.isStarred = 1" + orderClause,
 										   [], handleResult, onFail);
 				});
 				break;
 
 			default:
-				this.transaction(function(transaction) {
+				this.readTransaction(function(transaction) {
 					transaction.executeSql(selectStmt + " WHERE s.fid = ?" + orderClause,
 										   [feed.id],
 										   handleResult, onFail);
@@ -925,7 +949,7 @@ enyo.kind({
 
 		switch(feed.feedType) {
 			case feedTypes.ftAllItems:
-				this.transaction(function(transaction) {
+				this.readTransaction(function(transaction) {
 					transaction.executeSql(selectStmt +
 										   (whereClauseAddOn ? whereClauseAddOn : "") +
 										   orderClause, [],
@@ -934,7 +958,7 @@ enyo.kind({
 				break;
 
 			case feedTypes.ftStarred:
-				this.transaction(function(transaction) {
+				this.readTransaction(function(transaction) {
 					transaction.executeSql(selectStmt + " AND (s.isStarred = 1)" +
 										   (whereClauseAddOn ? whereClauseAddOn : "") +
 										   orderClause,
@@ -943,7 +967,7 @@ enyo.kind({
 				break;
 
 			default:
-				this.transaction(function(transaction) {
+				this.readTransaction(function(transaction) {
 					transaction.executeSql(selectStmt + " AND (s.fid = ?) " +
 										   (whereClauseAddOn ? whereClauseAddOn : "") +
 										   orderClause, [feed.id],
@@ -1002,7 +1026,7 @@ enyo.kind({
 				}, onFail);
 		};
 
-		this.transaction(function(transaction) {
+		this.readTransaction(function(transaction) {
 			transaction.executeSql("SELECT * FROM stories WHERE id = ?",
 				[id],
 				function(transaction, result) {
@@ -1033,7 +1057,7 @@ enyo.kind({
 		var keepthreshold = date.getTime() - (enyo.application.prefs.storyKeepTime * 60 * 60 * 1000);
 		var newthreshold = date.getTime() - (24 * 60 * 60 * 1000);
 
-		this.transaction(function(transaction) {
+		this.writeTransaction(function(transaction) {
 			transaction.executeSql("UPDATE stories" +
 								   "  SET isNew = 0" +
 								   "  WHERE (isRead = 1" +
@@ -1079,7 +1103,7 @@ enyo.kind({
 		onFail = onFail || this.errorHandler;
 		var onNotify = enyo.bind(this, this.notifyOfUpdate, false);
 
-		this.transaction(function(transaction) {
+		this.writeTransaction(function(transaction) {
 			if(successful) {
 				transaction.executeSql("DELETE FROM stories" +
 									   "  WHERE flag = 1" +
@@ -1125,7 +1149,7 @@ enyo.kind({
 			onSuccess();
 		};
 
-		this.transaction(
+		this.writeTransaction(
 			function(transaction) {
 				transaction.executeSql("SELECT id" +
 									   "  FROM stories" +
@@ -1178,7 +1202,7 @@ enyo.kind({
 	markStarred: function(story, onSuccess, onFail) {
 		onSuccess = onSuccess || this.nullData;
 		onFail = onFail || this.errorHandler;
-		this.transaction(function(transaction) {
+		this.writeTransaction(function(transaction) {
 			transaction.executeSql("UPDATE stories SET isStarred = ? WHERE id = ?",
 								   [story.isStarred ? 1 : 0, story.id], onSuccess, onFail);
 		});
@@ -1200,7 +1224,7 @@ enyo.kind({
 			sql += " WHERE fid = " + feed.id;
 		}
 
-		this.transaction(function(transaction) {
+		this.writeTransaction(function(transaction) {
 			transaction.executeSql(sql, [], onSuccess, onFail);
 		});
 	},
@@ -1215,7 +1239,7 @@ enyo.kind({
 	markStoryRead: function(story, onSuccess, onFail) {
 		onSuccess = onSuccess || this.nullData;
 		onFail = onFail || this.errorHandler;
-		this.transaction(function(transaction) {
+		this.writeTransaction(function(transaction) {
 			transaction.executeSql("UPDATE stories SET isRead = 1, isNew = 0 WHERE id = ?",
 								   [story.id], onSuccess, onFail);
 		});
@@ -1235,7 +1259,7 @@ enyo.kind({
 
 		state = state ? 1 : 0;
 
-		this.transaction(function(transaction) {
+		this.writeTransaction(function(transaction) {
 			switch(feed.feedType) {
 				case feedTypes.ftAllItems:
 					transaction.executeSql("UPDATE stories SET isRead = ?, isNew = 0",
@@ -1271,7 +1295,7 @@ enyo.kind({
 
 		this.log("DB> deleting story", story.id);
 
-		this.transaction(function(transaction) {
+		this.writeTransaction(function(transaction) {
 			transaction.executeSql("UPDATE stories SET deleted = 1 WHERE id = ?",
 				[story.id], onSuccess, onFail);
 		});
