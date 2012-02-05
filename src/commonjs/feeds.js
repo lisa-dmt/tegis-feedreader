@@ -21,7 +21,7 @@
  */
 
 function FeedProcessor(conf) {
-    this.cpConverter = new codepageConverter();
+    this.cpConverter = new CodepageConverter();
     for(var key in conf) {
         this[key] = conf[key];
     }
@@ -96,15 +96,18 @@ FeedProcessor.prototype = {
      * @param 	response	{object} 	AJAX XML response
      * @param	contentType	{string}	HTTP-Header "Content-Type"
      */
-    parseAtom: function(db, feed, response, contentType) {
-        var enclosures = {}, story = {};
-        var rel = "", url = "", enc = 0, type = "", title = "";
-        var el = 0;
+    _parseAtom: function(db, feed, response, contentType) {
+        var allStories = [];
+        var story, enclosures, enclosure;
+        var rel, url, enc, type, title, el;
+        var item, summary, content;
+        var updated, id;
 
         var atomItems = response.getElementsByTagName("entry");
         var l = atomItems.length;
         for (var i = 0; i < l; i++) {
             try {
+                item = atomItems[i];
                 story = {
                     title:		"",
                     summary:	"",
@@ -116,27 +119,30 @@ FeedProcessor.prototype = {
                     uuid:		""
                 };
 
-                if(atomItems[i].getElementsByTagName("title") &&
-                    atomItems[i].getElementsByTagName("title").item(0)) {
-                    story.title = this.formatting.stripBreaks(this.cpConverter.convert(contentType, unescape(atomItems[i].getElementsByTagName("title").item(0).textContent)));
+                title = item.getElementsByTagName("title");
+                if(title && title.item(0)) {
+                    story.title = this.formatting.stripBreaks(this.cpConverter.convert(contentType, unescape(title.item(0).textContent)));
                 }
 
-                if(atomItems[i].getElementsByTagName("content") &&
-                    atomItems[i].getElementsByTagName("content").item(0)) {
-                    story.summary = this.formatting.reformatSummary(this.cpConverter.convert(contentType, atomItems[i].getElementsByTagName("content").item(0).textContent));
-                } else if (atomItems[i].getElementsByTagName("summary") &&
-                    atomItems[i].getElementsByTagName("summary").item(0)) {
-                    story.summary = this.formatting.reformatSummary(this.cpConverter.convert(contentType, atomItems[i].getElementsByTagName("summary").item(0).textContent));
+                content = item.getElementsByTagName("content");
+                if(content && content.item(0)) {
+                    story.summary = this.formatting.reformatSummary(this.cpConverter.convert(contentType, content.item(0).textContent));
+                } else {
+                    summary = item.getElementsByTagName("summary");
+                    if (summary && summary.item(0)) {
+                        story.summary = this.formatting.reformatSummary(this.cpConverter.convert(contentType, summary.item(0).textContent));
+                    }
                 }
 
                 // Analyse the enclosures.
-                enclosures = atomItems[i].getElementsByTagName("link");
+                enclosures = item.getElementsByTagName("link");
                 if(enclosures && (enclosures.length > 0)) {
                     el = enclosures.length;
                     for(enc = 0; enc < el; enc++) {
-                        rel = enclosures.item(enc).getAttribute("rel");
-                        url = enclosures.item(enc).getAttribute("href");
-                        type = enclosures.item(enc).getAttribute("type");
+                        enclosure = enclosures.item(enc);
+                        rel = enclosure.getAttribute("rel");
+                        url = enclosure.getAttribute("href");
+                        type = enclosure.getAttribute("type");
                         if(!type) {
                             type = "";
                         }
@@ -182,25 +188,25 @@ FeedProcessor.prototype = {
                 }
 
                 // Set the publishing date.
-                if (atomItems[i].getElementsByTagName("updated") &&
-                    atomItems[i].getElementsByTagName("updated").item(0)) {
-                    story.pubdate = this.dateFormatter.dateToInt(atomItems[i].getElementsByTagName("updated").item(0).textContent,
-                        this.formatting);
+                updated = item.getElementsByTagName("updated");
+                if (updated && updated.item(0)) {
+                    story.pubdate = this.dateFormatter.dateToInt(updated.item(0).textContent, this.formatting);
                 }
 
                 // Set the unique id.
-                if (atomItems[i].getElementsByTagName("id") &&
-                    atomItems[i].getElementsByTagName("id").item(0)) {
-                    story.uuid = this.formatting.stripBreaks(atomItems[i].getElementsByTagName("id").item(0).textContent);
+                id = item.getElementsByTagName("id");
+                if (id && id.item(0)) {
+                    story.uuid = this.formatting.stripBreaks(id.item(0).textContent);
                 } else {
                     story.uuid = this.formatting.stripBreaks(story.title);
                 }
 
-                db.addOrEditStory(feed, story);
+                allStories.push(story);
             } catch(e) {
                 this.error("FEEDS EXCEPTION>", e);
             }
         }
+        db.updateStories(feed, allStories);
     },
 
     /** @private
@@ -212,14 +218,17 @@ FeedProcessor.prototype = {
      * @param 	response	{object} 	AJAX XML response
      * @param	contentType	{string}	HTTP-Header "Content-Type"
      */
-    parseRSS: function(db, feed, response, contentType) {
-        var enclosures = {}, story = {};
-        var url = "", type = "", enc = 0;
-        var el = 0;
+    _parseRSS: function(db, feed, response, contentType) {
+        var allStories = [];
+        var enclosures, enclosure, story, item;
+        var url, type, enc;
+        var title, description, link, el;
+        var pubdate, date, guid;
 
         var rssItems = response.getElementsByTagName("item");
         var l = rssItems.length;
         for (var i = 0; i < l; i++) {
+            item = rssItems[i];
             try {
                 story = {
                     title: 		"",
@@ -232,19 +241,21 @@ FeedProcessor.prototype = {
                     uuid:		""
                 };
 
-                if(rssItems[i].getElementsByTagName("title") &&
-                    rssItems[i].getElementsByTagName("title").item(0)) {
-                    story.title = this.formatting.stripBreaks(this.cpConverter.convert(contentType, unescape(rssItems[i].getElementsByTagName("title").item(0).textContent)));
+                title = item.getElementsByTagName("title");
+                if(title && title.item(0)) {
+                    story.title = this.formatting.stripBreaks(this.cpConverter.convert(contentType, unescape(title.item(0).textContent)));
                 }
-                if(rssItems[i].getElementsByTagName("description") &&
-                    rssItems[i].getElementsByTagName("description").item(0)) {
-                    story.summary = this.formatting.reformatSummary(this.cpConverter.convert(contentType, rssItems[i].getElementsByTagName("description").item(0).textContent));
+
+                description = item.getElementsByTagName("description");
+                if(description && description.item(0)) {
+                    story.summary = this.formatting.reformatSummary(this.cpConverter.convert(contentType, description.item(0).textContent));
                 }
-                if(rssItems[i].getElementsByTagName("link") &&
-                    rssItems[i].getElementsByTagName("link").item(0)) {
+
+                link = item.getElementsByTagName("link");
+                if(link && link.item(0)) {
                     story.url.push({
                         title:	$L("Weblink"),
-                        href:	this.formatting.stripBreaks(rssItems[i].getElementsByTagName("link").item(0).textContent)
+                        href:	this.formatting.stripBreaks(link.item(0).textContent)
                     });
                 }
 
@@ -253,8 +264,9 @@ FeedProcessor.prototype = {
                 if(enclosures && (enclosures.length > 0)) {
                     el = enclosures.length;
                     for(enc = 0; enc < el; enc++) {
-                        url = enclosures.item(enc).getAttribute("url");
-                        type = enclosures.item(enc).getAttribute("type") || "";
+                        enclosure = enclosures.item(enc);
+                        url = enclosure.getAttribute("url");
+                        type = enclosure.getAttribute("type") || "";
                         if(url && (url.length > 0)) {
                             if(url.match(/.*\.jpg/i) ||
                                 url.match(/.*\.jpeg/i) ||
@@ -278,31 +290,32 @@ FeedProcessor.prototype = {
                 }
 
                 // Set the publishing date.
-                if(rssItems[i].getElementsByTagName("pubDate") &&
-                    rssItems[i].getElementsByTagName("pubDate").item(0)) {
-                    story.pubdate = this.dateFormatter.dateToInt(rssItems[i].getElementsByTagName("pubDate").item(0).textContent,
-                        this.formatting);
-                } else if (rssItems[i].getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", "date") &&
-                    rssItems[i].getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", "date").item(0)) {
-                    story.pubdate = this.dateFormatter.dateToInt(rssItems[i].getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", "date").item(0).textContent,
-                        this.formatting);
+                pubdate = item.getElementsByTagName("pubDate");
+                if(pubdate && pubdate.item(0)) {
+                    story.pubdate = this.dateFormatter.dateToInt(pubdate.item(0).textContent, this.formatting);
                 } else {
-                    this.log("FEEDS> no pubdate given");
+                    date = item.getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", "date");
+                    if (date && date.item(0)) {
+                        story.pubdate = this.dateFormatter.dateToInt(date.item(0).textContent, this.formatting);
+                    } else {
+                        this.log("FEEDS> no pubdate given");
+                    }
                 }
 
                 // Set the unique id.
-                if(rssItems[i].getElementsByTagName("guid") &&
-                    rssItems[i].getElementsByTagName("guid").item(0)) {
-                    story.uuid = this.formatting.stripBreaks(rssItems[i].getElementsByTagName("guid").item(0).textContent);
+                guid = item.getElementsByTagName("guid");
+                if(guid && guid.item(0)) {
+                    story.uuid = this.formatting.stripBreaks(guid.item(0).textContent);
                 } else {
                     story.uuid = this.formatting.stripBreaks(story.title);
                 }
 
-                db.addOrEditStory(feed, story);
+                allStories.push(story);
             } catch(e) {
                 this.error("FEEDS EXCEPTION>", e);
             }
         }
+        db.updateStories(feed, allStories);
     },
 
     /** @private
@@ -314,8 +327,8 @@ FeedProcessor.prototype = {
      * @param 	response	{object} 	AJAX XML response
      * @param	contentType	{string}	HTTP-Header "Content-Type"
      */
-    parseRDF: function(db, feed, response, contentType) {
-        this.parseRSS(db, feed, response, contentType);		// Currently we do the same as for RSS.
+    _parseRDF: function(db, feed, response, contentType) {
+        this._parseRSS(db, feed, response, contentType);		// Currently we do the same as for RSS.
     },
 
     /**
@@ -331,18 +344,20 @@ FeedProcessor.prototype = {
         try {
             switch(feedType) {
                 case feedTypes.ftATOM:
-                    this.parseAtom(db, feed, response, contentType);
+                    this._parseAtom(db, feed, response, contentType);
                     break;
 
                 case feedTypes.ftRSS:
-                    this.parseRSS(db, feed, response, contentType);
+                    this._parseRSS(db, feed, response, contentType);
                     break;
 
                 case feedTypes.ftRDF:
-                    this.parseRDF(db, feed, response, contentType);
+                    this._parseRDF(db, feed, response, contentType);
             }
+            db.endStoryUpdate(feed, feedType != feedTypes.ftUnknown);
         } catch(ex) {
             this.error("FEEDS EXCEPTION>", ex);
+            db.endStoryUpdate(feed, false);
         }
     }
 };

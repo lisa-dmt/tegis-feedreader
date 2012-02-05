@@ -20,7 +20,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-function codepageConverter() {
+function CodepageConverter() {
 }
 
 /** @private
@@ -32,7 +32,7 @@ function codepageConverter() {
  *
  * Coverts text from codepage 1250.
  */
-codepageConverter.prototype.convertWin1250 = function(text) {
+CodepageConverter.prototype.convertWin1250 = function(text) {
 	if(text) {
 		text = text.replace(/Œ/g, "Ś");	// 8C
 
@@ -94,7 +94,7 @@ codepageConverter.prototype.convertWin1250 = function(text) {
 	}
 };
 
-codepageConverter.prototype.convert = function(contentType, text) {
+CodepageConverter.prototype.convert = function(contentType, text) {
 	if(!contentType) {
 		return text;
 	}

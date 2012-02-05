@@ -1194,76 +1194,89 @@ var database = Class.create({
 		});
 	},
 
-	/**
-	 * Add or edit a story.
-	 *
-	 * @param 	feed		{object}		feed object
-	 * @param	story		{Object}		story object
-	 * @param	onSuccess	{function}		function to be called on success
-	 * @param	onFail		{function}		function to be called on failure
-	 */
-	addOrEditStory: function(feed, story, onSuccess, onFail) {
-		onSuccess = onSuccess || this.nullData;
-		onFail = onFail || this.error;
+    /**
+     * Add or edit a story.
+     *
+     * @param 	feed		{object}		feed object
+     * @param	story		{Object}		story object
+     * @param	onSuccess	{function}		function to be called on success
+     * @param	onFail		{function}		function to be called on failure
+     */
+    _addOrEditStory: function(transaction, feed, story, onSuccess, onFail) {
+        var nullData = this.nullData;
+        var error = this.errorHandler;
 
-		var nullData = this.nullData;
-		var error = this.error;
+        var insertURLs = function(transaction, result) {
+            var sid = result.insertId;
+            transaction.executeSql("DELETE FROM storyurls WHERE sid = ?",
+                [sid], nullData, error);
+            for(var i = 0; i < story.url.length; i++) {
+                transaction.executeSql("INSERT INTO storyurls (sid, title, href)" +
+                    "  VALUES(?, ?, ?)",
+                    [sid, story.url[i].title, story.url[i].href],
+                    nullData, error);
+            }
+            onSuccess();
+        };
 
-		var insertURLs = function(transaction, result) {
-			var sid = result.insertId;
-			transaction.executeSql("DELETE FROM storyurls WHERE sid = ?",
-								   [sid], nullData, error);
-			for(var i = 0; i < story.url.length; i++) {
-				transaction.executeSql("INSERT INTO storyurls (sid, title, href)" +
-									   "  VALUES(?, ?, ?)",
-									   [sid, story.url[i].title, story.url[i].href],
-										nullData, error);
-			}
-			onSuccess();
-		};
+        transaction.executeSql("SELECT id" +
+            "  FROM stories" +
+            "  WHERE fid = ?" +
+            "    AND uuid = ?",
+            [feed.id, story.uuid],
+            function(transaction, result) {
+                if(result.rows.length > 0) {
+                    var sid = result.rows.item(0).id;
+                    transaction.executeSql("UPDATE stories" +
+                        "  SET title = ?," +
+                        "    summary = ?," +
+                        "    picture = ?," +
+                        "    audio = ?," +
+                        "    video = ?," +
+                        "    pubdate = ?," +
+                        "    flag = 0" +
+                        "  WHERE id = ?",
+                        [story.title, story.summary,
+                            story.picture, story.audio,
+                            story.video,
+                            story.pubdate ? story.pubdate : 0,
+                            sid],
+                        onSuccess, onFail);
+                    insertURLs(transaction, { insertId: sid });
+                } else {
+                    var date = new Date();
+                    var isNew = story.pubdate >= (date.getTime() - (24 * 60 * 60 * 1000));
+                    transaction.executeSql("INSERT INTO stories" +
+                        "  (fid, uuid, title, summary, picture, audio, video, pubdate, isRead, isNew, isStarred, flag)" +
+                        "  VALUES(?, ?, ?, ?, ?, ?, ?, ?, 0, ?, 0, 0)",
+                        [feed.id, story.uuid, story.title, story.summary, story.picture,
+                            story.audio, story.video,
+                            story.pubdate ? story.pubdate : 0,
+                            isNew ? 1 : 0],
+                        insertURLs, onFail);
+                }
+            },
+            onFail);
+    },
 
-		this.transaction(
-			function(transaction) {
-				transaction.executeSql("SELECT id" +
-									   "  FROM stories" +
-									   "  WHERE fid = ?" +
-									   "    AND uuid = ?",
-									   [feed.id, story.uuid],
-					function(transaction, result) {
-						if(result.rows.length > 0) {
-							var sid = result.rows.item(0).id;
-							transaction.executeSql("UPDATE stories" +
-												   "  SET title = ?," +
-												   "    summary = ?," +
-												   "    picture = ?," +
-												   "    audio = ?," +
-												   "    video = ?," +
-												   "    pubdate = ?," +
-												   "    flag = 0" +
-												   "  WHERE id = ?",
-												   [story.title, story.summary,
-													story.picture, story.audio,
-													story.video,
-													story.pubdate ? story.pubdate : 0,
-													sid],
-												   onSuccess, onFail);
-							insertURLs(transaction, { insertId: sid });
-						} else {
-							var date = new Date();
-							var isNew = story.pubdate >= (date.getTime() - (24 * 60 * 60 * 1000));
-							transaction.executeSql("INSERT INTO stories" +
-												   "  (fid, uuid, title, summary, picture, audio, video, pubdate, isRead, isNew, isStarred, flag)" +
-												   "  VALUES(?, ?, ?, ?, ?, ?, ?, ?, 0, ?, 0, 0)",
-												   [feed.id, story.uuid, story.title, story.summary, story.picture,
-													story.audio, story.video,
-													story.pubdate ? story.pubdate : 0,
-													isNew ? 1 : 0],
-												   insertURLs, onFail);
-						}
-					},
-					onFail);
-			});
-	},
+    /**
+     *
+     * @param feed          {object}    feed to which the stories belong
+     * @param stories       {Array}     Stories to be inserted or updated
+     * @param onSuccess     {function}  function to call on success
+     * @param onFail        {function}  function to call on failure
+     */
+    updateStories: function(feed, stories, onSuccess, onFail) {
+        onSuccess = onSuccess || this.nullData;
+        onFail = onFail || this.errorHandler;
+
+        var self = this;
+        this.transaction(function(transaction) {
+            for(var i = 0; i < stories.length; i++) {
+                self._addOrEditStory(transaction, feed, stories[i], onSuccess, onFail);
+            }
+        });
+    },
 
 	/**
 	 * Set the starred flag of a story.
