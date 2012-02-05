@@ -183,14 +183,7 @@ enyo.kind({
 				this.actionRunning = true;
 				this.actionIdent = action.ident;
 				this.enterActivity();
-                if(enyo.application.db.openRTransactions > 0) {
-                    var timeoutId = window.setTimeout(function() {
-                        window.clearTimeout(timeoutId);
-                        action.execute();
-                    }, 500);
-                } else {
-                    action.execute();
-                }
+                action.execute();
 			} else {
 				if(this.actionRunning) {
 					enyo.application.notifySpoolerRunningChanged(false);

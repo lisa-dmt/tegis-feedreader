@@ -54,7 +54,6 @@ enyo.kind({
 
 	db:					null,
 	openTransactions:	0,
-    openRTransactions:  0,
 	isReady:			false,
 
 	updateSqls:			[
@@ -71,7 +70,7 @@ enyo.kind({
 		this.transactionSuccess = enyo.bind(this, this.transactionSuccess);
 		this.transactionFailed = enyo.bind(this, this.transactionFailed);
 
-		// Per-Query handlers.
+		// Per-bind query handlers.
 		this.nullData = enyo.bind(this, this.nullData);
 		this.errorHandler = enyo.bind(this, this.errorHandler);
 		var checkVersion = enyo.bind(this, this.checkVersion);
@@ -79,6 +78,7 @@ enyo.kind({
 
 		try {
 			this.db = openDatabase("ext:FeedReader", "", "FeedReader Database");
+            this.transactionManager = new TransactionManager(this.db, this.transactionSuccess, this.transactionFailed);
 
 			this.writeTransaction(function(transaction) {
 				transaction.executeSql("SELECT MAX(version) AS version FROM system",
@@ -95,12 +95,9 @@ enyo.kind({
 	 *
 	 * @param	fnc			{function}		function to be called with opened transaction
 	 */
-	writeTransaction: function(fnc, onSuccess, onFail) {
-		onSuccess = onSuccess || this.transactionSuccess;
-		onFail = onFail || this.transactionFailed;
-
-		this.openTransactions++;
-		this.db.transaction(fnc, onFail, onSuccess);
+	writeTransaction: function(fnc) {
+        this.openTransactions++;
+        this.transactionManager.writeTransaction(fnc);
 	},
 
     /** @private
@@ -109,12 +106,9 @@ enyo.kind({
      *
      * @param	fnc			{function}		function to be called with opened transaction
      */
-    readTransaction: function(fnc, onSuccess, onFail) {
-        onSuccess = onSuccess || this.readTransactionSuccess;
-        onFail = onFail || this.readTransactionFailed;
-
-        this.openRTransactions++;
-        this.db.readTransaction(fnc, onFail, onSuccess);
+    readTransaction: function(fnc) {
+        this.openTransactions++;
+        this.transactionManager.readTransaction(fnc);
     },
 
 	/** @private
@@ -128,11 +122,6 @@ enyo.kind({
 		this.openTransactions--;
 	},
 
-    readTransactionFailed: function(error) {
-        this.error("DB> Read transaction failed; error code:", error.code, "; message:", error.message);
-        this.openRTransactions--;
-    },
-
 	/** @private
 	 *
 	 * Event handler for successful transactions.
@@ -140,10 +129,6 @@ enyo.kind({
 	transactionSuccess: function() {
 		this.openTransactions--;
 	},
-
-    readTransactionSuccess: function() {
-        this.openRTransactions--;
-    },
 
 	/** @private
 	 *
@@ -522,7 +507,6 @@ enyo.kind({
 	 * Disable a feed.
 	 *
 	 * @param 	feed		{object}		feed object
-	 * @param	url			{String}		url of the feed to disable
 	 * @param	onSuccess	{function}		function to be called on success
 	 * @param	onFail		{function}		function to be called on failure
 	 */
@@ -1129,10 +1113,7 @@ enyo.kind({
 	 * @param	onSuccess	{function}		function to be called on success
 	 * @param	onFail		{function}		function to be called on failure
 	 */
-	addOrEditStory: function(feed, story, onSuccess, onFail) {
-		onSuccess = onSuccess || this.nullData;
-		onFail = onFail || this.errorHandler;
-
+	_addOrEditStory: function(transaction, feed, story, onSuccess, onFail) {
 		var nullData = this.nullData;
 		var error = this.errorHandler;
 
@@ -1149,48 +1130,64 @@ enyo.kind({
 			onSuccess();
 		};
 
-		this.writeTransaction(
-			function(transaction) {
-				transaction.executeSql("SELECT id" +
-									   "  FROM stories" +
-									   "  WHERE fid = ?" +
-									   "    AND uuid = ?",
-									   [feed.id, story.uuid],
-					function(transaction, result) {
-						if(result.rows.length > 0) {
-							var sid = result.rows.item(0).id;
-							transaction.executeSql("UPDATE stories" +
-												   "  SET title = ?," +
-												   "    summary = ?," +
-												   "    picture = ?," +
-												   "    audio = ?," +
-												   "    video = ?," +
-												   "    pubdate = ?," +
-												   "    flag = 0" +
-												   "  WHERE id = ?",
-												   [story.title, story.summary,
-													story.picture, story.audio,
-													story.video,
-													story.pubdate ? story.pubdate : 0,
-													sid],
-												   onSuccess, onFail);
-							insertURLs(transaction, { insertId: sid });
-						} else {
-							var date = new Date();
-							var isNew = story.pubdate >= (date.getTime() - (24 * 60 * 60 * 1000));
-							transaction.executeSql("INSERT INTO stories" +
-												   "  (fid, uuid, title, summary, picture, audio, video, pubdate, isRead, isNew, isStarred, flag)" +
-												   "  VALUES(?, ?, ?, ?, ?, ?, ?, ?, 0, ?, 0, 0)",
-												   [feed.id, story.uuid, story.title, story.summary, story.picture,
-													story.audio, story.video,
-													story.pubdate ? story.pubdate : 0,
-													isNew ? 1 : 0],
-												   insertURLs, onFail);
-						}
-					},
-					onFail);
-			});
+        transaction.executeSql("SELECT id" +
+                               "  FROM stories" +
+                               "  WHERE fid = ?" +
+                               "    AND uuid = ?",
+                               [feed.id, story.uuid],
+            function(transaction, result) {
+                if(result.rows.length > 0) {
+                    var sid = result.rows.item(0).id;
+                    transaction.executeSql("UPDATE stories" +
+                                           "  SET title = ?," +
+                                           "    summary = ?," +
+                                           "    picture = ?," +
+                                           "    audio = ?," +
+                                           "    video = ?," +
+                                           "    pubdate = ?," +
+                                           "    flag = 0" +
+                                           "  WHERE id = ?",
+                                           [story.title, story.summary,
+                                            story.picture, story.audio,
+                                            story.video,
+                                            story.pubdate ? story.pubdate : 0,
+                                            sid],
+                                           onSuccess, onFail);
+                    insertURLs(transaction, { insertId: sid });
+                } else {
+                    var date = new Date();
+                    var isNew = story.pubdate >= (date.getTime() - (24 * 60 * 60 * 1000));
+                    transaction.executeSql("INSERT INTO stories" +
+                                           "  (fid, uuid, title, summary, picture, audio, video, pubdate, isRead, isNew, isStarred, flag)" +
+                                           "  VALUES(?, ?, ?, ?, ?, ?, ?, ?, 0, ?, 0, 0)",
+                                           [feed.id, story.uuid, story.title, story.summary, story.picture,
+                                            story.audio, story.video,
+                                            story.pubdate ? story.pubdate : 0,
+                                            isNew ? 1 : 0],
+                                           insertURLs, onFail);
+                }
+            },
+        onFail);
 	},
+
+    /**
+     *
+     * @param feed          {object}    feed to which the stories belong
+     * @param stories       {Array}     Stories to be inserted or updated
+     * @param onSuccess     {function}  function to call on success
+     * @param onFail        {function}  function to call on failure
+     */
+    updateStories: function(feed, stories, onSuccess, onFail) {
+        onSuccess = onSuccess || this.nullData;
+        onFail = onFail || this.errorHandler;
+
+        var self = this;
+        this.writeTransaction(function(transaction) {
+            for(var i = 0; i < stories.length; i++) {
+                self._addOrEditStory(transaction, feed, stories[i], onSuccess, onFail);
+            }
+        });
+    },
 
 	/**
 	 * Set the starred flag of a story.

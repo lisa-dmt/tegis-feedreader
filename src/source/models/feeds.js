@@ -51,10 +51,10 @@ enyo.kind({
 		this.updateWhenReady = enyo.application.prefs.updateOnStart;
 		this.formatting = new Formatting();
         this.processor = new FeedProcessor({
-            log:            this.log,
-            error:          this.error,
+            log:            enyo.log,
+            error:          enyo.error,
             showError:      enyo.application.showError,
-            setFeedType:    function(feed, type) { enyo.application.db.setFeedType(feed, type); },
+            setFeedType:    function(feed, type) { return enyo.application.db.setFeedType(feed, type); },
             formatting:     this.formatting,
             dateFormatter:  this.$.dateFormatter,
             msgNoData:      $L("The Feed '{$title}' does not return data."),
@@ -185,7 +185,7 @@ enyo.kind({
 
 			var type = this.processor.determineFeedType(feed, response, request.xhr.responseText, this.changingFeed);
             this.processor.parseFeed(enyo.application.db, feed, type, response, request.xhr.getResponseHeader("Content-Type"));
-			enyo.application.db.endStoryUpdate(feed, type != feedTypes.ftUnknown);
+
 		} catch(e) {
 			this.error("FEEDS EXCEPTION>", e);
 			enyo.application.db.endStoryUpdate(feed, false);

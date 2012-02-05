@@ -18,6 +18,7 @@ enyo.depends(
 	"commonjs/formatting.js",
     "commonjs/prefs.js",
     "commonjs/feeds.js",
+    "commonjs/transactionmgr.js",
 
 	// Utilities
 	"source/utils/timer.js",

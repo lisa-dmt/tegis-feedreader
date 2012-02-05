@@ -40,7 +40,7 @@ var feeds = Class.create ({
 	initialize: function() {
 		this.spooler = new spooler();
 		this.formatting = new Formatting();
-		this.cpConverter = new codepageConverter();
+		this.cpConverter = new CodepageConverter();
 		this.dateConverter = new dateConverter(this.formatting);
 		var db = new database();
         this.db = db;
@@ -49,7 +49,7 @@ var feeds = Class.create ({
             log:            Mojo.Log.info,
             error:          Mojo.Log.error,
             showError:      FeedReader.showError,
-            setFeedType:    function(feed, type) { db.setFeedType(feed, type); },
+            setFeedType:    function(feed, type) { return db.setFeedType(feed, type); },
             formatting:     this.formatting,
             dateFormatter:  this.dateConverter,
             msgNoData:      $L("The Feed '#{title}' does not return data."),
@@ -178,7 +178,6 @@ var feeds = Class.create ({
 			var type = this.processor.determineFeedType(feed, transport.responseXML, transport.responseText, this.changingFeed);
             this.processor.parseFeed(this.db, feed, type, transport.responseXML, transport.getHeader("Content-Type"));
 
-			this.db.endStoryUpdate(feed, type != feedTypes.ftUnknown);
 		} catch(e) {
 			Mojo.Log.logException(e);
 			this.db.endStoryUpdate(feed, false);
