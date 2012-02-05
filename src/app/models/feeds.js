@@ -26,9 +26,9 @@ var feeds = Class.create ({
 	db: null,				// takes the feed database
 	connStatus: null,		// takes the connection state service
 	spooler: null,			// action spooler
-	cpConverter: null,		// codepage converter
 	dateConverter: null,	// date converter
 	formatting: null,		// formatting functions
+    processor: null,        // feed processor
 
 	interactiveUpdate: false,		// true if the update is interactive
 	changingFeed: false,			// true if a feed is changed
@@ -42,8 +42,19 @@ var feeds = Class.create ({
 		this.formatting = new Formatting();
 		this.cpConverter = new codepageConverter();
 		this.dateConverter = new dateConverter(this.formatting);
-		this.db = new database();
+		var db = new database();
+        this.db = db;
 		this.updateWhenReady = FeedReader.prefs.updateOnStart;
+        this.processor = new FeedProcessor({
+            log:            Mojo.Log.info,
+            error:          Mojo.Log.error,
+            showError:      FeedReader.showError,
+            setFeedType:    function(feed, type) { db.setFeedType(feed, type); },
+            formatting:     this.formatting,
+            dateFormatter:  this.dateConverter,
+            msgNoData:      $L("The Feed '#{title}' does not return data."),
+            msgUnspported:  $L("The format of Feed '#{title}' is unsupported.")
+        });
 	},
 
 	/**
@@ -150,289 +161,6 @@ var feeds = Class.create ({
 
 	/** @private
 	 *
-	 * Determine the type of the given feed.
-	 *
-	 * @param 	feed		{object}	feed object
-	 * @param 	transport	{object}	AJAX transport
-	 * @return 				{boolean}	true if type is supported
-	 */
-	determineFeedType: function(feed, transport) {
-		try {
-			var feedType = transport.responseXML.getElementsByTagName("rss");
-			var errorMsg = {};
-
-			if(transport.responseText.length === 0) {
-				if(this.changingFeed) {
-					errorMsg = new Template($L("The Feed '#{title}' does not return data."));
-					FeedReader.showError(errorMsg, { title: feed.url });
-				}
-				Mojo.Log.info("FEEDS> Empty responseText in", feed.url);
-				return this.db.setFeedType(feed, feedTypes.ftUnknown);
-			}
-
-			if(feedType.length > 0) {
-				return this.db.setFeedType(feed, feedTypes.ftRSS);
-			} else {
-				feedType = transport.responseXML.getElementsByTagName("RDF");
-				if (feedType.length > 0) {
-					return this.db.setFeedType(feed, feedTypes.ftRDF);
-				} else {
-					feedType = transport.responseXML.getElementsByTagName("feed");
-					if (feedType.length > 0) {
-						return this.db.setFeedType(feed, feedTypes.ftATOM);
-					} else {
-						if (this.changingFeed) {
-							errorMsg = new Template($L("The format of Feed '#{title}' is unsupported."));
-							FeedReader.showError(errorMsg, { title: feed.url });
-						}
-						Mojo.Log.info("FEEDS> Unsupported feed format in", feed.url);
-						return this.db.setFeedType(feed, feedTypes.ftUnknown);
-					}
-				}
-			}
-		} catch(e) {
-			Mojo.Log.logException(e, "FEEDS>");
-		}
-		return this.db.setFeedType(feed.url, feedTypes.ftUnknown);
-	},
-
-	/** @private
-	 *
-	 * Parse RDF Feed data.
-	 *
-	 * @param 	feed		{object}	feed object
-	 * @param 	transport	{object} 	AJAX transport
-	 */
-	parseAtom: function(feed, transport) {
-		try {
-			var enclosures = {}, story = {};
-			var url = "", enc = 0, type = "", title = "";
-			var el = 0;
-			var contentType = transport.getHeader("Content-Type");
-
-			var atomItems = transport.responseXML.getElementsByTagName("entry");
-			var l = atomItems.length;
-			for (var i = 0; i < l; i++) {
-				try {
-					story = {
-						title:		"",
-						summary:	"",
-						url:		[],
-						picture:	"",
-						audio:		"",
-						video:		"",
-						pubdate:	0,
-						uuid:		""
-					};
-
-					if(atomItems[i].getElementsByTagName("title") &&
-					   atomItems[i].getElementsByTagName("title").item(0)) {
-						story.title = this.formatting.stripBreaks(this.cpConverter.convert(contentType, unescape(atomItems[i].getElementsByTagName("title").item(0).textContent)));
-					}
-
-					if(atomItems[i].getElementsByTagName("content") &&
-					   atomItems[i].getElementsByTagName("content").item(0)) {
-						story.summary = this.formatting.reformatSummary(this.cpConverter.convert(contentType, atomItems[i].getElementsByTagName("content").item(0).textContent));
-					} else if (atomItems[i].getElementsByTagName("summary") &&
-						atomItems[i].getElementsByTagName("summary").item(0)) {
-						story.summary = this.formatting.reformatSummary(this.cpConverter.convert(contentType, atomItems[i].getElementsByTagName("summary").item(0).textContent));
-					}
-
-					// Analyse the enclosures.
-					enclosures = atomItems[i].getElementsByTagName("link");
-					if(enclosures && (enclosures.length > 0)) {
-						el = enclosures.length;
-						for(enc = 0; enc < el; enc++) {
-							rel = enclosures.item(enc).getAttribute("rel");
-							url = enclosures.item(enc).getAttribute("href");
-							type = enclosures.item(enc).getAttribute("type");
-							if(!type) {
-								type = "";
-							}
-							if(url && (url.length > 0)) {
-								if(url.match(/.*\.htm(l){0,1}/i) ||
-								  (type && (type.match(/text\/html/i) || type.match(/application\/xhtml\+xml/i)))){
-									title = enclosures.item(enc).getAttribute("title");
-									if((title === null) || (title.length === 0)) {
-										if(rel && rel.match(/alternate/i)) {
-											title = $L("Weblink");
-										} else if (rel && rel.match(/replies/i)) {
-											title = $L("Replies");
-										} else {
-											title = $L("Weblink");
-										}
-									}
-									story.url.push({
-										title:	this.cpConverter.convert(contentType, title),
-										href:	url
-									});
-								} else if(rel && rel.match(/enclosure/i)) {
-									if(url.match(/.*\.jpg/i) ||
-									   url.match(/.*\.jpeg/i) ||
-									   url.match(/.*\.gif/i) ||
-									   url.match(/.*\.png/i)) {
-										story.picture = url;
-									} else if(url.match(/.*\.mp3/i) ||
-											  (url.match(/.*\.mp4/i) && type.match(/audio\/.*/i)) ||
-											  url.match(/.*\.wav/i) ||
-											  url.match(/.*\.m4a/i) ||
-											  url.match(/.*\.aac/i)) {
-										story.audio = url;
-									} else if(url.match(/.*\.mpg/i) ||
-											  url.match(/.*\.mpeg/i) ||
-											  url.match(/.*\.m4v/i) ||
-											  url.match(/.*\.avi/i) ||
-											  (url.match(/.*\.mp4/i) && type.match(/video\/.*/i))) {
-										story.video = url;
-									}
-								}
-							}
-						}
-					}
-
-					// Set the publishing date.
-					if (atomItems[i].getElementsByTagName("updated") &&
-						atomItems[i].getElementsByTagName("updated").item(0)) {
-						story.pubdate = this.dateConverter.dateToInt(atomItems[i].getElementsByTagName("updated").item(0).textContent);
-					}
-
-					// Set the unique id.
-					if (atomItems[i].getElementsByTagName("id") &&
-						atomItems[i].getElementsByTagName("id").item(0)) {
-						story.uuid = this.formatting.stripBreaks(atomItems[i].getElementsByTagName("id").item(0).textContent);
-					} else {
-						story.uuid = this.formatting.stripBreaks(story.title);
-					}
-
-					this.db.addOrEditStory(feed, story);
-				} catch(e) {
-					Mojo.Log.logException(e, "FEEDS>");
-				}
-			}
-		} catch(ex) {
-			Mojo.Log.logException(ex, "FEEDS>");
-		}
-	},
-
-	/** @private
-	 *
-	 * Parse RSS Feed data.
-	 *
-	 * @param 	feed		{object}	feed object
-	 * @param 	transport	{object} 	AJAX transport
-	 */
-	parseRSS: function(feed, transport) {
-		try {
-			var enclosures = {}, story = {};
-			var url = "", type = "", enc = 0;
-			var el = 0;
-			var contentType = transport.getHeader("Content-Type");
-
-			var rssItems = transport.responseXML.getElementsByTagName("item");
-			var l = rssItems.length;
-			for (var i = 0; i < l; i++) {
-				try {
-					story = {
-						title: 		"",
-						summary:	"",
-						url:		[],
-						picture:	"",
-						audio:		"",
-						video:		"",
-						pubdate:	0,
-						uuid:		""
-					};
-
-					if(rssItems[i].getElementsByTagName("title") &&
-					   rssItems[i].getElementsByTagName("title").item(0)) {
-						story.title = this.formatting.stripBreaks(this.cpConverter.convert(contentType, unescape(rssItems[i].getElementsByTagName("title").item(0).textContent)));
-					}
-					if(rssItems[i].getElementsByTagName("description") &&
-					   rssItems[i].getElementsByTagName("description").item(0)) {
-						story.summary = this.formatting.reformatSummary(this.cpConverter.convert(contentType, rssItems[i].getElementsByTagName("description").item(0).textContent));
-					}
-					if(rssItems[i].getElementsByTagName("link") &&
-					   rssItems[i].getElementsByTagName("link").item(0)) {
-						story.url.push({
-							title:	"Weblink",
-							href:	this.formatting.stripBreaks(rssItems[i].getElementsByTagName("link").item(0).textContent)
-						});
-					}
-
-					// Analyse the enclosures.
-					enclosures = rssItems[i].getElementsByTagName("enclosure");
-					if(enclosures && (enclosures.length > 0)) {
-						el = enclosures.length;
-						for(enc = 0; enc < el; enc++) {
-							url = enclosures.item(enc).getAttribute("url");
-							type = enclosures.item(enc).getAttribute("type");
-							if(!type) {
-								type = "";
-							}
-							if(url && (url.length > 0)) {
-								if(url.match(/.*\.jpg/i) ||
-								   url.match(/.*\.jpeg/i) ||
-								   url.match(/.*\.gif/i) ||
-								   url.match(/.*\.png/i)) {
-									story.picture = url;
-								} else if(url.match(/.*\.mp3/i) ||
-										  (url.match(/.*\.mp4/i) && type.match(/audio\/.*/i)) ||
-										  url.match(/.*\.wav/i) ||
-										  url.match(/.*\.aac/i)) {
-									story.audio = url;
-								} else if(url.match(/.*\.mpg/i) ||
-										  url.match(/.*\.mpeg/i) ||
-										  (url.match(/.*\.mp4/i) && type.match(/video\/.*/i)) ||
-										  url.match(/.*\.avi/i) ||
-										  url.match(/.*\.m4v/i)) {
-									story.video = url;
-								}
-							}
-						}
-					}
-
-					// Set the publishing date.
-					if(rssItems[i].getElementsByTagName("pubDate") &&
-					   rssItems[i].getElementsByTagName("pubDate").item(0)) {
-					   story.pubdate = this.dateConverter.dateToInt(rssItems[i].getElementsByTagName("pubDate").item(0).textContent);
-					} else if (rssItems[i].getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", "date") &&
-							   rssItems[i].getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", "date").item(0)) {
-						story.pubdate = this.dateConverter.dateToInt(rssItems[i].getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", "date").item(0).textContent);
-					} else {
-						Mojo.Log.info("FEEDS> no pubdate given");
-					}
-
-					// Set the unique id.
-					if(rssItems[i].getElementsByTagName("guid") &&
-					   rssItems[i].getElementsByTagName("guid").item(0)) {
-						story.uuid = this.formatting.stripBreaks(rssItems[i].getElementsByTagName("guid").item(0).textContent);
-					} else {
-						story.uuid = this.formatting.stripBreaks(story.title);
-					}
-
-					this.db.addOrEditStory(feed, story);
-				} catch(e) {
-					Mojo.Log.logException(e, "FEEDS>");
-				}
-			}
-		} catch(ex) {
-			Mojo.Log.logException(ex, "FEEDS>");
-		}
-	},
-
-	/** @private
-	 *
-	 * Parse RDF Feed data.
-	 *
-	 * @param 	feed		{object}	feed object
-	 * @param 	transport	{object} 	AJAX transport
-	 */
-	parseRDF: function(feed, transport) {
-		this.parseRSS(feed, transport);		// Currently we do the same as for RSS.
-	},
-
-	/** @private
-	 *
 	 * Called when an Ajax request succeeds.
 	 *
 	 * @param 	feed		{object}	feed object
@@ -447,20 +175,9 @@ var feeds = Class.create ({
 				Mojo.Log.info(transport.responseText);
 			}
 
-			var type = this.determineFeedType(feed, transport);
-			switch(type) {
-				case feedTypes.ftRDF:
-					this.parseRDF(feed, transport);
-					break;
+			var type = this.processor.determineFeedType(feed, transport.responseXML, transport.responseText, this.changingFeed);
+            this.processor.parseFeed(this.db, feed, type, transport.responseXML, transport.getHeader("Content-Type"));
 
-				case feedTypes.ftRSS:
-					this.parseRSS(feed, transport);
-					break;
-
-				case feedTypes.ftATOM:
-					this.parseAtom(feed, transport);
-					break;
-			}
 			this.db.endStoryUpdate(feed, type != feedTypes.ftUnknown);
 		} catch(e) {
 			Mojo.Log.logException(e);

@@ -37,11 +37,11 @@ enyo.kind({
 		kind:		"DateFormatter"
 	}],
 
-	interactiveUpdate: false,		// true if the update is interactive
-	changingFeed: false,			// true if a feed is changed
-	updateWhenReady: true,
-	formatting:	null,
-	cpConverter: null,
+	interactiveUpdate:  false,		// true if the update is interactive
+	changingFeed:       false,	    // true if a feed is changed
+	updateWhenReady:    true,
+	formatting:	        null,
+    processor:          null,
 
 	/**
 	 * Constructor.
@@ -50,7 +50,16 @@ enyo.kind({
 		this.inherited(arguments);
 		this.updateWhenReady = enyo.application.prefs.updateOnStart;
 		this.formatting = new Formatting();
-		this.cpConverter = new codepageConverter();
+        this.processor = new FeedProcessor({
+            log:            this.log,
+            error:          this.error,
+            showError:      enyo.application.showError,
+            setFeedType:    function(feed, type) { enyo.application.db.setFeedType(feed, type); },
+            formatting:     this.formatting,
+            dateFormatter:  this.$.dateFormatter,
+            msgNoData:      $L("The Feed '{$title}' does not return data."),
+            msgUnspported:  $L("The format of Feed '{$title}' is unsupported.")
+        })
 	},
 
 	/**
@@ -151,290 +160,6 @@ enyo.kind({
 
 	/** @private
 	 *
-	 * Determine the type of the given feed.
-	 *
-	 * @param 	feed		{object}	feed object
-	 * @param 	response	{object} 	AJAX response
-	 * @param	request		{object}	AJAX request
-	 * @return 				{boolean}	true if type is supported
-	 */
-	determineFeedType: function(feed, response, request) {
-		try {
-			if(request.xhr.responseText.length === 0) {
-				if(this.changingFeed) {
-					enyo.application.showError($L("The Feed '{$title}' does not return data."),
-											   { title: feed.url });
-				}
-				this.log("FEEDS> Empty responseText in", feed.url);
-				return enyo.application.db.setFeedType(feed, feedTypes.ftUnknown);
-			}
-
-			var feedType = response.getElementsByTagName("rss");
-			if(feedType.length > 0) {
-				return enyo.application.db.setFeedType(feed, feedTypes.ftRSS);
-			} else {
-				feedType = response.getElementsByTagName("RDF");
-				if (feedType.length > 0) {
-					return enyo.application.db.setFeedType(feed, feedTypes.ftRDF);
-				} else {
-					feedType = response.getElementsByTagName("feed");
-					if (feedType.length > 0) {
-						return enyo.application.db.setFeedType(feed, feedTypes.ftATOM);
-					} else {
-						if(this.changingFeed) {
-							enyo.application.showError($L("The format of Feed '{$title}' is unsupported."), { title: feed.url });
-						}
-						this.log("FEEDS> Unsupported feed format in", feed.url);
-						return enyo.application.db.setFeedType(feed, feedTypes.ftUnknown);
-					}
-				}
-			}
-		} catch(e) {
-			this.error("FEEDS EXCEPTION>", e);
-		}
-		return enyo.application.db.setFeedType(feed.url, feedTypes.ftUnknown);
-	},
-
-	/** @private
-	 *
-	 * Parse RDF Feed data.
-	 *
-	 * @param 	feed		{object}	feed object
-	 * @param 	response	{object} 	AJAX response
-	 * @param	request		{object}	AJAX request
-	 */
-	parseAtom: function(feed, response, request) {
-		try {
-			var enclosures = {}, story = {};
-			var url = "", enc = 0, type = "", title = "";
-			var el = 0;
-			var contentType = request.xhr.getResponseHeader("Content-Type");
-
-			var atomItems = response.getElementsByTagName("entry");
-			var l = atomItems.length;
-			for (var i = 0; i < l; i++) {
-				try {
-					story = {
-						title:		"",
-						summary:	"",
-						url:		[],
-						picture:	"",
-						audio:		"",
-						video:		"",
-						pubdate:	0,
-						uuid:		""
-					};
-
-					if(atomItems[i].getElementsByTagName("title") &&
-					   atomItems[i].getElementsByTagName("title").item(0)) {
-						story.title = this.formatting.stripBreaks(this.cpConverter.convert(contentType, unescape(atomItems[i].getElementsByTagName("title").item(0).textContent)));
-					}
-
-					if(atomItems[i].getElementsByTagName("content") &&
-					   atomItems[i].getElementsByTagName("content").item(0)) {
-						story.summary = this.formatting.reformatSummary(this.cpConverter.convert(contentType, atomItems[i].getElementsByTagName("content").item(0).textContent));
-					} else if (atomItems[i].getElementsByTagName("summary") &&
-						atomItems[i].getElementsByTagName("summary").item(0)) {
-						story.summary = this.formatting.reformatSummary(this.cpConverter.convert(contentType, atomItems[i].getElementsByTagName("summary").item(0).textContent));
-					}
-
-					// Analyse the enclosures.
-					enclosures = atomItems[i].getElementsByTagName("link");
-					if(enclosures && (enclosures.length > 0)) {
-						el = enclosures.length;
-						for(enc = 0; enc < el; enc++) {
-							rel = enclosures.item(enc).getAttribute("rel");
-							url = enclosures.item(enc).getAttribute("href");
-							type = enclosures.item(enc).getAttribute("type");
-							if(!type) {
-								type = "";
-							}
-							if(url && (url.length > 0)) {
-								if(url.match(/.*\.htm(l){0,1}/i) ||
-								  (type && (type.match(/text\/html/i) || type.match(/application\/xhtml\+xml/i)))){
-									title = enclosures.item(enc).getAttribute("title");
-									if((title === null) || (title.length === 0)) {
-										if(rel && rel.match(/alternate/i)) {
-											title = $L("Weblink");
-										} else if (rel && rel.match(/replies/i)) {
-											title = $L("Replies");
-										} else {
-											title = $L("Weblink");
-										}
-									}
-									story.url.push({
-										title:	this.cpConverter.convert(contentType, title),
-										href:	url
-									});
-								} else if(rel && rel.match(/enclosure/i)) {
-									if(url.match(/.*\.jpg/i) ||
-									   url.match(/.*\.jpeg/i) ||
-									   url.match(/.*\.gif/i) ||
-									   url.match(/.*\.png/i)) {
-										story.picture = url;
-									} else if(url.match(/.*\.mp3/i) ||
-											  (url.match(/.*\.mp4/i) && type.match(/audio\/.*/i)) ||
-											  url.match(/.*\.wav/i) ||
-											  url.match(/.*\.m4a/i) ||
-											  url.match(/.*\.aac/i)) {
-										story.audio = url;
-									} else if(url.match(/.*\.mpg/i) ||
-											  url.match(/.*\.mpeg/i) ||
-											  url.match(/.*\.m4v/i) ||
-											  url.match(/.*\.avi/i) ||
-											  (url.match(/.*\.mp4/i) && type.match(/video\/.*/i))) {
-										story.video = url;
-									}
-								}
-							}
-						}
-					}
-
-					// Set the publishing date.
-					if (atomItems[i].getElementsByTagName("updated") &&
-						atomItems[i].getElementsByTagName("updated").item(0)) {
-						story.pubdate = this.$.dateFormatter.dateToInt(atomItems[i].getElementsByTagName("updated").item(0).textContent,
-																	   this.formatting);
-					}
-
-					// Set the unique id.
-					if (atomItems[i].getElementsByTagName("id") &&
-						atomItems[i].getElementsByTagName("id").item(0)) {
-						story.uuid = this.formatting.stripBreaks(atomItems[i].getElementsByTagName("id").item(0).textContent);
-					} else {
-						story.uuid = this.formatting.stripBreaks(story.title);
-					}
-
-					enyo.application.db.addOrEditStory(feed, story);
-				} catch(e) {
-					this.error("FEEDS EXCEPTION>", e);
-				}
-			}
-		} catch(ex) {
-			this.error("FEEDS EXCEPTION>", ex);
-		}
-	},
-
-	/** @private
-	 *
-	 * Parse RSS Feed data.
-	 *
-	 * @param 	feed		{object}	feed object
-	 * @param 	response	{object} 	AJAX response
-	 * @param	request		{object}	AJAX request
-	 */
-	parseRSS: function(feed, response, request) {
-		try {
-			var enclosures = {}, story = {};
-			var url = "", type = "", enc = 0;
-			var el = 0;
-			var contentType = request.xhr.getResponseHeader("Content-Type");
-
-			var rssItems = response.getElementsByTagName("item");
-			var l = rssItems.length;
-			for (var i = 0; i < l; i++) {
-				try {
-					story = {
-						title: 		"",
-						summary:	"",
-						url:		[],
-						picture:	"",
-						audio:		"",
-						video:		"",
-						pubdate:	0,
-						uuid:		""
-					};
-
-					if(rssItems[i].getElementsByTagName("title") &&
-					   rssItems[i].getElementsByTagName("title").item(0)) {
-						story.title = this.formatting.stripBreaks(this.cpConverter.convert(contentType, unescape(rssItems[i].getElementsByTagName("title").item(0).textContent)));
-					}
-					if(rssItems[i].getElementsByTagName("description") &&
-					   rssItems[i].getElementsByTagName("description").item(0)) {
-						story.summary = this.formatting.reformatSummary(this.cpConverter.convert(contentType, rssItems[i].getElementsByTagName("description").item(0).textContent));
-					}
-					if(rssItems[i].getElementsByTagName("link") &&
-					   rssItems[i].getElementsByTagName("link").item(0)) {
-						story.url.push({
-							title:	"Weblink",
-							href:	this.formatting.stripBreaks(rssItems[i].getElementsByTagName("link").item(0).textContent)
-						});
-					}
-
-					// Analyse the enclosures.
-					enclosures = rssItems[i].getElementsByTagName("enclosure");
-					if(enclosures && (enclosures.length > 0)) {
-						el = enclosures.length;
-						for(enc = 0; enc < el; enc++) {
-							url = enclosures.item(enc).getAttribute("url");
-							type = enclosures.item(enc).getAttribute("type") || "";
-							if(url && (url.length > 0)) {
-								if(url.match(/.*\.jpg/i) ||
-								   url.match(/.*\.jpeg/i) ||
-								   url.match(/.*\.gif/i) ||
-								   url.match(/.*\.png/i)) {
-									story.picture = url;
-								} else if(url.match(/.*\.mp3/i) ||
-										  (url.match(/.*\.mp4/i) && type.match(/audio\/.*/i)) ||
-										  url.match(/.*\.wav/i) ||
-										  url.match(/.*\.aac/i)) {
-									story.audio = url;
-								} else if(url.match(/.*\.mpg/i) ||
-										  url.match(/.*\.mpeg/i) ||
-										  (url.match(/.*\.mp4/i) && type.match(/video\/.*/i)) ||
-										  url.match(/.*\.avi/i) ||
-										  url.match(/.*\.m4v/i)) {
-									story.video = url;
-								}
-							}
-						}
-					}
-
-					// Set the publishing date.
-					if(rssItems[i].getElementsByTagName("pubDate") &&
-					   rssItems[i].getElementsByTagName("pubDate").item(0)) {
-					   story.pubdate = this.$.dateFormatter.dateToInt(rssItems[i].getElementsByTagName("pubDate").item(0).textContent,
-																	  this.formatting);
-					} else if (rssItems[i].getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", "date") &&
-							   rssItems[i].getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", "date").item(0)) {
-						story.pubdate = this.$.dateFormatter.dateToInt(rssItems[i].getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", "date").item(0).textContent,
-																	   this.formatting);
-					} else {
-						this.log("FEEDS> no pubdate given");
-					}
-
-					// Set the unique id.
-					if(rssItems[i].getElementsByTagName("guid") &&
-					   rssItems[i].getElementsByTagName("guid").item(0)) {
-						story.uuid = this.formatting.stripBreaks(rssItems[i].getElementsByTagName("guid").item(0).textContent);
-					} else {
-						story.uuid = this.formatting.stripBreaks(story.title);
-					}
-
-					enyo.application.db.addOrEditStory(feed, story);
-				} catch(e) {
-					this.error("FEEDS EXCEPTION>", e);
-				}
-			}
-		} catch(ex) {
-			this.error("FEEDS EXCEPTION>", ex);
-		}
-	},
-
-	/** @private
-	 *
-	 * Parse RDF Feed data.
-	 *
-	 * @param 	feed		{object}	feed object
-	 * @param 	response	{object} 	AJAX response
-	 * @param	request		{object}	AJAX request
-	 */
-	parseRDF: function(feed, response, request) {
-		this.parseRSS(feed, response, request);		// Currently we do the same as for RSS.
-	},
-
-	/** @private
-	 *
 	 * Called when an Ajax request succeeds.
 	 *
 	 * @param	sender		{object}	sender
@@ -458,20 +183,8 @@ enyo.kind({
 				}
 			}
 
-			var type = this.determineFeedType(feed, response, request);
-			switch(type) {
-				case feedTypes.ftRDF:
-					this.parseRDF(feed, response, request);
-					break;
-
-				case feedTypes.ftRSS:
-					this.parseRSS(feed, response, request);
-					break;
-
-				case feedTypes.ftATOM:
-					this.parseAtom(feed, response, request);
-					break;
-			}
+			var type = this.processor.determineFeedType(feed, response, request.xhr.responseText, this.changingFeed);
+            this.processor.parseFeed(enyo.application.db, feed, type, response, request.xhr.getResponseHeader("Content-Type"));
 			enyo.application.db.endStoryUpdate(feed, type != feedTypes.ftUnknown);
 		} catch(e) {
 			this.error("FEEDS EXCEPTION>", e);
@@ -491,7 +204,7 @@ enyo.kind({
 		var feed = request.feed;
 		try {
 			var error = "";
-			switch(transport.xhr.status) {
+			switch(request.xhr.status) {
 				case 400:
 					error = $L("Bad Request");
 					break;
@@ -511,7 +224,7 @@ enyo.kind({
 					error = $L("Not Acceptable");
 					break;
 				default:
-					if (transport.xhr.status >= 500) {
+					if (request.xhr.status >= 500) {
 						error = $L("Server error");
 					} else {
 						error = $L("Unexpected error");
