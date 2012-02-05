@@ -17,6 +17,7 @@ enyo.depends(
 	"commonjs/codepages.js",
 	"commonjs/formatting.js",
     "commonjs/prefs.js",
+    "commonjs/feeds.js",
 
 	// Utilities
 	"source/utils/timer.js",

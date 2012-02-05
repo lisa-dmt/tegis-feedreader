@@ -7,6 +7,7 @@
 	{"source": "commonjs/formatting.js"},
     {"source": "commonjs/helper.js"},
     {"source": "commonjs/prefs.js"},
+    {"source": "commonjs/feeds.js"},
     {"source": "app/utils/spooler.js"},
     {"source": "app/utils/date.js"},
 	{"source": "app/utils/migrator.js"},
