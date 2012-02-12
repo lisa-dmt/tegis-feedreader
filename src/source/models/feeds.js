@@ -59,7 +59,9 @@ enyo.kind({
             dateFormatter:  this.$.dateFormatter,
             msgNoData:      $L("The Feed '{$title}' does not return data."),
             msgUnspported:  $L("The format of Feed '{$title}' is unsupported.")
-        })
+        });
+        this.getNewCount = enyo.bind(this, this.getNewCount);
+        this.enqueueUpdateList = enyo.bind(this, this.enqueueUpdateList);
 	},
 
 	/**
@@ -84,7 +86,7 @@ enyo.kind({
 	 */
 	enqueueUpdateAll: function() {
 		this.log("FEEDLIST> Full update requested");
-		enyo.application.db.getUpdatableFeeds(enyo.bind(this, this.enqueueUpdateList));
+		enyo.application.db.getUpdatableFeeds(this.enqueueUpdateList);
 	},
 
 	/** @private
@@ -97,7 +99,7 @@ enyo.kind({
 			for(var i = 0; i < feeds.length; i++) {
 				this.enqueueUpdate(feeds[i]);
 			}
-			enyo.application.spooler.addAction(enyo.bind(this, this.getNewCount), "getNewCount", true);
+			enyo.application.spooler.addAction(this.getNewCount, "getNewCount", true);
 			enyo.application.spooler.endUpdate();
 		}
 	},
