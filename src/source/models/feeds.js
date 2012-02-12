@@ -104,6 +104,16 @@ enyo.kind({
 		}
 	},
 
+    /**
+     * Send a notification of the update state of a feed.
+     *
+     * @param	feed		{object}		feed object
+     * @param	transaction	{object}		state of the feed
+     */
+    notifyOfUpdate: function(feed, state) {
+        enyo.application.notifyFeedUpdated(state, feed.feedOrder);
+    },
+
 	/** @private
 	 *
 	 * Called by the spooler to update a feed.
@@ -133,7 +143,8 @@ enyo.kind({
 		try {
 			this.log("FEEDS> Internet connection available, requesting", feed.url);
 			this.updateInProgress = true;
-			enyo.application.db.beginStoryUpdate(feed);
+			this.notifyOfUpdate(feed, true);
+            enyo.application.db.beginStoryUpdate(feed);
 
 			var params = {};
 			if(feed.username && feed.password) {
@@ -147,6 +158,7 @@ enyo.kind({
 			});
 		} catch(e) {
 			this.error("FEEDS EXCEPTION>", e);
+            this.notifyOfUpdate(feed, false);
 			enyo.application.spooler.nextAction();
 		}
 	},
@@ -192,6 +204,8 @@ enyo.kind({
 			this.error("FEEDS EXCEPTION>", e);
 			enyo.application.db.endStoryUpdate(feed, false);
 		}
+
+        this.notifyOfUpdate(feed, false);
 		enyo.application.spooler.nextAction();
 	},
 

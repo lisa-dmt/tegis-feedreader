@@ -1035,7 +1035,6 @@ enyo.kind({
 		onSuccess = onSuccess || this.nullData;
 		onFail = onFail || this.errorHandler;
 		var nullData = this.nullData;
-		var onNotify = enyo.bind(this, this.notifyOfUpdate, true);
 
 		var date = new Date();
 		var keepthreshold = date.getTime() - (enyo.application.prefs.storyKeepTime * 60 * 60 * 1000);
@@ -1056,22 +1055,7 @@ enyo.kind({
 								   "    OR pubdate < ?)" +
 								   "    AND fid = ?",
 								   [keepthreshold, feed.id], onSuccess, onFail);
-			transaction.executeSql("SELECT feedOrder FROM feeds WHERE id = ?",
-								   [feed.id], onNotify, onFail);
 		});
-	},
-
-	/**
-	 * Send a notification of the update state of a feed.
-	 *
-	 * @param	state		{bool}			update state of the feed
-	 * @param	transaction	{Object}		transaction object
-	 * @param	result		{Object}		data
-	 */
-	notifyOfUpdate: function(state, transaction, result) {
-		if(result.rows.length > 0) {
-			enyo.application.notifyFeedUpdated(state, result.rows.item(0).feedOrder);
-		}
 	},
 
 	/**
@@ -1085,7 +1069,6 @@ enyo.kind({
 	endStoryUpdate: function(feed, successful, onSuccess, onFail) {
 		onSuccess = onSuccess || this.nullData;
 		onFail = onFail || this.errorHandler;
-		var onNotify = enyo.bind(this, this.notifyOfUpdate, false);
 
 		this.writeTransaction(function(transaction) {
 			if(successful) {
@@ -1100,8 +1083,6 @@ enyo.kind({
 									   "  WHERE fid = ?",
 									   [feed.id], onSuccess, onFail);
 			}
-			transaction.executeSql("SELECT feedOrder FROM feeds WHERE id = ?",
-								   [feed.id], onNotify, onFail);
 		});
 	},
 

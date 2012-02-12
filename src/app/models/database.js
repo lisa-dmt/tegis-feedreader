@@ -1120,7 +1120,6 @@ var database = Class.create({
 		onSuccess = onSuccess || this.nullData;
 		onFail = onFail || this.error;
 		var nullData = this.nullData;
-		var onNotify = this.notifyOfUpdate.bind(this, true);
 
 		var date = new Date();
 		var keepthreshold = date.getTime() - (FeedReader.prefs.storyKeepTime * 60 * 60 * 1000);
@@ -1141,26 +1140,7 @@ var database = Class.create({
 								   "    OR pubdate < ?)" +
 								   "    AND fid = ?",
 								   [keepthreshold, feed.id], onSuccess, onFail);
-			transaction.executeSql("SELECT feedOrder FROM feeds WHERE id = ?",
-								   [feed.id], onNotify, onFail);
 		});
-	},
-
-	/**
-	 * Send a notification of the update state of a feed.
-	 *
-	 * @param	state		{bool}			update state of the feed
-	 * @param	transaction	{Object}		transaction object
-	 * @param	result		{Object}		data
-	 */
-	notifyOfUpdate: function(state, transaction, result) {
-		if(result.rows.length > 0) {
-			Mojo.Controller.getAppController().sendToNotificationChain({
-				type: 		"feed-update",
-				inProgress: state,
-				feedOrder:	result.rows.item(0).feedOrder
-			});
-		}
 	},
 
 	/**
@@ -1174,7 +1154,6 @@ var database = Class.create({
 	endStoryUpdate: function(feed, successful, onSuccess, onFail) {
 		onSuccess = onSuccess || this.nullData;
 		onFail = onFail || this.error;
-		var onNotify = this.notifyOfUpdate.bind(this, false);
 
 		this.transaction(function(transaction) {
 			if(successful) {
@@ -1189,8 +1168,6 @@ var database = Class.create({
 									   "  WHERE fid = ?",
 									   [feed.id], onSuccess, onFail);
 			}
-			transaction.executeSql("SELECT feedOrder FROM feeds WHERE id = ?",
-								   [feed.id], onNotify, onFail);
 		});
 	},
 
