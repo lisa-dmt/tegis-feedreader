@@ -315,13 +315,13 @@ enyo.kind({
 			return;
 		}
 		this.setFeedSpinner(index, state);
-		if(!state) {
-			this.refresh();
-		}
 	},
 
 	spoolerRunningChanged: function(state) {
 		this.$.refreshButton.setDisabled(state);
+        if(!state) {
+            this.refresh();
+        }
 	},
 
 	//

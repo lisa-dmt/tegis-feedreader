@@ -111,6 +111,21 @@ var feeds = Class.create ({
 		}
 	},
 
+    /** @private
+     *
+     * Send a notification of the update state of a feed.
+     *
+     * @param   feed        {object}        feed objecz
+     * @param	state		{bool}			update state of the feed
+     */
+    notifyOfUpdate: function(feed, state) {
+        Mojo.Controller.getAppController().sendToNotificationChain({
+            type: 		"feed-update",
+            inProgress: state,
+            feedOrder:	feed.feedOrder
+        });
+    },
+
 	/** @private
 	 *
 	 * Called when the connection status could be retrieved.
@@ -123,6 +138,7 @@ var feeds = Class.create ({
 			if(result.isInternetConnectionAvailable) {
 				Mojo.Log.info("FEEDS> Internet connection available, requesting", feed.url);
 				this.updateInProgress = true;
+                this.notifyOfUpdate(feed, true);
 				this.db.beginStoryUpdate(feed);
 				var requestOptions = {
 						method:			"get",
@@ -142,6 +158,7 @@ var feeds = Class.create ({
 				this.spooler.nextAction();
 			}
 		} catch(e) {
+            this.notifyOfUpdate(feed, false);
 			Mojo.Log.logException(e, "FEEDS>");
 			this.spooler.nextAction();
 		}
@@ -182,6 +199,7 @@ var feeds = Class.create ({
 			Mojo.Log.logException(e);
 			this.db.endStoryUpdate(feed, false);
 		}
+        this.notifyOfUpdate(feed, false);
 		this.spooler.nextAction();
 	},
 
