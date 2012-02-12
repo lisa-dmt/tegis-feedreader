@@ -36,7 +36,12 @@ Changelog
 Version 3.0.2 (maintenance release)
 -----------------------------------
  * deleting a feed via the context menu works correctly
+ * Scroll position is now reset in Enyo when a different feed is selected
+ * improved responsiveness of Enyo version
+ * improved feed parsing performance
  * improved textfield handling
+ * improved handling of links in HTML content
+ * refactored code base to share more code between Enyo and Mojo
  * updated contributors list in readme
  * ability to select which information is shown in the feed list
 
