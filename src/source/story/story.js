@@ -78,6 +78,7 @@ enyo.kind({
 	_mediaKind:		mediaKinds.none,
 	_timer:			null,
 	_mediaSeeking:	false,
+    _scrolling:     false,
 
 	components:	[{
 		name:			"header",
@@ -131,6 +132,8 @@ enyo.kind({
 			kind:			"Scroller",
             name:           "contentScroller",
 			style:			"margin: 10px",
+            onScrollStart:  "scrollingStarted",
+            onScrollStop:   "scrollingStopped",
 			flex:			1,
 			components:		[{
 				name:		"pictureBox",
@@ -307,6 +310,8 @@ enyo.kind({
 		this.story = story;
 		this.urls = urls;
 
+        this._scrolling = false;
+
 		// Handle the largeFont setting.
 		this.$.date.applyStyle("font-size", enyo.application.prefs.largeFont ? "120%" : "100%");
 		this.$.caption.applyStyle("font-size", enyo.application.prefs.largeFont ? "120%" : "100%");
@@ -321,6 +326,7 @@ enyo.kind({
 		if(this.originFeed.fullStory) {
             this.$.contentScroller.scrollIntoView(0, 0);
 			this.$.content.setContent(this.story.summary);
+            PrependHyperLinks(this.$.content.node, this, this.handleClick);
 			if(!this.story.picture || (this.story.picture.length <= 0)) {
 				this.$.picture.hide();
 				this.$.loadSpinner.hide();
@@ -415,6 +421,12 @@ enyo.kind({
 			// show a menu
 		}
 	},
+
+    handleClick: function(href) {
+        if(!this._scrolling) {
+            enyo.application.openLink(href);
+        }
+    },
 
 	//
 	// Media handling
@@ -555,6 +567,18 @@ enyo.kind({
             }
         }, {});
 	},
+
+    //
+    // Scroll handling
+    //
+
+    scrollingStarted: function() {
+        this._scrolling = true;
+    },
+
+    scrollingStopped: function() {
+        this._scrolling = false;
+    },
 
 	//
 	// Toolbar handling
