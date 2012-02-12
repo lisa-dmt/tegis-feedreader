@@ -87,6 +87,9 @@ enyo.kind({
 	},
 
 	updateDisplay: function() {
+        if(!enyo.application.feeds)
+            return;
+
 		var oldCount = this.params.newCount;
 		this.params = enyo.windowParams;
 		if(this.params.isUpdate) {
