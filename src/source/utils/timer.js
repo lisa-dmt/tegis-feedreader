@@ -32,8 +32,7 @@ enyo.kind({
 		kind:		"PalmService",
 		service:	"palm://com.palm.power/timeout/",
 		onSuccess:	"setTimerSuccess",
-		onFailure:	"setTimerFailed",
-		subscribe:	true
+		onFailure:	"setTimerFailed"
 	}],
 
 	setTimer: function() {
