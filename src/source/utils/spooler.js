@@ -28,8 +28,7 @@ enyo.kind({
 	components:	[{
 		name:		"powerService",
 		kind:		"PalmService",
-		service:	"palm://com.palm.power/com/palm/power/",
-		subscribe:	true
+		service:	"palm://com.palm.power/com/palm/power/"
 	}],
 
 	list: 			[],
