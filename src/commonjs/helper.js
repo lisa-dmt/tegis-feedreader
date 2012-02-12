@@ -21,7 +21,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-LogException = function(exception, message) {
+function LogException(exception, message) {
     if(IsEnyo()) {
         enyo.error(message, exception);
     } else {
@@ -31,4 +31,38 @@ LogException = function(exception, message) {
 
 function IsEnyo() {
     return window.enyo !== undefined;
+}
+
+function Bind(scope, fnc) {
+    var baseArgs = [];
+    for(var i = 2; i < arguments.length; i++) {
+        baseArgs.push(arguments[i]);
+    }
+    return function() {
+        var args = [];
+        for(var i = 0; i < baseArgs.length; i++)
+            args.push(baseArgs[i]);
+        for(i = 0; i < arguments.length; i++)
+            args.push(arguments[i]);
+        fnc.apply(scope, args);
+    };
+}
+
+function PrependHyperLinks(node, scope, handler) {
+    if(!node) {
+        return;
+    }
+
+    try {
+        if((node.nodeName == 'A') && node.href && (!node.href.match(/javascript.*/))) {
+            node.onclick = Bind(scope, handler, node.href);
+            node.href = 'javascript:void(0)';
+        }
+
+        for(var i = 0; i < node.childNodes.length; i++) {
+            PrependHyperLinks(node.childNodes[i], scope, handler);
+        }
+    } catch(e) {
+        LogException(e);
+    }
 }

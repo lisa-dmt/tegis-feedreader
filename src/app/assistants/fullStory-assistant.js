@@ -181,7 +181,7 @@ FullStoryAssistant.prototype.dataHandler = function(feed, story, urls) {
 				this.controller.get("story-content").update(this.formatting.stripHTML(this.story.summary));
 			}
 
-			this.prependHyperLinks(this.controller.get("story-content"));
+            PrependHyperLinks(this.controller.get("story-content"), this, this.handleClick);
 		}
 
 		// Setup the story's picture.
@@ -278,25 +278,6 @@ FullStoryAssistant.prototype.dataHandler = function(feed, story, urls) {
 		Mojo.Log.logException(e, "FULLSTORY>");
 	}
 	SceneControl.endSceneSetup(this);
-};
-
-FullStoryAssistant.prototype.prependHyperLinks = function(node) {
-	if(!node) {
-		return;
-	}
-
-	try {
-		if((node.nodeName == 'A') && node.href && (!node.href.match(/javascript.*/))) {
-			node.onclick = this.handleClick.bind(this, node.href);
-			node.href = 'javascript:void(0)';
-		}
-
-		for(var i = 0; i < node.childNodes.length; i++) {
-			this.prependHyperLinks(node.childNodes[i]);
-		}
-	} catch(e) {
-		Mojo.Log.logException(e);
-	}
 };
 
 FullStoryAssistant.prototype.listDataHandler = function(ids) {
