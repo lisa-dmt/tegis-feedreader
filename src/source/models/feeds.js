@@ -77,6 +77,11 @@ enyo.kind({
 	 * @param feed	{Object} 	feed to update
 	 */
 	enqueueUpdate: function(feed) {
+        if(feed.feedType == feedTypes.ftAllItems || feed.feedType == feedTypes.ftStarred) {
+            this.enqueueUpdateAll();
+            return;
+        }
+
 		this.updateInProgress = true;
 		enyo.application.spooler.addAction(enyo.bind(this, this.doUpdateFeed, feed), feed.id, true);
 	},
