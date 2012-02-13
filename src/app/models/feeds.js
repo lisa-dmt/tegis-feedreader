@@ -63,6 +63,11 @@ var feeds = Class.create ({
 	 * @param feed	{Object} 	feed to update
 	 */
 	enqueueUpdate: function(feed) {
+        if(feed.feedType == feedTypes.ftAllItems || feed.feedType == feedTypes.ftStarred) {
+            this.enqueueUpdateAll();
+            return;
+        }
+
 		this.updateInProgress = true;
 		this.spooler.addAction(this.doUpdateFeed.bind(this, feed), feed.id, true);
 	},
