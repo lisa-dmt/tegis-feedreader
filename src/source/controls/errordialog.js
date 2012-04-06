@@ -25,7 +25,7 @@ enyo.kind({
 	kind:			"ModalDialog",
 	layoutKind:		"VFlexLayout",
 	contentHeight:	"95%",
-	style:			"width: 320px; height: 270px;",
+	style:			"width: 400px; height: 400px;",
 
 	published:	{
 		message:	"",
