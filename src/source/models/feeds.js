@@ -500,7 +500,7 @@ enyo.kind({
 				default:					icon = ignoreUnknown ? "rss" : "unknown"; break;
 			}
 			if(!ignoreEnabled && !feed.enabled) {
-				suffix = 'disabled';
+				suffix = '-disabled';
 			}
 		}
 		return prefix + icon + suffix + '.png';
