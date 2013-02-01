@@ -599,7 +599,7 @@ enyo.kind({
 			kind:		"onyx.Button",
 			classes:	"onyx-affirmative",
 			content:	$L("OK"),
-			onap:		"okClicked"
+			ontap:		"okClicked"
 		}]
 	}],
 
