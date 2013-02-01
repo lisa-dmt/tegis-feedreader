@@ -289,18 +289,25 @@ enyo.kind({
 	 */
 	addOrEditFeed: function(feed, onSuccess, onFail) {
 		var maxOrder = 0;
+		var id = feed.id || null;
+
 		var feeds = this.writeTransaction(["feeds"], null, onFail).objectStore("feeds");
-		feeds.index("feedOrder").openCursor().onsuccess = function(event) {
-			var cursor = event.target.result;
-			if(cursor) {
-				maxOrder = Math.max(maxOrder, cursor.value.feedOrder);
-				cursor.continue();
-			} else {
-				feed.feedOrder = maxOrder + 1;
-				feeds.put(feed).onsuccess = function(event) {
-					feed.id = event.target.result;
-					onSuccess(feed);
-				};
+		if(id !== null) {
+			feed = new Feed(feed);
+			feeds.put(feed).onsuccess = function() { onSuccess(feed); };
+		} else {
+			feeds.index("feedOrder").openCursor().onsuccess = function(event) {
+				var cursor = event.target.result;
+				if(cursor) {
+					maxOrder = Math.max(maxOrder, cursor.value.feedOrder);
+					cursor.continue();
+				} else {
+					feed.feedOrder = maxOrder + 1;
+					feeds.put(feed).onsuccess = function(event) {
+						feed.id = event.target.result;
+						onSuccess(feed);
+					};
+				}
 			}
 		}
 	},
@@ -444,7 +451,7 @@ enyo.kind({
 			if(cursor) {
 				var feed = cursor.value;
 				if(!filter || (filter == "") || (feed.title.indexOf(filter)))
-					result.push(feed);
+					result.push(new Feed(feed));
 				cursor.continue();
 			}
 		}
@@ -526,7 +533,7 @@ enyo.kind({
 				if((feed.sortMode == 0) ||
 					((feed.sortMode == 1) && (!cursor.value.isRead)) ||
 					((feed.sortMode == 1) && (!cursor.value.isNew))) {
-					data.push(cursor.value);
+					data.push(new Story(cursor.value));
 				}
 				cursor.continue();
 			}
