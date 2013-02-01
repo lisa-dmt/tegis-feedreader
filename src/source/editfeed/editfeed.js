@@ -249,6 +249,7 @@ enyo.kind({
 	cancelClicked: function() {
 		this.doCanceled();
 		this.hide();
+		this.resetButtons();
 	},
 
 	feedChanged: function() {
