@@ -22,62 +22,44 @@
 
 enyo.kind({
 	name:				"ListViewSkeleton",
-	kind:				"VFlexBox",
-	flex:				1,
+	kind:				"DraggableView",
+    classes:            "back-color",
 
 	items:				[],
-	itemCount:			-1,
 	filter:				"",
 
 	selectedIndex:		-1,
 	deletedItem:		null,
 
 	refreshInProgress:	false,
+	selectionClass:		"list-item-selected",
 
 	//
 	// List handling
 	//
 
-	selectRow: function(index) {
-		if(this.selectedIndex != index) {
-			this.deselectRow();
-			this.$.list.select(index);
-			this.$.list.prepareRow(index);
-			this.$.item.addClass("enyo-item-selected");
-			this.selectedIndex = index;
-		}
-	},
-
-	deselectRow: function(index) {
-		if(index === undefined) {
-			index = this.selectedIndex;
-		}
-
-		if(index >= 0) {
-			this.$.list.getSelection().clear();
-			this.$.list.prepareRow(index);
-			this.$.item.removeClass("enyo-item-selected");
-			this.selectedIndex = -1;
-		}
-	},
-
 	itemClicked: function(sender, event) {
-		if(event.rowIndex == this.selectedIndex) {
+		// If the tapped item is already selected, nothing has to be done.
+		// This is indicated by returning false. As a result, this method
+		// needs to be overridden in a derived kind, as the handler must
+		// not return a value to the caller.
+		if(event.index == this.selectedIndex && !enyo.Panels.isScreenNarrow()) {
 			return false;
 		}
 
-		this.selectRow(event.rowIndex);
+		this.selectedIndex = event.index;
 		return true;
 	},
 
 	itemDeleted: function(sender, index) {
-		var delSelected = this.selectedIndex == index;
+		var delSelected = this.selectedIndex === index;
 		if(delSelected) {
 			this.selectedIndex = -1;
 		}
 
 		this.deletedItem = this.items[index];
 		this.items.splice(index, 1);
+		this.$.list.setCount(this.items.length);
 		this.$.list.refresh(); // Provide quick visual response.
 
 		return delSelected;
@@ -92,46 +74,47 @@ enyo.kind({
 	},
 
 	restoreSelectedId: function(selectedId) {
-		// Remember, then reset the selected index
-		var lastSelIndex = this.selectedIndex;
-		this.selectedIndex = -1;
-		this.deselectRow(lastSelIndex);
-
 		// Search for the formerly selected item
-		if(selectedId >= 0) {
-			for(var i = 0; i < this.items.length; i++) {
-				if(this.items[i] && (this.items[i].id == selectedId)) {
-					this.selectRow(i);
-					break;
-				}
+		if (selectedId < 0)
+			return;
+
+		for (var i = 0; i < this.items.length; i++) {
+			if (this.items[i] && (this.items[i].id == selectedId)) {
+				this.$.list.select(i);
+				break;
 			}
 		}
+	},
+
+	dropEvent: function() {
+		return true;
 	},
 
 	//
 	// Database interaction
 	//
 
-	setItemCount: function(count) {
-		this.itemCount = count;
-	},
-
-	insertItems: function(items) {
+	setItems: function(items) {
 		try {
-			// Remember selected id
+			// Remember selected id and clear it afterwards.
 			var selectedId = this.getSelectedId();
+			this.selectedIndex = -1;
+			this.$.list.getSelection().clear();
 
 			// Store the new items array
 			this.items = items;
+            this.$.list.setCount(items.length);
 
 			// Restore the previous selection
 			this.restoreSelectedId(selectedId);
+
+			// Refresh the list.
+			this.$.list.refresh();
 		} catch(e) {
 			this.error("LV EXCEPTION>", e);
 		} finally {
 			this.refreshInProgress = false;
 			this.refreshFinished();
-			this.$.list.refresh();
 		}
 	},
 
@@ -147,6 +130,19 @@ enyo.kind({
 		return true;
 	},
 
+	/** @protected
+	 * Called to determine the row index of a list event.
+	 * @param event		event object
+	 * @return {*}		false, if index does not exist, otherwise the index
+	 */
+	indexFromEvent: function(event) {
+		var index = event.index;
+		if((index < 0) || (index >= this.items.length) || (!this.items[index])) {
+			return false;
+		}
+		return index;
+	},
+
 	//
 	// Public functions
 	//
@@ -160,17 +156,17 @@ enyo.kind({
 		} else {
 			this.log("LV> requesting refresh");
 			this.refreshInProgress = true;
-			this.updateCount(this.setItemCount);
-			this.acquireData(this.filter, this.insertItems);
+			this.acquireData(this.filter, this.setItems);
 		}
 	},
 
 	clear: function() {
-		this.itemCount = -1;
 		this.items = [];
 		this.filter = "";
 		this.selectedIndex = -1;
-		this.$.list.punt();
+		this.$.list.getSelection().clear();
+		this.$.list.setCount(0);
+		this.$.list.refresh();
 	},
 
 	//
@@ -179,8 +175,6 @@ enyo.kind({
 
 	create: function() {
 		this.inherited(arguments);
-
-		this.setItemCount = enyo.bind(this, this.setItemCount);
-		this.insertItems = enyo.bind(this, this.insertItems);
+		this.setItems = enyo.bind(this, this.setItems);
 	}
 });

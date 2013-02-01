@@ -1,9 +1,5 @@
 /*
- *		source/controls/enhancedmenu.js - Improved Menu
- *
- *		The API reference states, that the Menu kind has a method
- *		'setItems'. It's sad, but this method does not exist.
- *		EnhancedMenu fills this gap.
+ *		source/controls/slider.js
  */
 
 /* FeedReader - A RSS Feed Aggregator for Palm WebOS
@@ -25,23 +21,6 @@
  */
 
 enyo.kind({
-	name:	"EnhancedMenu",
-    kind:   "onyx.MenuDecorator",
-
-    published:  {
-        items:  []
-    },
-
-    components:     [{
-        kind:       "onyx.Menu",
-        name:       "menu"
-    }],
-
-    itemsChanged: function() {
-        this.$.selector.destroyComponents();
-        for(var item in items) {
-            var menuItem = this.$.menu.createComponent(item);
-            this.$.selector.addComponent(menuItem);
-        }
-    }
+    name:		"ProgressSlider",
+    kind:		"onyx.Slider"
 });

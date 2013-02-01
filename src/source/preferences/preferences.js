@@ -22,28 +22,37 @@
 
 enyo.kind({
 	name:			"Preferences",
-	kind:			"VFlexBox",
+	kind:			"FittableRows",
 
 	events:	{
 		onPrefsSaved:	""
 	},
 
 	components:	[{
-		kind:		"Toolbar",
-		content:	$L("Preferences"),
-		className:	"enyo-toolbar-light"
+		kind:		"onyx.Toolbar",
+		classes:	"toolbar-light",
+		components:	[{
+			kind:		"TopSceneControl",
+			ontap:		"savePrefs"
+		}, {
+			content:	$L("Preferences"),
+			classes:	"float-left"
+		}]
 	}, {
 		kind:		"Scroller",
-		flex:		1,
+		fit:		true,
+		horizontal:	"hidden",
 
 		components:	[{
-			kind:		"VFlexBox",
+			kind:		"FittableRows",
 			align:		"center",
 			components:	[{
-				kind:		"RowGroup",
-				caption:	$L("Automatic updating"),
-				className:	"additional-scene-width",
+				kind:		"onyx.Groupbox",
+				classes:	"additional-scene-width center-div",
 				components:	[{
+                    kind:       "onyx.GroupboxHeader",
+                    content:    $L("Automatic updating")
+                }, {
 					name:		"updateInterval",
 					kind:		"SelectorItem",
 					caption:	$L("Update interval"),
@@ -83,10 +92,12 @@ enyo.kind({
 					]
 				}]
 			}, {
-				kind:		"RowGroup",
-				caption:	$L("Notifications"),
-				className:	"additional-scene-width",
+				kind:		"onyx.Groupbox",
+				classes:	"additional-scene-width center-div",
 				components:	[{
+                    kind:       "onyx.GroupboxHeader",
+                    content:    $L("Notifications")
+                }, {
 					name:		"notificationEnabled",
 					kind:		"ToggleItem",
 					caption:	$L("Show notifications on new stories"),
@@ -109,10 +120,12 @@ enyo.kind({
 					caption:	$L("Play sound when new stories arrive")
 				}]
 			}, {
-				kind:		"RowGroup",
-				caption:	$L("Miscellaneous"),
-				className:	"additional-scene-width",
+				kind:		"onyx.Groupbox",
+				classes:	"additional-scene-width center-div",
 				components:	[{
+                    kind:       "onyx.GroupboxHeader",
+                    content:    $L("Miscellaneous")
+                }, {
 					name:		"titleColor",
 					kind:		"SelectorItem",
 					caption:	$L("Title color"),
@@ -150,31 +163,38 @@ enyo.kind({
                     ]
 				}]
 			}, {
-				kind:		"RowGroup",
-				caption:	$L("Read It Later"),
-				className:	"additional-scene-width",
+				kind:		"onyx.Groupbox",
+				classes:	"additional-scene-width center-div",
 				components:	[{
-					name:	"rilUsername",
-					kind:	"Input",
-					hint:	$L("User name")
+                    kind:       "onyx.GroupboxHeader",
+                    content:    $L("Pocket")
+                }, {
+					kind:   "onyx.InputDecorator",
+					components: [{
+						name:			"rilUsername",
+						kind:			"Input",
+						placeholder:	$L("User name")
+					}]
 				}, {
-					name:	"rilPassword",
-					kind:	"PasswordInput",
-					hint:	$L("Password")
+                    kind:   "onyx.InputDecorator",
+                    components: [{
+                        kind:           "onyx.Input",
+                        name:	        "rilPassword",
+                        type:           "password",
+                        placeholder:    $L("Password")
+                    }]
 				}]
 			}, {
-				className:	"enyo-paragraph enyo-subtext additional-scene-width",
-				content:	$L("If you provide <i>Read it Later</i> credentials, FeedReader will sync starred items to <i>Read it Later</i>.")
+				classes:	"center-text",
+				allowHtml:	true,
+				content:	$L("If you provide <i>Pocket</i> credentials, FeedReader will sync starred items to <i>Pocket</i>.")
 			}]
 		}]
 	}, {
-		kind:		"Toolbar",
+		kind:		"onyx.Toolbar",
 		components:	[{
-			kind:		"ToolButton",
-			content:	$L("Back"),
-			onclick:	"savePrefs"
-		}, {
-			kind:		"Spacer"
+			kind:		"BottomMainSceneControl",
+			ontap:		"savePrefs"
 		}]
 	}],
 
@@ -219,9 +239,7 @@ enyo.kind({
 		this.doPrefsSaved();
 	},
 
-	create: function() {
-		this.inherited(arguments);
-
+	reInitialize: function() {
 		this.$.updateInterval.setValue(enyo.application.prefs.updateInterval);
 		this.$.storyKeepTime.setValue(enyo.application.prefs.storyKeepTime);
 		this.$.updateOnStart.setValue(enyo.application.prefs.updateOnStart);
@@ -240,13 +258,13 @@ enyo.kind({
 		this.$.rilUsername.setValue(enyo.application.prefs.rilUser);
 		this.$.rilPassword.setValue(enyo.application.prefs.rilPassword);
 
-        if(enyo.application.prefs.showUnreadCount && enyo.application.prefs.showNewCount) {
-            this.$.badgeMode.setValue(0);
-        } else if(enyo.application.prefs.showUnreadCount) {
-            this.$.badgeMode.setValue(1);
-        } else if(enyo.application.prefs.showNewCount) {
-            this.$.badgeMode.setValue(2);
-        }
+		if(enyo.application.prefs.showUnreadCount && enyo.application.prefs.showNewCount) {
+			this.$.badgeMode.setValue(0);
+		} else if(enyo.application.prefs.showUnreadCount) {
+			this.$.badgeMode.setValue(1);
+		} else if(enyo.application.prefs.showNewCount) {
+			this.$.badgeMode.setValue(2);
+		}
 
 		this.updateIntervalChanged();
 		this.notificationEnabledChanged();

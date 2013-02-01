@@ -22,9 +22,9 @@
 
 enyo.kind({
 	name:		"StarButton",
-	kind:		"CustomButton",
+	kind:		"onyx.IconButton",
 
-	onClick:	"clicked",
+    src:	    "assets/lists/star-icon.png",
 
 	published:	{
 		checked:	false
@@ -34,20 +34,18 @@ enyo.kind({
 		onChange:	""
 	},
 
-	components:	[{
-		kind:	"Image",
-		name:	"image",
-		src:	"../../images/lists/starred-icon.png"
-	}],
-
-	checkedChanged: function() {
-		var image = "../../images/lists/" + (this.checked ? "starred-icon.png" : "star-icon.png");
-		this.$.image.setSrc(image);
+	handlers:	{
+		ontap:	"tapped"
 	},
 
-	clickHandler: function(sender, event) {
+	checkedChanged: function() {
+		var image = "assets/lists/" + (this.checked ? "starred-icon.png" : "star-icon.png");
+		this.setSrc(image);
+	},
+
+	tapped: function(sender, event) {
 		// Prevent any further handling. As a result, no
-		// 'onclick' event will be triggered. Instead, we
+		// 'onclick'/'ontap' event will be triggered. Instead, we
 		// fire the custom 'onChange' event here.
 		if(!this.disabled) {
 			this.setChecked(!this.checked);

@@ -29,153 +29,204 @@ enyo.kind({
 	waitingForData:	true,
 
 	events:		{
-		onFeedSelected:	"",
-		onFeedDeleted:	"",
-		onAddFeed:		"",
-		onEditFeed:		""
+		onOpenAppMenu:		"",
+		onFeedSelected:		"",
+		onFeedDeleted:		"",
+		onAddFeed:			"",
+		onEditFeed:			""
 	},
 
 	components:	[{
-		kind:		"Toolbar",
+		kind:		"onyx.Toolbar",
 		name:		"header",
-		className:	"enyo-toolbar-light",
-		content:	$L("Feed Subscriptions")
-	}, {
-		name:		"listBox",
-		kind:		"VFlexBox",
-		flex:		1,
-		showing:	false,
+		classes:	"toolbar-light",
 		components:	[{
-			kind:					"EnhancedList",
-			name:					"list",
-			reorderable:			true,
-			dragBackgroundColor:	"rgb(200, 200, 200)",
-			dragOpacity:			0.7,
-			flex:					1,
+			kind:	"onyx.Icon",
+			src:	"icon32.png",
+			style:	"height: 32px; width: 32px; margin-top: 0px; vertical-align: center;",
+			ontap:	"openAppMenu"
+		}, {
+			content:	$L("Feed Subscriptions")
+		}]
+	}, {
+        kind:				"enyo.PulldownList",
+        name:				"list",
+        fit:				true,
+		reorderable:		true,
+		enableSwipe:		true,
+		fixedHeight:		true,
 
-			onSetupRow:				"setupFeed",
-			onReorder:				"reorderFeed",
+        onSetupItem:    	"setupFeed",
+        onReorder:			"reorderFeed",
+		onPullRelease:		"listPulled",
 
-			components: [{
-				kind: 		"SwipeableItem",
-				name:		"item",
-				onclick:	"itemClicked",
-				onConfirm:	"itemDeleted",
+        components: [{
+            name:		"item",
+			kind:		"onyx.Item",
+			classes:	"feedlist-item",
+            ontap:		"itemClicked",
+            onConfirm:	"itemDeleted",
+            components:	[{
+				name:		"feedInfoBox",
+                classes:	"feed-infobox",
 				components:	[{
-					kind:		"HFlexBox",
+					kind:		"Image",
+					name:		"feedIcon",
+					classes:	isFirefox() ? "feed-icon mozilla" : "feed-icon webkit",
+					src:		"assets/lists/icon-rss.png"
+                }, {
+					kind:	    "onyx.Spinner",
+					name:	    "feedSpinner",
+					classes:    "onyx-spinner-light small feed-spinner",
+					showing:    false
+				}, {
+					name:		"unreadCountBadge",
+					classes:	isFirefox() ? "feed-badge feed-unreaditem mozilla" : "feed-badge feed-unreaditem webkit",
 					components:	[{
-						name:		"feedInfoBox",
-						nodeTag:	"div",
-						className:	"feed-infobox",
-						components:	[{
-							kind:	"Image",
-							name:	"feedIcon",
-							src:	"../../images/lists/icon-rss.png",
-							style:	"max-width: 40px; max-height: 40px;"
-						}, {
-							kind:	"Spinner",
-							name:	"feedSpinner",
-							style:	"position: absolute; left: 4px; top: 5px; z-index: 10000000"
-						}, {
-							name:		"unreadCountBadge",
-							className:	"feed-unreaditem",
-							components:	[{
-								name:		"unreadCount",
-								className:	"feed-countlabel",
-								content:	"0"
-							}]
-						}, {
-							name:		"newCountBadge",
-							className:	"feed-newitem",
-							components:	[{
-								name:		"newCount",
-								className:	"feed-countlabel",
-								content:	"0"
-							}]
-						}]
-					}, {
-						kind:	"VFlexBox",
-						flex:	1,
-						components: [{
-							name:		"feedTitle",
-							className:	"feed-title"
-						}, {
-							name:		"feedURL",
-							className:	"feed-url"
-						}]
-					}, {
-						kind:		"IconButton",
-						icon:		"../../images/lists/icon-edit.png",
-						onclick:	"editFeedClicked"
+						name:		"unreadCount",
+						classes:	isFirefox() ? "feed-countlabel mozilla" : "feed-count-label webkit",
+						content:	"0"
+					}]
+				}, {
+					name:		"newCountBadge",
+					classes:	isFirefox() ? "feed-badge feed-newitem mozilla" : "feed-badge feed-newitem webkit",
+					components:	[{
+						name:		"newCount",
+						classes:	isFirefox() ? "feed-countlabel mozilla" : "feed-count-label webkit",
+						content:	"0"
+					}]
+				}]
+			}, {
+				classes:	"feed-title-box",
+				components: [{
+					name:		"feedTitle",
+					classes:	"feed-title"
+				}, {
+					name:		"feedURL",
+					classes:	"feed-url"
+				}]
+			}, {
+				kind:				"MenuDecoupler",
+				menu:				"feedMenu",
+				list:				"list",
+				classes:    		"list-edit-button",
+				onBeforeShowMenu:	"beforeShowFeedMenu",
+				components: [{
+					kind:		"onyx.Button",
+					classes:	"feed-edit-button",
+					components:	[{
+						kind:		"onyx.Icon",
+						src:		"assets/lists/icon-edit.png"
 					}]
 				}]
 			}]
-		}]
+        }]
 	}, {
 		name:		"loadSpinnerBox",
-		kind:		"HFlexBox",
-		flex:		1,
-		align:		"center",
-		pack:		"center",
+        fit:        true,
 		components:	[{
 			name:		"loadSpinner",
-			kind:		"SpinnerLarge"
+			kind:		"onyx.Spinner",
+            style:      "width: 64px; height: 64px; margin: auto auto",
+            classes:    "onyx-light"
 		}]
 	}, {
-		kind:		"Toolbar",
+		kind:		"onyx.Toolbar",
 		pack:		"justify",
 		components:	[{
-			kind:		"ToolButton",
-			icon:		"../../images/toolbars/icon-new.png",
-			onclick:	"addFeedClicked"
-		}, {
-			kind:		"Spacer"
+			kind:		"onyx.IconButton",
+			classes:	"float-left",
+			src:		"assets/toolbars/icon-new.png",
+			ontap:	    "addFeedClicked"
 		}, {
 			name:		"refreshButton",
-			kind:		"ToolButton",
-			icon:		"../../images/toolbars/icon-sync.png",
-			onclick:	"refreshClicked"
+			kind:		"onyx.IconButton",
+            classes:	"float-right",
+			src:		"assets/toolbars/icon-sync.png",
+			ontap:	    "refreshClicked"
 		}]
-	}, {
-		name:	"feedMenu",
-		kind:	"EnhancedMenu"
 	}],
+
+	tools:	[{
+		kind:						enyo.Signals,
+		onFeedListChanged:			"refresh",
+		onFeedUpdating:				"setFeedUpdateState",
+		onSpoolerRunningChanged:	"spoolerRunningChanged"
+	}, {
+		name:		"feedMenu",
+		kind:		"onyx.Menu",
+		scrolling:	false,
+		floating:	true,
+		components:	[{
+			content:	$L("Update feed"),
+			ontap:		"menuUpdateFeed"
+		}, {
+			content:	$L("Mark all stories read"),
+			ontap:		"menuMarkAllRead"
+		}, {
+			content:	$L("Mark all stories unread"),
+			ontap:		"menuMarkAllUnRead"
+		}, {
+			content:	$L("Unstar all stories"),
+			ontap:		"menuMarkAllUnStarred"
+		}, {
+			name:		"itemEditFeed",
+			content:	$L("Edit feed settings"),
+			ontap:		"menuEditFeed"
+		}, {
+			name:		"itemDeleteFeed",
+			content:	$L("Delete feed"),
+			ontap:		"menuDeleteFeed"
+		}]
+	}],
+
+	//
+	//
+	//
+
+	openAppMenu: function(sender, event) {
+		this.doOpenAppMenu(event);
+	},
 
 	//
 	// List handling
 	//
 
-	setupFeed: function(sender, index) {
-		if((index < 0) || (index >= this.items.length) || (!this.items[index])) {
+	setupFeed: function(sender, event) {
+		var index;
+		if((index = this.indexFromEvent(event)) === false)
 			return false;
-		}
 
 		var feed = this.items[index];
 
-		this.$.item.setSwipeable((feed.feedType != feedTypes.ftAllItems) &&
-								 (feed.feedTypr != feedTypes.ftStarred));
+//		this.$.item.setSwipeable((feed.feedType != feedTypes.ftAllItems) &&
+//								 (feed.feedTypr != feedTypes.ftStarred));
+
+		this.$.item.addRemoveClass(this.selectionClass, sender.isSelected(index));
 
 		this.$.feedTitle.applyStyle("color", enyo.application.prefs.getCSSTitleColor());
 		this.$.feedTitle.applyStyle("font-size", enyo.application.prefs.largeFont ? "20px" : "18px");
 		this.$.feedTitle.setContent(enyo.application.feeds.getFeedTitle(feed));
 		this.$.feedURL.applyStyle("font-size", enyo.application.prefs.largeFont ? "16px" : "14px");
 		this.$.feedURL.setContent(enyo.application.feeds.getFeedURL(feed));
-		this.$.feedIcon.setSrc("../../" + enyo.application.feeds.getFeedIcon(feed));
+		this.$.feedIcon.setSrc(enyo.application.feeds.getFeedIcon(feed));
 
 		this.$.unreadCount.setContent(feed.numUnRead);
         this.$.unreadCountBadge.setShowing((feed.numUnRead > 0) && enyo.application.prefs.showUnreadCount);
 		this.$.newCount.setContent(feed.numNew);
         this.$.newCountBadge.setShowing((feed.numNew > 0) && enyo.application.prefs.showNewCount);
+	},
 
-		return true;
+	listPulled: function() {
+		enyo.Signals.send("onUpdateAll");
 	},
 
 	acquireData: function(filter, inserter) {
 		enyo.application.feeds.getFeeds(filter, inserter);
 	},
 
-	reorderFeed: function(sender, toIndex, fromIndex) {
-		enyo.application.feeds.moveFeed(fromIndex, toIndex);
+	reorderFeed: function(sender, event) {
+		enyo.application.feeds.moveFeed(event.reorderFrom, event.reorderTo);
 	},
 
 	refreshFinished: function() {
@@ -183,8 +234,9 @@ enyo.kind({
 			this.waitingForData = false;
 			this.$.loadSpinner.stop();
 			this.$.loadSpinnerBox.hide();
-			this.$.listBox.show();
-			this.$.listBox.render();
+			this.$.list.show();
+			this.$.list.render();
+            this.resized();
 		}
 
 		this.inherited(arguments);
@@ -199,41 +251,14 @@ enyo.kind({
 		}
 	},
 
-	editFeedClicked: function(sender, event) {
+	beforeShowFeedMenu: function(sender, event) {
 		// Store the menu index.
 		this.menuIndex = event.rowIndex;
+		var feed = this.items[this.menuIndex];
 
-		// Build the menu items.
-		var feed = this.items[event.rowIndex];
-		var items = [{
-			caption:	$L("Mark all stories read"),
-			onclick:	"menuMarkAllRead"
-		}, {
-			caption:	$L("Mark all stories unread"),
-			onclick:	"menuMarkAllUnRead"
-		}, {
-			caption:	$L("Unstar all stories"),
-			onclick:	"menuMarkAllUnStarred"
-		}];
-
-		if((feed.feedType != feedTypes.ftStarred) && (feed.feedType != feedTypes.ftAllItems)) {
-			items.push({
-				caption:	$L("Edit feed settings"),
-				onclick:	"menuEditFeed"
-			}, {
-				caption:	$L("Delete feed"),
-				onclick:	"menuDeleteFeed"
-			});
-		}
-		items.push({
-			caption:	$L("Update feed"),
-			onclick:	"menuUpdateFeed"
-		});
-
-		this.$.feedMenu.setItems(items);
-		this.$.feedMenu.openAtEvent(event);
-
-		return true;
+		var isEditable = (feed.feedType != feedTypes.ftStarred) && (feed.feedType != feedTypes.ftAllItems);
+		this.$.itemEditFeed.setShowing(isEditable);
+		this.$.itemDeleteFeed.setShowing(isEditable);
 	},
 
 	itemDeleted: function(sender, index) {
@@ -249,11 +274,11 @@ enyo.kind({
 		if(!this.waitingForData) {
 			if(state && (this.spinningIndex >= 0) && (this.spinningIndex != index)) {
 				this.setFeedSpinner(this.spinningIndex, false);
-				enyo.nextTick(this, this.setFeedSpinner, index, state);
+				enyo.asyncMethod(this, this.setFeedSpinner, index, state);
 				return;
 			}
 			this.$.list.prepareRow(index);
-			this.$.feedSpinner.setShowing(state);
+			//this.$.feedSpinner.setShowing(state);
 			this.spinningIndex = state ? index : -1;
 		}
 	},
@@ -295,31 +320,26 @@ enyo.kind({
 	},
 
 	refreshClicked: function(sender, event) {
-		enyo.application.feeds.enqueueUpdateAll();
+        enyo.Signals.send("onUpdateAll");
 	},
 
 	//
-	// Database interaction
+	// Signal handling
 	//
 
-	updateCount: function(setter) {
-		enyo.application.feeds.getFeedCount(this.filter, setter);
-	},
+	setFeedUpdateState: function(sender, event) {
+		var index = event.index;
+		var state = event.state;
 
-	//
-	// Public functions
-	//
-
-	setFeedUpdateState: function(state, index) {
 		if((index < 0) || (index >= this.items.length)) {
 			return;
 		}
 		this.setFeedSpinner(index, state);
 	},
 
-	spoolerRunningChanged: function(state) {
-		this.$.refreshButton.setDisabled(state);
-        if(!state) {
+	spoolerRunningChanged: function(sender, event) {
+		this.$.refreshButton.setDisabled(event.state);
+        if(!event.state) {
             this.refresh();
         }
 	},
@@ -328,7 +348,13 @@ enyo.kind({
 	// Other functions
 	//
 
+	initComponents: function() {
+		this.createChrome(this.tools);
+		this.inherited(arguments);
+	},
+
 	rendered: function() {
+        this.inherited(arguments);
 		if(this.waitingForData) {
 			this.$.loadSpinner.show();
 		}

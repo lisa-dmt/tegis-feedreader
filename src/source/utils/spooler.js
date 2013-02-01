@@ -21,21 +21,13 @@
  */
 
 enyo.kind({
-
 	name:			"Spooler",
 	kind:			"Component",
-
-	components:	[{
-		name:		"powerService",
-		kind:		"PalmService",
-		service:	"palm://com.palm.power/com/palm/power/"
-	}],
 
 	list: 			[],
 	actionRunning:	false,
 	actionIdent:	"",
 	updateCounter:	0,
-	key:			"com.tegi-stuff.app.feedreader",
 
 	/**
 	 * Enter update state. This will prevent the spooler from starting an
@@ -95,7 +87,6 @@ enyo.kind({
 			});
 
 			if((this.updateCounter === 0) && (this.list.length == 1) && !this.actionRunning)  {
-				enyo.application.launcher.openUpdateDashboard();
 				this.nextAction();
 			}
 		} catch(e) {
@@ -108,34 +99,7 @@ enyo.kind({
 	 * Tell the system, that we enter a phase of activity.
 	 */
 	enterActivity: function(duration) {
-		if(duration === undefined) {
-			duration = 60000;
-		}
-
-		this.$.powerService.call({
-			id:				this.key,
-			duration_ms: 	duration
-		}, {
-			method:		"activityStart",
-			onSuccess:	"setActivitySuccess",
-			onFailure:	"setActivityFailed"
-		});
-	},
-
-	/** @private
-	 *
-	 * Gets called when setting the activity was successful.
-	 */
-	setActivitySuccess: function(response) {
-		this.log("SPOOLER> Successfully set activity");
-	},
-
-	/** @private
-	 *
-	 * Gets called when setting the acitivity failed.
-	 */
-	setActivityFailed: function(response) {
-		this.error("SPOOLER> Unable to set activity", response);
+		enyo.Signals.send("onSpoolerBeginActivity")
 	},
 
 	/** @private
@@ -143,29 +107,7 @@ enyo.kind({
 	 * Tell the system, that we left our activity phase.
 	 */
 	leaveActivity: function() {
-		this.$.powerService.call({
-			id:			this.key
-		}, {
-			method: 	"activityEnd",
-			onSuccess: 	"leaveActivitySuccess",
-			onFailure: 	"leaveActivityFailed"
-		});
-	},
-
-	/** @private
-	 *
-	 * Gets called when setting the activity was successful.
-	 */
-	leaveActivitySuccess: function(response) {
-		this.log("SPOOLER> Successfully left activity");
-	},
-
-	/** @private
-	 *
-	 * Gets called when setting the acitivity failed.
-	 */
-	leaveActivityFailed: function(response) {
-		this.error("SPOOLER> Unable to leave activity", response);
+		enyo.Signals.send("onSpoolerEndActivity");
 	},
 
 	/**
@@ -176,7 +118,7 @@ enyo.kind({
 		try {
 			if(this.list.length >= 1) {
 				if(!this.actionRunning) {
-					enyo.application.notifySpoolerRunningChanged(true);
+					enyo.Signals.send("onSpoolerRunningChanged", { state: true });
 				}
 				var action = this.list.shift();
 				this.actionRunning = true;
@@ -185,11 +127,10 @@ enyo.kind({
                 action.execute();
 			} else {
 				if(this.actionRunning) {
-					enyo.application.notifySpoolerRunningChanged(false);
+					enyo.Signals.send("onSpoolerRunningChanged", { state: false });
 				}
 				this.actionRunning = false;
 				this.actionIdent = "";
-				enyo.application.launcher.closeUpdateDashboard();
 				enyo.application.feeds.interactiveUpdate = false;
 				this.leaveActivity();
 			}

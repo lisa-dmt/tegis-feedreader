@@ -22,18 +22,18 @@
 
 enyo.kind({
 	name:			"LicenseDialog",
-	kind:			"ModalDialog",
-	layoutKind:		"VFlexLayout",
-	contentHeight:	"100%",
-	style:			"width: 500px; height: 85%; min-height: 500px;",
+    kind:			"ModalDialog",
+	autoDismiss:	true,
+	caption:		"FeedReader License",
 
 	components:	[{
 		kind:		"Scroller",
-		className:	"group",
-		flex:		1,
+		horizontal:	"hidden",
+		fit:		true,
 		components:	[{
 			name:			"licenseBody",
 			kind:			"HtmlContent",
+			style:			"color: black",
 			onLinkClick:	"linkClicked",
 			content:
 				" <h1>GNU GENERAL PUBLIC LICENSE</h1>" +
@@ -593,10 +593,14 @@ enyo.kind({
 				' <a href="http://www.gnu.org/philosophy/why-not-lgpl.html" target="_blank">http://www.gnu.org/philosophy/why-not-lgpl.html</a>.</p>'
 		}]
 	}, {
-		kind:		"Button",
-		className:	"enyo-button-affirmative",
-		caption:	$L("OK"),
-		onclick:	"okClicked"
+		kind:       enyo.FittableRows,
+		classes:	"center-text",
+		components:	[{
+			kind:		"onyx.Button",
+			classes:	"onyx-affirmative",
+			content:	$L("OK"),
+			onap:		"okClicked"
+		}]
 	}],
 
 	linkClicked: function(sender, url) {
@@ -604,6 +608,6 @@ enyo.kind({
 	},
 
 	okClicked: function(sender, event) {
-		this.close();
+		this.hide();
 	}
 });

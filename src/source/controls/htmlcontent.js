@@ -1,9 +1,5 @@
 /*
- *		source/controls/enhancedmenu.js - Improved Menu
- *
- *		The API reference states, that the Menu kind has a method
- *		'setItems'. It's sad, but this method does not exist.
- *		EnhancedMenu fills this gap.
+ *		source/control/htmlcontent.js
  */
 
 /* FeedReader - A RSS Feed Aggregator for Palm WebOS
@@ -25,23 +21,35 @@
  */
 
 enyo.kind({
-	name:	"EnhancedMenu",
-    kind:   "onyx.MenuDecorator",
+    name:   "HtmlContent",
+    kind:   enyo.Control,
 
-    published:  {
-        items:  []
+    allowHtml: true,
+
+    events: {
+        onLinkClick:    ""
     },
 
-    components:     [{
-        kind:       "onyx.Menu",
-        name:       "menu"
-    }],
+    findLink: function(node, ancestor) {
+        var run = node;
+        while (run && run != ancestor) {
+            if (run.href) {
+                return run.href;
+            }
+            run = run.parentNode;
+        }
+    },
 
-    itemsChanged: function() {
-        this.$.selector.destroyComponents();
-        for(var item in items) {
-            var menuItem = this.$.menu.createComponent(item);
-            this.$.selector.addComponent(menuItem);
+    clickHandler: function(sender, event) {
+        var url = this.findLink(event.target, this.hasNode());
+        if (url) {
+            this.doLinkClick(url, event);
+            event.preventDefault();
+            return true;
+        } else if (event.didDrag) {
+            return true;
+        } else {
+            return this.doClick();
         }
     }
 });

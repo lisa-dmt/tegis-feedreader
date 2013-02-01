@@ -259,7 +259,7 @@ enyo.kind({
 		this.srcChanged();
 		this.preloadChanged();
 
-		this._domEventDispatcher = enyo.bind(this, this.dispatchDomEvent);
+		//this._domEventDispatcher = enyo.bind(this, this.dispatchDomEvent);
 	},
 
 	rendered: function() {

@@ -26,16 +26,12 @@ enyo.kind({
 	kind:	"Component",
 
 	components: [{
-		name:		"webService",
-		kind:		"WebService",
-		method:		"get",
-		handleAs:	"xml",
-		onSuccess:	"updateFeedSuccess",
-		onFailure:	"updateFeedFailed"
-	}, {
 		name:		"dateFormatter",
 		kind:		"DateFormatter"
-	}],
+	}, {
+        kind:           enyo.Signals,
+        onUpdateAll:    "enqueueUpdateAll"
+    }],
 
 	interactiveUpdate:  false,		// true if the update is interactive
 	changingFeed:       false,	    // true if a feed is changed
@@ -112,11 +108,11 @@ enyo.kind({
     /**
      * Send a notification of the update state of a feed.
      *
-     * @param	feed		{object}		feed object
-     * @param	transaction	{object}		state of the feed
+     * @param	feed	{object}		feed object
+     * @param	state	{object}		state of the feed
      */
     notifyOfUpdate: function(feed, state) {
-        enyo.application.notifyFeedUpdated(state, feed.feedOrder);
+        enyo.Signals.send("onFeedUpdating", {state: state, index: feed.feedOrder});
     },
 
 	/** @private
@@ -142,7 +138,6 @@ enyo.kind({
 	 * Called when the connection status could be retrieved.
 	 *
 	 * @param feed		{object}	feed object to be updated
-	 * @param result	{object}	information about the connection status
 	 */
 	haveConnection: function(feed) {
 		try {
@@ -151,16 +146,16 @@ enyo.kind({
 			this.notifyOfUpdate(feed, true);
             enyo.application.db.beginStoryUpdate(feed);
 
-			var params = {};
-			if(feed.username && feed.password) {
-				params.username = feed.username;
-				params.password = feed.password;
-			}
-
-			this.$.webService.call(params, {
-				url:	feed.url,
-				feed:	feed
+			var ajax = new enyo.Ajax({
+				feed:		feed,
+				url:		feed.url,
+				username:	feed.username || "",
+				password:	feed.password || "",
+				handleAs:	"xml"
 			});
+			ajax.response(this, "updateFeedSuccess");
+			ajax.error(this, "updateFeedFailed");
+			ajax.go({});
 		} catch(e) {
 			this.error("FEEDS EXCEPTION>", e);
             this.notifyOfUpdate(feed, false);
@@ -183,28 +178,26 @@ enyo.kind({
 	 *
 	 * @param	sender		{object}	sender
 	 * @param 	response	{object} 	response object
-	 * @param	request		{object}	request
 	 */
-	updateFeedSuccess: function(sender, response, request) {
-		var feed = request.feed;
+	updateFeedSuccess: function(sender, response) {
+		var feed = sender.feed;
 		this.log("FEEDS> Got new content from", feed.url);
 		try {
 			if(response === null) {
-				if(request.xhr.responseText.length <= 0) {
+				if(sender.xhr.responseText.length <= 0) {
 					this.log("FEEDS> No response at all... maybe no connection available");
 					enyo.application.db.endStoryUpdate(feed, false);
 					enyo.application.spooler.nextAction();
 					return;
-				} else if(request.xhr.responseText !== null) {
+				} else if(sender.xhr.responseText !== null) {
 					this.log("FEEDS> Manually converting feed info to xml for", feed.url);
 					response = new DOMParser().parseFromString(request.xhr.responseText, "text/xml");
-					this.log(request.xhr.responseText);
+					this.log(sender.xhr.responseText);
 				}
 			}
 
-			var type = this.processor.determineFeedType(feed, response, request.xhr.responseText, this.changingFeed);
-            this.processor.parseFeed(enyo.application.db, feed, type, response, request.xhr.getResponseHeader("Content-Type"));
-
+			var type = this.processor.determineFeedType(feed, response, sender.xhr.responseText, this.changingFeed);
+            this.processor.parseFeed(enyo.application.db, feed, type, response, sender.xhr.getResponseHeader("Content-Type"));
 		} catch(e) {
 			this.error("FEEDS EXCEPTION>", e);
 			enyo.application.db.endStoryUpdate(feed, false);
@@ -218,14 +211,14 @@ enyo.kind({
 	 *
 	 * Called when an Ajax request fails.
 	 *
-	 * @param 	feed		{object}	feed object
-	 * @param 	transport	{object} 	AJAX transport
+	 * @param 	sender		{object}	event sender
+	 * @param 	response	{object} 	error response
 	 */
-	updateFeedFailed: function(sender, response, request) {
-		var feed = request.feed;
+	updateFeedFailed: function(sender, response) {
+		var feed = sender.feed;
 		try {
 			var error = "";
-			switch(request.xhr.status) {
+			switch(sender.xhr ? sender.xhr.status : 0) {
 				case 400:
 					error = $L("Bad Request");
 					break;
@@ -245,7 +238,7 @@ enyo.kind({
 					error = $L("Not Acceptable");
 					break;
 				default:
-					if (request.xhr.status >= 500) {
+					if (sender.xhr && sender.xhr.status >= 500) {
 						error = $L("Server error");
 					} else {
 						error = $L("Unexpected error");
@@ -284,7 +277,7 @@ enyo.kind({
 			if(count > 0) {
 				if((!enyo.application.isActive) && (!this.interactiveUpdate) && (enyo.application.prefs.notificationEnabled)) {
 					this.log("FEEDS> About to post notification for new items; count =", count);
-					enyo.application.launcher.openItemDashboard(count);
+					enyo.Signals.send("onNewItemsArrived", { count: count });
 				}
 			}
 		} catch(e) {
@@ -300,7 +293,8 @@ enyo.kind({
 	 */
 	markAllRead: function(feed) {
 		enyo.application.db.markAllRead(feed, 1, function() {
-			enyo.application.notifyFeedListChanged();
+			enyo.Signals.send("onFeedListChanged");
+			enyo.Signals.send("onStoryListChanged");
 		});
 	},
 
@@ -311,7 +305,8 @@ enyo.kind({
 	 */
 	markStoryRead: function(story) {
 		enyo.application.db.markStoryRead(story, function() {
-			enyo.application.notifyFeedListChanged();
+			enyo.Signals.send("onFeedListChanged");
+			enyo.Signals.send("onStoryListChanged");
 		});
 	},
 
@@ -322,7 +317,8 @@ enyo.kind({
 	 */
 	markAllUnRead: function(feed) {
 		enyo.application.db.markAllRead(feed, 0, function() {
-			enyo.application.notifyFeedListChanged();
+			enyo.Signals.send("onFeedListChanged");
+			enyo.Signals.send("onStoryListChanged");
 		});
 	},
 
@@ -333,7 +329,8 @@ enyo.kind({
 	 */
 	markStarred: function(story) {
 		enyo.application.db.markStarred(story, function() {
-			enyo.application.notifyFeedListChanged();
+			enyo.Signals.send("onFeedListChanged");
+			enyo.Signals.send("onStoryListChanged");
 		});
 
 		var storyMarker = function(feed, story, urls) {
@@ -361,7 +358,8 @@ enyo.kind({
 		};
 		enyo.application.db.getFeedURLList(feed, storyMarker.bind(this));
 		enyo.application.db.markAllUnStarred(feed, function() {
-			enyo.application.notifyFeedListChanged();
+			enyo.Signals.send("onFeedListChanged");
+			enyo.Signals.send("onStoryListChanged");
 		});
 	},
 
@@ -372,10 +370,10 @@ enyo.kind({
 	 */
 	deleteFeed: function(feed) {
 		var onSuccess = function() {
-			enyo.application.notifyFeedListChanged();
+			enyo.Signals.send("onFeedListChanged");
 		};
 		var onFail = function(transaction, error) {
-			enyo.application.notifyFeedListChanged();
+			enyo.Signals.send("onFeedListChanged");
 			this.error("FEEDS> Deleting feed failed:", error.message);
 		};
 		enyo.application.db.deleteFeed(feed, onSuccess, onFail);
@@ -388,10 +386,10 @@ enyo.kind({
 	 */
 	deleteStory: function(story) {
 		var onSuccess = function() {
-			enyo.application.notifyFeedListChanged();
+			enyo.Signals.send("onFeedListChanged");
 		};
 		var onFail = function(transaction, error) {
-			enyo.application.notifyStoryListChanged();
+			enyo.Signals.send("onStoryListChanged");
 			enyo.error("FEEDS> Deleting story failed:", error.message);
 		};
 		enyo.application.db.deleteStory(story, onSuccess, onFail);
@@ -409,7 +407,7 @@ enyo.kind({
 		}
 
 		var onSuccess = function() {
-			enyo.application.notifyFeedListChanged();
+			enyo.Signals.send("onFeedListChanged");
 		};
 
 		enyo.application.db.reOrderFeed(fromIndex, toIndex, onSuccess);
@@ -423,10 +421,7 @@ enyo.kind({
 	 * @param	feed	{object}	feed object
 	 */
 	onAddOrEditFeedSuccess: function(onSuccess, feed) {
-		enyo.application.notifyFeedListChanged({
-			action:		"addOrEditFeed",
-			feed:		feed
-		});
+		enyo.Signals.send("onFeedListChanged");
 		if(onSuccess) {
 			onSuccess();
 		}
@@ -481,11 +476,13 @@ enyo.kind({
 	/**
 	 * Return a feeds icon.
 	 *
-	 * @param	feed	{Object} 	a feed object
-	 * @return			{String}	the header icon
+	 * @param	feed			{Object} 	a feed object
+	 * @param	ignoreUnknown	{Boolean}
+	 * @param	ignoreEnabled	{Boolean}
+	 * @return					{String}	the header icon
 	 */
 	getFeedIcon: function(feed, ignoreEnabled, ignoreUnknown) {
-		var prefix = "images/lists/icon-";
+		var prefix = "assets/lists/icon-";
 		var icon = "";
 		var suffix = "";
 		if(enyo.application.scrimMode) {
@@ -518,24 +515,8 @@ enyo.kind({
 		enyo.application.db.getFeedURLList(feed, onSuccess);
 	},
 
-	getFeedIDList: function(onSuccess) {
-		enyo.application.db.getFeedIDList(onSuccess);
-	},
-
-	getFeedCount: function(filter, onSuccess) {
-		enyo.application.db.getFeedCount(filter, onSuccess);
-	},
-
 	getStories: function(feed, filter, onSuccess) {
 		enyo.application.db.getStories(feed, filter, onSuccess);
-	},
-
-	getStoryCount: function(feed, filter, onSuccess) {
-		enyo.application.db.getStoryCount(feed, filter, onSuccess);
-	},
-
-	getStoryIDList: function(feed, onSuccess) {
-		enyo.application.db.getStoryIDList(feed, onSuccess);
 	},
 
 	getStory: function(id, onSuccess) {
@@ -549,7 +530,7 @@ enyo.kind({
 	 */
 	setSortMode: function(feed) {
 		enyo.application.db.setSortMode(feed, function() {
-			enyo.application.notifyStoryListChanged();
+			enyo.Signals.send("onStoryListChanged");
 		});
 	},
 

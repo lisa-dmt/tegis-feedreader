@@ -1,9 +1,5 @@
 /*
- *		source/controls/enhancedmenu.js - Improved Menu
- *
- *		The API reference states, that the Menu kind has a method
- *		'setItems'. It's sad, but this method does not exist.
- *		EnhancedMenu fills this gap.
+ *		source/utils/os/generic.js - OS dependent functions
  */
 
 /* FeedReader - A RSS Feed Aggregator for Palm WebOS
@@ -25,23 +21,46 @@
  */
 
 enyo.kind({
-	name:	"EnhancedMenu",
-    kind:   "onyx.MenuDecorator",
+    name:   "GenericAppHelper",
+    kind:   enyo.Component,
 
-    published:  {
-        items:  []
+    openLink: function(url) {
+        alert("Should open link: " + url);
     },
 
-    components:     [{
-        kind:       "onyx.Menu",
-        name:       "menu"
-    }],
+    openEMail: function(subject, text) {
+        alert("Should start email: " + subject);
+    },
 
-    itemsChanged: function() {
-        this.$.selector.destroyComponents();
-        for(var item in items) {
-            var menuItem = this.$.menu.createComponent(item);
-            this.$.selector.addComponent(menuItem);
-        }
+    openMessaging: function(text) {
+        alert("Should open messaging: " + text);
+    }
+});
+
+enyo.kind({
+    name:   "GenericTimer",
+    kind:   enyo.Component,
+
+    setTimer: function() {
+    }
+});
+
+enyo.kind({
+    name:   "GenericConnectionChecker",
+    kind:   enyo.Component,
+
+    checkConnection: function(onSuccess, onFail) {
+        enyo.asyncMethod(this, onSuccess);
+    }
+});
+
+enyo.kind({
+    name:   "GenericPowerManager",
+    kind:   enyo.Component,
+
+    enterActivity: function() {
+    },
+
+    leaveActivity: function() {
     }
 });

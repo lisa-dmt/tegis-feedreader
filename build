@@ -1,0 +1,32 @@
+#!/bin/bash
+
+STARTDIR=`pwd`
+SRC=$STARTDIR/src
+ENYO="$SRC/enyo"
+
+# build deployable version
+if command -v node >/dev/null 2>&1; then
+	cd $SRC
+	node "$ENYO/tools/deploy.js"
+	cp icon* deploy/src
+	cp manifest.webapp deploy/src
+	cd deploy/src
+	zip - -r * > "$STARTDIR/bin/release/package.zip"
+	rm manifest.webapp
+	cd "$SRC"
+	cp appinfo.json deploy/src
+	palm-package -o "$STARTDIR/bin/release" deploy/src
+	rm -r build
+	rm -r deploy
+else
+	echo "No node found in path; unable to build release version"
+	exit 1
+fi
+
+if [ -f "$STARTDIR/deploy" ]
+then
+    cd $STARTDIR
+    . $STARTDIR/deploy
+else
+    echo "No deployment script found"
+fi

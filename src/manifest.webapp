@@ -1,0 +1,22 @@
+{
+    "name": "FeedReader",
+    "version": "4.0.0",
+    "developer": {
+        "name": "Timo Tegtmeier",
+        "url": "http://www.tegi-stuff.de"
+    },
+    "description": "A powerful RSS/ATOM aggregator",
+    "icons": {
+    	"32": "/icon32.png",
+    	"48": "/icon48.png",
+        "64": "/icon.png",
+        "128": "/icon128.png",
+        "256": "/icon256.png"
+    },
+    "launch_path": "/index.html",
+    "type": "privileged",
+    "permissions": {
+    	"systemXHR": { "description": "Needed for feed retrieval" },
+    	"storage": { "description": "Needed to store feed data" }
+    }
+}

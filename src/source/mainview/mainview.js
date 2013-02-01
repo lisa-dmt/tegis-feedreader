@@ -21,99 +21,116 @@
  */
 
 enyo.kind({
-	name:		"mainView",
-	kind:		"Control",
+	name:		    "FeedReaderMainView",
+    kind:           enyo.FittableRows,
 
-	components: [{
+    components:     [{
 		name:			"outerPane",
-		kind:			"Pane",
-		transitionKind: "enyo.transitions.LeftRightFlyin",
-		style:			"width:100%; height:100%;",
+        kind:		    enyo.Panels,
+        classes:        "back-color",
+        fit:            true,
+		draggable:		false,
+        components:     [{
+            name:           	"mainPane",
+            kind:		    	enyo.Panels,
+            classes:        	"panel-slider",
+            arrangerKind:   	"CollapsingArranger",
+            wrap:           	false,
+			onTransitionFinish:	"mainTransitionFinished",
 
-		components: [{
-			kind:	"SlidingPane",
-			name:	"mainPane",
+            components:	[{
+                kind:				"FeedList",
+                name:				"feedList",
+				onOpenAppMenu:		"openAppMenu",
+                onFeedSelected:		"feedSelected",
+                onAddFeed:			"addFeed",
+                onEditFeed:			"editFeed"
+            }, {
+                kind:				"StoryList",
+				name:				"storyList",
+                onStorySelected:	"storySelected",
+				onBackClick:		"backToFeedList"
+            }, {
+                name:		        "storyView",
+                kind:		        "StoryView",
+				onBackClick:		"backToStoryList"
+            }]
+        }, {
+            name:				    "preferences",
+            kind:				    "Preferences",
+            onPrefsSaved:		    "prefsSaved"
+        }, {
+            name:					"feedImporter",
+            kind:					"FeedImporter",
+            onBackClick:			"importerClosed"
+        }]
 
-			components:	[{
-				name:		"feedListContainer",
-				width:		"320px",
-				fixedWidth:	true,
-				components:	[{
-					kind:				"FeedList",
-					name:				"feedList",
-					onFeedSelected:		"feedSelected",
-					onAddFeed:			"addFeed",
-					onEditFeed:			"editFeed"
-				}]
-			}, {
-				name:		"storyListContainer",
-				width:		"320px",
-				fixedWidth:	true,
-				components:	[{
-					kind:				"storyList",
-					onStorySelected:	"storySelected"
-				}]
-			}, {
-				name:		"storyContainer",
-				flex:		1,
-				components:	[{
-					name:		"storyView",
-					kind:		"StoryView",
-					flex:		1
-				}]
-			}]
-		}, {
-			name:					"preferences",
-			kind:					"Preferences",
-			onPrefsSaved:			"prefsSaved"
-		}, {
-			name:					"feedImporter",
-			kind:					"FeedImporter",
-			onBackClick:			"importerClosed"
-		}]
-	}, {
-		name:					"errorDialog",
-		kind:					"ErrorDialog"
-	}, {
-		name:					"licenseDialog",
-		kind:					"LicenseDialog"
-	}, {
-		name:					"helpDialog",
-		kind:					"HelpDialog"
-	}, {
-		name:					"editFeedDialog",
-		kind:					"EditFeedDialog",
-		onFeedSaved:			"feedSaved"
-	}, {
-		kind:					"AppMenu",
+
+    /*	}, {
+            name:					"applicationEvents",
+            kind:					"ApplicationEvents",
+
+            onWindowActivated:		"windowActivated",
+            onWindowDeactivated:	"windowDeActivated",
+            onWindowRotated:		"optimizeSpace",
+            onUnload:				"unloaded"*/
+    //	}],
+    }],
+
+    tools:  [{
+        name:					"errorDialog",
+        kind:					"ErrorDialog"
+    }, {
+        name:					"licenseDialog",
+        kind:					"LicenseDialog"
+    }, {
+        name:					"helpDialog",
+        kind:					"HelpDialog"
+    }, {
+        name:					"editFeedDialog",
+        kind:					"EditFeedDialog",
+        onFeedSaved:			"feedSaved"
+    }, {
+        kind:                   enyo.Signals,
+        onDbReady:              "dbReady"
+    }, {
+		name:					"mainMenu",
+		kind:					"onyx.Menu",
+		floating:				true,
 		components:				[{
-			kind:				"EditMenu"
+			content:			$L("License"),
+			ontap:				"openLicense"
 		}, {
-			caption:			$L("License"),
-			onclick:			"openLicense"
+			content:			$L("Import feeds"),
+			ontap:				"openImporter"
 		}, {
-			caption:			$L("Import feeds"),
-			onclick:			"openImporter"
+			content:			$L("Preferences"),
+			ontap:				"openPrefs"
 		}, {
-			caption:			$L("Preferences"),
-			onclick:			"openPrefs"
-		}, {
-			caption:			$L("Help"),
-			onclick:			"openHelp"
+			content:			$L("Help"),
+			ontap:				"openHelp"
 		}]
-	}, {
-		name:					"applicationEvents",
-		kind:					"ApplicationEvents",
-
-		onWindowActivated:		"windowActivated",
-		onWindowDeactivated:	"windowDeActivated",
-		onWindowRotated:		"optimizeSpace",
-		onUnload:				"unloaded"
 	}],
+
+	//
+	// Transition handling
+	//
+
+	mainTransitionFinished: function(sender, event) {
+		switch(event.toIndex) {
+			case 0:	this.$.feedList.resized(); break;
+			case 1: this.$.storyList.resized(); break;
+			case 2:	this.$.storyView.resized(); break;
+		}
+	},
 
 	//
 	// FeedList events
 	//
+
+	openAppMenu: function(sender, event) {
+		enyo.openMenuAtEvent(this.$.mainMenu, this, event);
+	},
 
 	feedSelected: function(sender, feed) {
 		enyo.asyncMethod(this, function() {
@@ -127,20 +144,20 @@ enyo.kind({
 			this.$.storyList.setFeed(feed);
 			this.$.storyView.setFeed(feed);
 
-
-			this.optimizeSpace();
+			if(enyo.Panels.isScreenNarrow())
+				this.$.mainPane.setIndex(1);
 		});
 	},
 
 	addFeed: function(sender) {
 		enyo.asyncMethod(this, function() {
-			this.$.editFeedDialog.openAtCenter(null);
+			this.$.editFeedDialog.show(null);
 		});
 	},
 
 	editFeed: function(sender, feed) {
 		enyo.asyncMethod(this, function() {
-			this.$.editFeedDialog.openAtCenter(feed);
+			this.$.editFeedDialog.show(feed);
 		});
 	},
 
@@ -153,15 +170,25 @@ enyo.kind({
 			var selectedStory = this.$.storyView.getStory();
 			if(selectedStory && story && (selectedStory.id == story.id)) {
 				this.$.storyView.setUpdateOnly(true);
-			} else {
-				var orientation = enyo.getWindowOrientation();
-				if(story && ((orientation == "left") || (orientation == "right"))) {
-					this.$.mainPane.selectViewByIndex(1);
-				}
 			}
 			this.$.storyView.setStory(story);
-			this.optimizeSpace();
+			if(enyo.Panels.isScreenNarrow()) {
+				this.$.mainPane.setIndex(2);
+				this.log("MAINVIEW> Switching to story view");
+			}
 		});
+	},
+
+	//
+	// Back button handling
+	//
+
+	backToFeedList: function() {
+		this.$.mainPane.setIndex(0);
+	},
+
+	backToStoryList: function() {
+		this.$.mainPane.setIndex(1);
 	},
 
 	//
@@ -170,26 +197,27 @@ enyo.kind({
 
 	openPrefs: function() {
 		enyo.asyncMethod(this, function() {
-			this.$.outerPane.selectViewByName("preferences");
+			this.$.preferences.reInitialize();
+			this.$.outerPane.setIndex(1);
 		});
 	},
 
 	openImporter: function() {
 		enyo.asyncMethod(this, function() {
 			this.$.feedImporter.reInitialize();
-			this.$.outerPane.selectViewByName("feedImporter");
+			this.$.outerPane.setIndex(2);
 		});
 	},
 
 	openHelp: function() {
 		enyo.asyncMethod(this, function() {
-			this.$.helpDialog.openAtCenter();
+			this.$.helpDialog.show();
 		});
 	},
 
 	openLicense: function() {
 		enyo.asyncMethod(this, function() {
-			this.$.licenseDialog.openAtCenter();
+			this.$.licenseDialog.show();
 		});
 	},
 
@@ -210,7 +238,7 @@ enyo.kind({
 			this.$.feedList.refresh();
 			this.$.storyList.refresh();
 			this.$.storyView.refresh();
-			this.$.outerPane.back();
+			this.$.outerPane.setIndex(0);
 		});
 	},
 
@@ -223,7 +251,7 @@ enyo.kind({
 			this.$.feedList.refresh();
 			this.$.storyList.refresh();
 			this.$.storyView.refresh();
-			this.$.outerPane.back();
+			this.$.outerPane.setIndex(0);
 		});
 	},
 
@@ -237,7 +265,7 @@ enyo.kind({
 		enyo.application.isActive = true;
 
 		if(enyo.application.db.isReady) {
-			this.notifyDBReady();
+			this.dbReady();
 		}
 
 		enyo.application.launcher.closeDashboard();
@@ -246,15 +274,6 @@ enyo.kind({
 	windowDeActivated: function() {
 		this.log("DE-ACTIVATED");
 		enyo.application.isActive = false;
-	},
-
-	optimizeSpace: function() {
-		if((window.innerWidth < window.innerHeight) &&
-		   (this.$.storyView.getStory())) {
-			this.$.storyContainer.setMinWidth("448px");
-		} else {
-			this.$.storyContainer.setMinWidth("");
-		}
 	},
 
 	unloaded: function() {
@@ -269,25 +288,8 @@ enyo.kind({
 	// Notifications
 	//
 
-	notifyDBReady: function() {
+	dbReady: function() {
 		this.$.feedList.refresh();
-	},
-
-	notifyFeedUpdated: function(state, index) {
-		this.$.feedList.setFeedUpdateState(state, index);
-	},
-
-	notifyFeedListChanged: function() {
-		this.$.feedList.refresh();
-	},
-
-	notifyStoryListChanged: function() {
-		this.$.storyList.refresh();
-	},
-
-	notifySpoolerRunningChanged: function(state) {
-		this.$.feedList.spoolerRunningChanged(state);
-		this.$.storyList.spoolerRunningChanged(state);
 	},
 
 	showError: function(errorMsg, data) {
@@ -297,7 +299,7 @@ enyo.kind({
 		}
 
 		enyo.asyncMethod(this, function() {
-			this.$.errorDialog.openAtCenter(msg);
+			this.$.errorDialog.show(msg);
 		});
 	},
 
@@ -305,10 +307,18 @@ enyo.kind({
 	// Initialization
 	//
 
+	rendered: function() {
+		this.resized();
+		this.inherited(arguments);
+	},
+
+    initComponents: function() {
+        this.createChrome(this.tools);
+        this.inherited(arguments);
+    },
+
 	create: function() {
 		this.inherited(arguments);
-
-		enyo.keyboard.setResizesWindow(false);
-		this.optimizeSpace();
+		enyo.application.isActive = true;
 	}
 });

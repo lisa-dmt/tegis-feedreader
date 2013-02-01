@@ -22,17 +22,15 @@
 
 enyo.kind({
 	name:		"ToggleItem",
-	kind:		"RowItem",
-	layoutKind:	"HFlexLayout",
-	align:		"center",
+    classes:    "toggle-item",
 
 	components:	[{
-		content:	$L("Activate Feed"),
 		name:		"caption",
-		flex:		1
+        classes:    "caption float-left"
 	}, {
 		name: 		"button",
-		kind: 		"ToggleButton",
+		kind: 		"onyx.ToggleButton",
+		classes:	"float-right",
 		onChange:	"doChange"
 	}],
 
@@ -49,11 +47,11 @@ enyo.kind({
 	},
 
 	getValue: function() {
-		return this.$.button.getState();
+		return this.$.button.getValue();
 	},
 
 	setValue: function(state) {
-		this.$.button.setState(state);
+		this.$.button.setValue(state);
 	},
 
 	captionChanged: function() {
@@ -61,11 +59,11 @@ enyo.kind({
 	},
 
 	trueLabelChanged: function() {
-		this.$.button.setOnLabel(this.trueLabel);
+		this.$.button.setOnContent(this.trueLabel);
 	},
 
 	falseLabelChanged: function() {
-		this.$.button.setOffLabel(this.falseLabel);
+		this.$.button.setOffContent(this.falseLabel);
 	},
 
 	disabledChanged: function() {

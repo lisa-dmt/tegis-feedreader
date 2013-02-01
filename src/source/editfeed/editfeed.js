@@ -23,9 +23,6 @@
 enyo.kind({
 	name:			"EditFeedDialog",
 	kind:			"ModalDialog",
-	layoutKind:		"VFlexLayout",
-	contentHeight:	"100%",
-	style:			"width: 500px; height: 85%; min-height: 500px;",
 
 	events:	{
 		onFeedSaved:	"",
@@ -38,24 +35,27 @@ enyo.kind({
 
 	components:	[{
 		kind:		"Scroller",
-		className:	"group",
-		flex:		1,
+		horizontal:	"hidden",
+		fit:		true,
 		components:	[{
-			kind:		"RowGroup",
-			caption:	$L("Basic settings"),
+			kind:		"onyx.Groupbox",
 			components:	[{
-				name:				"url",
-				kind:				"Input",
-				autoCapitalize:		"lowercase",
-				inputType:			"url",
-				autocorrect:		false,
-				spellcheck:			false,
-				autoWordComplete:	false,
-				hint:				$L("URL of RSS/ATOM Feed...")
+                kind:       "onyx.GroupboxHeader",
+                content:	$L("Basic settings")
+            }, {
+                kind:               "onyx.InputDecorator",
+                components:         [{
+                    name:			"url",
+                    kind:			"onyx.Input",
+                    placeholder:	$L("URL of RSS/ATOM Feed...")
+                }]
 			}, {
-				name:		"name",
-				kind:		"Input",
-				hint:		$L("Feed name...")
+                kind:               "onyx.InputDecorator",
+                components:         [{
+                    name:		    "name",
+                    kind:		    "onyx.Input",
+                    placeholder:    $L("Feed name...")
+                }]
 			}, {
 				name:		"activateFeed",
 				kind:		"ToggleItem",
@@ -63,25 +63,32 @@ enyo.kind({
 				value:		true
 			}]
 		}, {
-			kind:		"RowGroup",
-			caption:	$L("Credentials"),
+			kind:		"onyx.Groupbox",
 			components:	[{
-				name:				"username",
-				kind:				"Input",
-				autoCapitalize:		"lowercase",
-				autocorrect:		false,
-				spellcheck:			false,
-				autoWordComplete:	false,
-				hint:				$L("User name")
+                kind:       "onyx.GroupboxHeader",
+                content:	$L("Credentials")
+            }, {
+                kind:               "onyx.InputDecorator",
+                components:         [{
+                    name:				"username",
+                    kind:				"Input",
+                    placeholder:		$L("User name")
+                }]
 			}, {
-				name:	"password",
-				kind:	"PasswordInput",
-				hint:	$L("Password")
+                kind:   "onyx.InputDecorator",
+                components: [{
+                    kind:           "onyx.Input",
+                    name:	        "password",
+                    type:           "password",
+                    placeholder:    $L("Password")
+                }]
 			}]
 		}, {
-			kind:		"RowGroup",
-			caption:	$L("Story list display"),
+			kind:		"onyx.Groupbox",
 			components:	[{
+                kind:       "onyx.GroupboxHeader",
+                content:	$L("Story list display")
+            }, {
 				name:	"listMode",
 				kind:	"SelectorItem",
 				items:	[{
@@ -111,9 +118,11 @@ enyo.kind({
 				caption:	$L("Filter")
 			}]
 		}, {
-			kind:		"RowGroup",
-			caption:	$L("Story display"),
+			kind:		"onyx.Groupbox",
 			components:	[{
+                kind:       "onyx.GroupboxHeader",
+                content:	$L("Story display")
+            }, {
 				name:	"detailMode",
 				kind:	"SelectorItem",
 				items:	[{
@@ -124,7 +133,7 @@ enyo.kind({
 					value:		false
 				}],
 				caption:	$L("Show"),
-				onChange:	"detailModeChanged"
+				onChange:   "detailModeChanged"
 			}, {
 				name:		"showPicture",
 				kind:		"ToggleItem",
@@ -143,18 +152,24 @@ enyo.kind({
 			}]
 		}]
 	}, {
-		name:		"saveButton",
-		kind:		"ActivityButton",
-		className:	"enyo-button-affirmative",
-		caption:	$L("Save"),
-		onclick:	"saveClicked"
-	}, {
-		name:		"cancelButton",
-		kind:		"Button",
-		className:	"enyo-button-negative",
-		style:		"margin-bottom: 20px",
-		caption:	$L("Cancel"),
-		onclick:	"cancelClicked"
+        kind:       enyo.FittableColumns,
+		classes:	"center-text",
+		style:		"padding-top: 8px; padding-bottom: 20px",
+		components:	[{
+			name:		"saveButton",
+			kind:		"ActivityButton",
+			classes:	"onyx-affirmative",
+			content:	$L("Save"),
+			ontap:		"saveClicked"
+		}, {
+			styles:     "width: 8px"
+		}, {
+			name:		"cancelButton",
+			kind:		"onyx.Button",
+			classes:	"onyx-negative",
+			content:	$L("Cancel"),
+			ontap:		"cancelClicked"
+		}]
 	}],
 
 	create: function() {
@@ -167,7 +182,7 @@ enyo.kind({
 	saveClicked: function() {
 		if(!this.$.url.getValue || (this.$.url.getValue().length <= 0)) {	// In case no url is entered, simply exit the scene.
 			this.doCanceled();
-			this.close();
+			this.hide();
 			return;
 		}
 
@@ -224,7 +239,7 @@ enyo.kind({
 	updateSuccess: function() {
 		this.doFeedSaved();
 		this.resetButtons();
-		this.close();
+		this.hide();
 	},
 
 	updateFailed: function() {
@@ -233,7 +248,7 @@ enyo.kind({
 
 	cancelClicked: function() {
 		this.doCanceled();
-		this.close();
+		this.hide();
 	},
 
 	feedChanged: function() {
@@ -275,9 +290,11 @@ enyo.kind({
 		this.detailModeChanged();
 	},
 
-	openAtCenter: function(feed) {
+	show: function(feed) {
 		this.feed = feed;
 		this.inherited(arguments);
 		this.feedChanged();
+        if(!enyo.Panels.isScreenNarrow())
+			this.$.url.focus();
 	}
 });

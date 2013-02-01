@@ -1,9 +1,5 @@
 /*
- *		source/controls/enhancedmenu.js - Improved Menu
- *
- *		The API reference states, that the Menu kind has a method
- *		'setItems'. It's sad, but this method does not exist.
- *		EnhancedMenu fills this gap.
+ *		source/controls/activitybutton.js
  */
 
 /* FeedReader - A RSS Feed Aggregator for Palm WebOS
@@ -23,25 +19,41 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
 enyo.kind({
-	name:	"EnhancedMenu",
-    kind:   "onyx.MenuDecorator",
+    name:       "ActivityButton",
+    kind:       "onyx.Button",
 
     published:  {
-        items:  []
+        caption:    "",
+        active:     false
     },
 
-    components:     [{
-        kind:       "onyx.Menu",
-        name:       "menu"
+    components: [{
+        name:       "spinner",
+        kind:       "onyx.Spinner",
+        classes:    "onyx-light small",
+		style:		"margin-right: 5px; margin-left: -10px;",
+        showing:    false
+    }, {
+        name:       "label"
     }],
 
-    itemsChanged: function() {
-        this.$.selector.destroyComponents();
-        for(var item in items) {
-            var menuItem = this.$.menu.createComponent(item);
-            this.$.selector.addComponent(menuItem);
+    contentChanged: function() {
+        this.$.label.setContent(this.content);
+    },
+
+    activeChanged: function() {
+        if(this.active) {
+            this.$.spinner.show();
+            this.$.spinner.start();
+        } else {
+            this.$.spinner.stop();
+            this.$.spinner.hide();
         }
-    }
+    },
+
+	create: function() {
+		this.inherited(arguments);
+		this.contentChanged();
+	}
 });

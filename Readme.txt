@@ -1,5 +1,5 @@
 FeedReader - A RSS Feed Aggregator for Palm WebOS
-Copyright (C) 2009-2012 Timo Tegtmeier
+Copyright (C) 2009-2013 Timo Tegtmeier
 
 The icons icon-play.png, icon-pause.png, web-icon.png,
 email-icon.png, player-icon are Copyright Palm, Inc.
@@ -33,8 +33,13 @@ Contributors
 Changelog
 =========
 
-Version 3.0.2 (maintenance release)
------------------------------------
+Version 4.0.0 (feature release)
+-------------------------------
+ * ported to Enyo 2
+ * dropped Mojo code
+
+Version 3.0.2 (not released)
+----------------------------
  * deleting a feed via the context menu works correctly
  * Scroll position is now reset in Enyo when a different feed is selected
  * improved responsiveness of Enyo version
