@@ -32,6 +32,8 @@ enyo.kind({
 		kind: 		"onyx.ToggleButton",
 		classes:	"float-right",
 		onChange:	"doChange"
+	}, {
+		kind:		"FloatBreaker"
 	}],
 
 	published: {

@@ -188,10 +188,17 @@ enyo.kind({
 	}
 });
 
+enyo.kind({
+	name:		"FloatBreaker",
+	classes:	"float-breaker",
+	content:	"&nbsp;",
+	allowHtml:	true
+});
+
 function additionalSceneWidthStyle() {
 	if(enyo.Panels.isScreenNarrow()) {
-		return "width: 98%;";
+		return "width: 95%;";
 	} else {
-		return 	"width: 640px;";
+		return "width: 640px;";
 	}
 }

@@ -82,6 +82,13 @@
     float: right;
 }
 
+.float-breaker {
+	clear: both;
+	float: none;
+	line-height:0;
+	font-size: 0;
+}
+
 .display-inline {
 	display: inline-block;
 	vertical-align: middle;
@@ -143,16 +150,11 @@
 
 .toggle-item {
 	line-height: 32px;
-	height: 32px;
+	padding: 8px;
 }
 
 .selector-item {
-	height: 52px;
 	padding: 4px 4px 4px 8px;
-}
-
-.toggle-item {
-    padding: 8px;
 }
 
 .toggle-item > .caption, .selector-item > .caption {

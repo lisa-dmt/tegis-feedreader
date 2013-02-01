@@ -45,6 +45,8 @@ enyo.kind({
 				name:		"itemCaption"
 			}]
         }]
+	}, {
+		kind:	"FloatBreaker"
 	}],
 
 	events:		{
