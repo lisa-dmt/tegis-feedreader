@@ -21,46 +21,95 @@
  */
 
 enyo.kind({
-	name:		"SelectorItem",
-	kind:		"RowItem",
-	layoutKind:	"HFlexLayout",
-	align:		"center",
+	name:		    "SelectorItem",
+    classes:        "selector-item",
+
+    updating:       0,
 
 	components:	[{
 		name:		"caption",
-		className:	"enyo-label"
+		classes:	"caption float-left"
 	}, {
-		name:			"selector",
-		kind:			"ListSelector",
-		contentPack:	"end",
-		flex:			1,
-		onChange:		"doChange"
+        kind:       "onyx.PickerDecorator",
+		name:		"pickerDecorator",
+		classes:	"float-right",
+		onSelect:	"pickerSelected",
+		onChange:	"pickerChanged",
+        components: [{
+			name:			"pickerButton"
+		}, {
+            kind:       	"onyx.FlyweightPicker",
+            name:			"selector",
+			onSetupItem:	"setupItem",
+			components:		[{
+				name:		"itemCaption"
+			}]
+        }]
 	}],
 
 	events:		{
-		onChange:	""
+		onChange:   ""
 	},
 
-	published:	[{
+	published:	{
 		caption:	"",
 		items:		[],
 		value:		0
-	}],
+	},
 
 	captionChanged: function() {
+		this.updating++;
 		this.$.caption.setContent(this.caption);
+		this.updating--;
+        return true;
+	},
+
+	pickerSelected: function(sender, event) {
+		if(!this.updating)
+			this.doChange();
+		return true;
+	},
+
+	pickerChanged: function() {
+		return true;
+	},
+
+	setupItem: function(sender, event) {
+		if(event.index === null)
+			return;
+		this.$.itemCaption.setContent(this.items[event.index].caption);
 	},
 
 	itemsChanged: function() {
-		this.$.selector.setItems(this.items);
+		this.updating++;
+		this.$.selector.setCount(this.items.length);
+		if(this.items && this.items.length > 0)
+			this.setValue(this.items[0]);
+		this.updating--;
 	},
 
 	getValue: function() {
-		return this.$.selector.getValue();
+		return this.value;
 	},
 
 	setValue: function(value) {
-		this.$.selector.setValue(value);
+		this.updating++;
+		var index = 0;
+		for(var i = 0; i < this.items.length; i++) {
+			if(this.items[i].value == value) {
+				index = i;
+				break;
+			}
+		}
+		this.value = value;
+		this.$.selector.setSelected(index);
+		this.$.pickerButton.setContent(this.items[index].caption);
+		this.updating--;
+	},
+
+	render: function() {
+		this.resized();
+		this.inherited(arguments);
 	},
 
 	create: function() {

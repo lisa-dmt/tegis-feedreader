@@ -22,7 +22,7 @@
 
 enyo.kind({
 	name:			"FeedImporter",
-	kind:			"VFlexBox",
+	kind:			enyo.FittableRows,
 
 	events:			{
 		onBackClick:	""
@@ -30,114 +30,99 @@ enyo.kind({
 
 	items:			[],
 	url:			"",
-	initialized:	false,
 	inHeader:		false,
 	parser:			null,
 	parserHandler:	null,
 	index:			0,
 
 	components:	[{
-		kind:		"Toolbar",
-		content:	$L("Import feeds"),
-		className:	"enyo-toolbar-light"
-	}, {
-		kind:		"VFlexBox",
-		flex:		1,
-		align:		"center",
+		kind:		"onyx.Toolbar",
+		classes:	"toolbar-light",
 		components:	[{
-			className:	"additional-scene-width",
-			layoutKind:	"VFlexLayout",
-			align:		"left",
-			flex:		1,
+			kind:		"TopSceneControl",
+			ontap:		"doBackClick"
+		}, {
+			content:	$L("Import feeds"),
+			classes:	"float-left"
+		}]	}, {
+		kind:		"onyx.Groupbox",
+		layoutKind:	"FittableRowsLayout",
+		classes:	"additional-scene-width center-div",
+		components:	[{
+			kind:       "onyx.GroupboxHeader",
+			content:    $L("Origin")
+		}, {
+			kind:           "onyx.InputDecorator",
+			components:     [{
+				name:			"url",
+				kind:			"Input",
+				placeholder:	$L("URL of website...")
+			}]
+		}]
+	},{
+		classes:		"additional-scene-width center-div center-text",
+		components:		[{
+			name:		"scanButton",
+			kind:		"ActivityButton",
+			content:	$L("Scan for feeds"),
+			ontap:		"scanURL"
+		}, {
+			kind:		"Divider",
+			caption:	$L("Feeds")
+		}, {
+			name:		"noScanLabel",
+			allowHtml:	true,
+			content:	$L("Enter a URL and tap <b>Scan for feeds</b>.")
+		}, {
+			name:		"noConnLabel",
+			content:	$L("No Internet connection available.")
+		}, {
+			name:		"noDataLabel",
+			content:	$L("No feeds found. Maybe the URL is wrong.")
+		}]
+	}, {
+		name:			"list",
+		kind:			enyo.List,
+		classes:		"additional-scene-width center-div",
+		reorderable:	false,
+		fit:			true,
+		onSetupItem:	"setupRow",
+		components:	[{
+			name:		"item",
+			kind:		"onyx.Item",
+			classes:	"feedlist-item",
+			style:		"border-left: 1px solid silver; border-right: 1px solid silver;",
+			ontap:		"feedClicked",
 			components:	[{
-				kind:		"RowGroup",
-				caption:	$L("Origin"),
+				name:		"feedInfoBox",
+				classes:	"feed-infobox",
 				components:	[{
-					name:				"url",
-					kind:				"Input",
-					autoCapitalize:		"lowercase",
-					inputType:			"url",
-					autocorrect:		false,
-					spellcheck:			false,
-					autoWordComplete:	false,
-					hint:				$L("URL of website...")
+					kind:	"Image",
+					name:	"feedIcon",
+					src:	"assets/lists/icon-rss.png",
+					style:	"max-width: 40px; max-height: 40px;"
 				}]
 			}, {
-				name:		"scanButton",
-				kind:		"ActivityButton",
-				caption:	$L("Scan for feeds"),
-				onclick:	"scanURL"
-			}, {
-				kind:		"Divider",
-				caption:	$L("Feeds")
-			}, {
-				name:		"noScanLabel",
-				style:		"margin: 20px",
-				content:	$L("Enter a URL and tap <b>Scan for feeds</b>.")
-			}, {
-				name:		"noConnLabel",
-				style:		"margin: 20px",
-				content:	$L("No Internet connection available.")
-			}, {
-				name:		"noDataLabel",
-				style:		"margin: 20px",
-				content:	$L("No feeds found. Maybe the URL is wrong.")
-			}, {
-				name:		"list",
-				kind:		"VirtualList",
-				flex:		1,
-				onSetupRow:	"setupRow",
-				components:	[{
-					name:		"item",
-					kind:		"Item",
-					onclick:	"feedClicked",
-					components:	[{
-						kind:		"HFlexBox",
-						components:	[{
-							name:		"feedInfoBox",
-							nodeTag:	"div",
-							className:	"feed-infobox",
-							components:	[{
-								kind:	"Image",
-								name:	"feedIcon",
-								src:	"../../images/lists/icon-rss.png",
-								style:	"max-width: 40px; max-height: 40px;"
-							}]
-						}, {
-							kind:	"VFlexBox",
-							flex:	1,
-							components: [{
-								name:		"feedTitle",
-								className:	"feed-title"
-							}, {
-								name:		"feedURL",
-								className:	"feed-url"
-							}]
-						}]
-					}]
+				classes:	"feed-title-box",
+				components: [{
+					name:		"feedTitle",
+					classes:	"feed-title"
+				}, {
+					name:		"feedURL",
+					classes:	"feed-url"
 				}]
 			}]
 		}]
 	}, {
-		kind:		"Toolbar",
+		kind:		"onyx.Toolbar",
 		components:	[{
-			kind:		"ToolButton",
-			content:	$L("Back"),
-			onclick:	"doBackClick"
-		}, {
-			kind:		"Spacer"
+			kind:		"BottomMainSceneControl",
+			ontap:		"doBackClick"
 		}]
-	}, {
-		name:					"webService",
-		kind:					"WebService",
-		method:					"GET",
-		handleAs:				"text",
-		onSuccess:				"retrievalSuccess",
-		onFailure:				"retrievalFailed"
 	}, {
 		kind: 					"DialogPrompt",
 		name:					"subscribeDialog",
-		title: 					$L("Subscribe to feed"),
+		caption:				$L("Subscribe to feed"),
 		acceptButtonCaption: 	$L("Yes"),
 		cancelButtonCaption: 	$L("No"),
 		onAccept: 				"doSubscribe"
@@ -153,14 +138,14 @@ enyo.kind({
 	reInitialize: function() {
 		this.url = "";
 		this.items = [];
-		this.$.list.punt();
+		this.$.list.setCount(0);
 		this.$.url.setValue("");
 		this.resetScanButton();
 
-		this.$.list.hide();
 		this.$.noDataLabel.hide();
 		this.$.noConnLabel.hide();
 		this.$.noScanLabel.show();
+		this.resized();
 	},
 
 	scanURL: function(sender, event) {
@@ -168,7 +153,7 @@ enyo.kind({
 		this.$.noConnLabel.hide();
 		this.items = [];
 
-		this.url = enyo.string.trim(this.$.url.getValue());
+		this.url = this.$.url.getValue().replace(/^\s+|\s+$/g, '');
 		if(this.url.length <= 0) {
 			this.reInitialize();
 			return;
@@ -185,17 +170,16 @@ enyo.kind({
 		enyo.application.connChecker.checkConnection(this.connectionAvailable, this.connectionNotAvailable);
 	},
 
-	setupRow: function(sender, index) {
+	setupRow: function(sender, event) {
+		var index = event.index;
 		if((index < 0) || (index >= this.items.length)) {
 			return false;
 		}
 
 		var feed = this.items[index];
-		this.$.feedIcon.setSrc("../../images/lists/icon-" + feed.type + ".png");
+		this.$.feedIcon.setSrc("assets/lists/icon-" + feed.type + ".png");
 		this.$.feedTitle.setContent(feed.title);
 		this.$.feedURL.setContent(feed.url);
-
-		return true;
 	},
 
 	feedClicked: function(sender, event) {
@@ -203,33 +187,47 @@ enyo.kind({
 
 		var msg = enyo.macroize($L('Do you want to subscribe to "{$feed}"?'), { feed: this.items[this.index].title });
 		this.$.subscribeDialog.setMessage(msg);
-		this.$.subscribeDialog.open();
+		this.$.subscribeDialog.show();
 	},
 
 	doSubscribe: function(sender, event) {
+		// Create a new feed object.
 		var f = new Feed();
 		f.title = this.items[this.index].title;
 		f.url = this.items[this.index].url;
-		enyo.application.feeds.addOrEditFeed(f);
 
+		// Remove the feed from the list.
 		this.items.splice(this.index, 1);
+		this.items = enyo.clone(this.items);
+		this.$.list.setCount(this.items.length);
 		this.$.list.refresh();
+
+		// Save the feed.
+		enyo.asyncMethod(this, function() {
+			enyo.application.feeds.addOrEditFeed(f);
+		});
 	},
 
 	connectionAvailable: function() {
-		this.$.webService.call({}, {
-			url: this.url
+		var ajax = new enyo.Ajax({
+			url:		this.url,
+			handleAs:	"text"
 		});
+		ajax.response(this, "retrievalSuccess");
+		ajax.error(this, "retrievalFailed");
+		ajax.go({});
 	},
 
 	connectionNotAvailable: function() {
 		this.$.noConnLabel.show();
+		this.$.list.setCount(0);
+		this.$.list.refresh();
 		this.resetScanButton();
 	},
 
-	retrievalSuccess: function(sender, response, request) {
+	retrievalSuccess: function(sender, response) {
 		if(response && response.length > 0) {
-			var url = request.xhr.getResponseHeader("Location");
+			var url = sender.xhr.getResponseHeader("Location");
 			if(url && (url.length > 0)) {
 				this.url = url;
 				this.$.url.setValue(this.url);
@@ -246,23 +244,20 @@ enyo.kind({
 			this.log("No data retrieved.");
 		}
 
-		if(this.items.length > 0) {
-			this.$.noDataLabel.hide();
-			this.$.list.show();
-			enyo.asyncMethod(this, function() {
-				this.$.list.punt();
-			});
-		} else {
-			this.$.list.hide();
-			this.$.noDataLabel.show();
-		}
+		this.$.noDataLabel.setShowing(this.items.length <= 0);
+		this.$.list.setCount(this.items.length);
+		this.$.list.refresh();
 		this.resetScanButton();
+		this.resized();
 	},
 
-	retrievalFailed: function(sender, response, request) {
-		this.$.list.hide();
+	retrievalFailed: function(sender, response) {
+		this.log("Retrieval failed");
 		this.$.noDataLabel.show();
+		this.$.list.setCount(0);
+		this.$.list.refresh();
 		this.resetScanButton();
+		this.resized();
 	},
 
 	parseStartTag: function(tag, attr) {
@@ -278,7 +273,6 @@ enyo.kind({
 
 			for(var i = 0; i < attr.length; i++) {
 				if(attr[i] && attr[i].name && attr[i].value) {
-					//this.log(attr[i].name, attr[i].value);
 					if(attr[i].name.match(/rel/i) &&
 					   attr[i].value.match(/alternate/i)) {
 						possibility++;
@@ -329,11 +323,6 @@ enyo.kind({
 
 	parseCharacters: function(s) {},
 	parseComment: function(s) {},
-
-	componentsReady: function() {
-		this.inherited(arguments);
-		this.initialized = true;
-	},
 
 	create: function() {
 		this.inherited(arguments);

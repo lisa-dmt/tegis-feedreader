@@ -44,13 +44,8 @@ var commonSQL = {
  */
 enyo.kind({
 
-	name:				"Database",
-	kind:				"Component",
-
-	events:				{
-		onFeedListLoaded:	"",
-		onFeedUpdated:		""
-	},
+	name:				"WebSQLDatabase",
+	kind:				enyo.Component,
 
 	db:					null,
 	openTransactions:	0,
@@ -70,14 +65,14 @@ enyo.kind({
 		this.transactionSuccess = enyo.bind(this, this.transactionSuccess);
 		this.transactionFailed = enyo.bind(this, this.transactionFailed);
 
-		// Per-bind query handlers.
+		// Pre-bind query handlers.
 		this.nullData = enyo.bind(this, this.nullData);
 		this.errorHandler = enyo.bind(this, this.errorHandler);
 		var checkVersion = enyo.bind(this, this.checkVersion);
 		var initDB = enyo.bind(this, this.initDB);
 
 		try {
-			this.db = openDatabase("ext:FeedReader", "", "FeedReader Database");
+			this.db = enyo.openDatabase();
             this.transactionManager = new TransactionManager(this.db, this.transactionSuccess, this.transactionFailed);
 
 			this.writeTransaction(function(transaction) {
@@ -139,11 +134,11 @@ enyo.kind({
 
 		if(enyo.application.prefs.updateOnStart || enyo.application.feeds.updateWhenReady) {
 			enyo.application.feeds.updateWhenReady = false;
-			enyo.application.feeds.enqueueUpdateAll();
+            enyo.Signals.send("onUpdateAll");
 		}
 
 		this.isReady = true;
-		enyo.application.notifyDBReady();
+        enyo.Signals.send("onDbReady");
 	},
 
 	/** @private
@@ -597,28 +592,6 @@ enyo.kind({
 	},
 
 	/**
-	 * Get the count of feeds matching a filter string.
-	 *
-	 * @param	filter		{String}		filter string
-	 * @param	onSuccess	{function}		function to be called on success
-	 * @param	onFail		{function}		function to be called on failure
-	 */
-	getFeedCount: function(filter, onSuccess, onFail) {
-		enyo.application.assert(onSuccess, "DB> getFeedCount needs data handler");
-		onFail = onFail || this.errorHandler;
-
-		this.readTransaction(
-			function(transaction) {
-				transaction.executeSql("SELECT COUNT(id) AS feedcount" +
-									   "  FROM feeds" +
-									   "  WHERE title LIKE '%' || ? || '%'", [filter],
-					function(transaction, result) {
-						onSuccess(result.rows.item(0).feedcount);
-					}, onFail);
-			});
-	},
-
-	/**
 	 * Retrieve a list of feeds.
 	 *
 	 * @param	filter		{String}		filter string
@@ -646,31 +619,6 @@ enyo.kind({
 	},
 
 	/**
-	 * Get a list of all feed IDs.
-	 *
-	 * @param	onSuccess	{function}		called on success
-	 * @param	onFail		{function}		called on failure
-	 */
-	getFeedIDList: function(onSuccess, onFail) {
-		enyo.application.assert(onSuccess, "DB> getFeedIDList needs data handler");
-		onFail = onFail || this.errorHandler;
-
-		// This function will assemble the result set.
-		var handleResult = function(transaction, result) {
-			var list = [];
-			for(var i = 0; i < result.rows.length; i++) {
-				list.push(result.rows.item(i).id);
-			}
-			onSuccess(list);
-		};
-
-		this.readTransaction(function(transaction) {
-			transaction.executeSql("SELECT id FROM feeds ORDER BY feedOrder", [],
-								   handleResult, onFail);
-		});
-	},
-
-	/**
 	 * Retrieve a feed.
 	 *
 	 * @param	id			{Integer}		feed id
@@ -691,61 +639,6 @@ enyo.kind({
 						}
 					}, onFail);
 			});
-	},
-
-	/**
-	 * Get the count of story matching a filter string.
-	 *
-	 * @param	feed		{Object}		feed object
-	 * @param	filter		{String}		filter string
-	 * @param	onSuccess	{function}		function to be called on success
-	 * @param	onFail		{function}		function to be called on failure
-	 */
-	getStoryCount: function(feed, filter, onSuccess, onFail) {
-		enyo.application.assert(onSuccess, "DB> getStoryCount needs data handler");
-		onFail = onFail || this.errorHandler;
-
-		// This function will assemble the result set.
-		var handleResult = function(transaction, result) {
-			var count = 0;
-			if(result.rows.length > 0) {
-				count = result.rows.item(0).storyCount;
-			}
-			onSuccess(count);
-		};
-
-		// Build the SELECT statement.
-		var selectStmt = "SELECT COUNT(id) AS storyCount" +
-						 "  FROM stories" +
-						 "  WHERE (title LIKE '%' || ? || '%')" +
-						 "    AND (deleted = 0)";
-		switch(feed.sortMode & 0xFF) {
-			case 1:	selectStmt += " AND isRead = 0";	break;
-			case 2: selectStmt += " AND isNew = 1";	break;
-		}
-
-		switch(feed.feedType) {
-			case feedTypes.ftAllItems:
-				this.readTransaction(function(transaction) {
-					transaction.executeSql(selectStmt, [filter], handleResult, onFail);
-				});
-				break;
-
-			case feedTypes.ftStarred:
-				this.readTransaction(function(transaction) {
-					transaction.executeSql(selectStmt + " AND isStarred = 1",
-										   [filter], handleResult, onFail);
-				});
-				break;
-
-			default:
-				this.readTransaction(function(transaction) {
-					transaction.executeSql(selectStmt + " AND fid = ?",
-										   [filter, feed.id],
-										   handleResult, onFail);
-				});
-				break;
-		}
 	},
 
 	/**
@@ -886,75 +779,6 @@ enyo.kind({
 				this.readTransaction(function(transaction) {
 					transaction.executeSql(selectStmt + " WHERE s.fid = ?" + orderClause,
 										   [feed.id],
-										   handleResult, onFail);
-				});
-				break;
-		}
-	},
-
-	/**
-	 * Retrieve a list of story IDs.
-	 *
-	 * @param	feed		{Object}		feed object
-	 * @param	onSuccess	{function}		function to be called on success
-	 * @param	onFail		{function}		function to be called on failure
-	 */
-	getStoryIDList: function(feed, onSuccess, onFail) {
-		enyo.application.assert(onSuccess, "DB> getStoryIDList needs data handler");
-		onFail = onFail || this.errorHandler;
-
-		// This function will assemble the result set.
-		var handleResult = function(transaction, result) {
-			var list = [];
-			for(var i = 0; i < result.rows.length; i++) {
-				list.push(result.rows.item(i).id);
-			}
-			onSuccess(list);
-		};
-
-		// Build the basic SELECT statement.
-		var selectStmt = "SELECT s.id" +
-						 "  FROM stories AS s" +
-						 "  INNER JOIN feeds AS f ON (f.id = s.fid)" +
-						 "  WHERE (s.deleted = 0)";
-
-		var whereClauseAddOn = null;
-		switch(feed.sortMode & 0xFF) {
-			case 1:	whereClauseAddOn = " AND (s.isRead = 0)";	break;
-			case 2: whereClauseAddOn = " AND (s.isNew = 1)";	break;
-		}
-
-		// Build the ORDER clause.
-		var orderClause = " ORDER BY ";
-		if((feed.sortMode & 0xFF00) != 0x0100) {
-			orderClause += "f.feedOrder, ";
-		}
-		orderClause += "s.pubdate DESC";
-
-		switch(feed.feedType) {
-			case feedTypes.ftAllItems:
-				this.readTransaction(function(transaction) {
-					transaction.executeSql(selectStmt +
-										   (whereClauseAddOn ? whereClauseAddOn : "") +
-										   orderClause, [],
-										   handleResult, onFail);
-				});
-				break;
-
-			case feedTypes.ftStarred:
-				this.readTransaction(function(transaction) {
-					transaction.executeSql(selectStmt + " AND (s.isStarred = 1)" +
-										   (whereClauseAddOn ? whereClauseAddOn : "") +
-										   orderClause,
-										   [], handleResult, onFail);
-				});
-				break;
-
-			default:
-				this.readTransaction(function(transaction) {
-					transaction.executeSql(selectStmt + " AND (s.fid = ?) " +
-										   (whereClauseAddOn ? whereClauseAddOn : "") +
-										   orderClause, [feed.id],
 										   handleResult, onFail);
 				});
 				break;

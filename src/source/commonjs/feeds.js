@@ -341,8 +341,6 @@ FeedProcessor.prototype = {
      * @param	contentType	{string}	HTTP-Header "Content-Type"
      */
     parseFeed: function(db, feed, feedType, response, contentType) {
-
-
         try {
             switch(feedType) {
                 case feedTypes.ftATOM:

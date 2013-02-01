@@ -40,27 +40,38 @@ var feedTypes = {
  * @param	proto		{object}		feed object to clone
  */
 function Feed(proto) {
+	enyo.mixin(this, Feed.prototype);
 	if(proto) {
 		this.title = proto.title || this.title;
 		this.url = proto.url || this.url;
 		this.feedType = proto.feedType;
-		this.feedOrder = proto.feedOrder;
-		this.enabled = proto.enabled;
-		this.showPicture = proto.showPicture;
-		this.showMedia = proto.showMedia;
-		this.showListSummary = proto.showListSummary;
-		this.showListCaption = proto.showListCaption;
-		this.showDetailSummary = proto.showDetailSummary;
-		this.showDetailCaption = proto.showDetailCaption;
-		this.sortMode = proto.sortMode;
-		this.allowHTML = proto.allowHTML;
+		if(proto.feedOrder !== undefined)
+			this.feedOrder = proto.feedOrder;
+		if(proto.enabled !== undefined)
+			this.enabled = proto.enabled;
+		if(proto.showPicture !== undefined)
+			this.showPicture = proto.showPicture;
+		if(proto.showMedia !== undefined)
+			this.showMedia = proto.showMedia;
+		if(proto.showListSummary !== undefined)
+			this.showListSummary = proto.showListSummary;
+		if(proto.showListCaption !== undefined)
+			this.showListCaption = proto.showListCaption;
+		if(proto.showDetailSummary !== undefined)
+			this.showDetailSummary = proto.showDetailSummary;
+		if(proto.showDetailCaption !== undefined)
+			this.showDetailCaption = proto.showDetailCaption;
+		if(proto.sortMode !== undefined)
+			this.sortMode = proto.sortMode;
+		if(proto.allowHTML !== undefined)
+			this.allowHTML = proto.allowHTML;
 		if(proto.numNew) {
 			this.numNew = proto.numNew;
 		}
 		if(proto.numUnRead) {
 			this.numUnRead = proto.numUnRead;
 		}
-		if(proto.id !== null) {
+		if(proto.id || proto.id === 0) {
 			this.id = proto.id;
 		}
 		if(proto.fullStory !== null) {

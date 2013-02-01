@@ -25,21 +25,8 @@
  */
 
 enyo.kind({
-
 	name:	"FeedReaderAppLauncher",
-	kind:	"Component",
-
-	components: [{
-		kind: 					"ApplicationEvents",
-		onApplicationRelaunch:	"relaunch",
-		onUnload:				"cleanup"
-	}, {
-		name:					"appMgr",
-		kind: 					"PalmService",
-		service:				"palm://com.palm.applicationManager/",
-		method:					"open",
-		subscribe:				true
-	}],
+	kind:	enyo.Component,
 
 	cleanup: function() {
 		enyo.application.prefs.save(false);
@@ -47,15 +34,12 @@ enyo.kind({
 	},
 
 	startup: function() {
+        // Customize to OS.
+        applyOSSpecific(this);
+
 		// Set global constants.
         applyGlobalConstants(enyo.application);
-
-        // Pre-bind some handlers
-		enyo.application.notifyFeedUpdated = enyo.bind(this, this.notifyFeedUpdated);
-		enyo.application.notifyDBReady = enyo.bind(this, this.notifyDBReady);
-		enyo.application.notifyFeedListChanged = enyo.bind(this, this.notifyFeedListChanged);
-		enyo.application.notifyStoryListChanged = enyo.bind(this, this.notifyStoryListChanged);
-		enyo.application.notifySpoolerRunningChanged = enyo.bind(this, this.notifySpoolerRunningChanged);
+        enyo.Signals.send("constantsReady");
 
 		enyo.application.assert = enyo.bind(this, this.assert);
 		enyo.application.nop = function() {};
@@ -89,7 +73,7 @@ enyo.kind({
 	relaunch: function(sender) {
 		var params = enyo.windowParams;
 
- 		if(params.action && (params.action = "feedUpdate")) {
+ 		if(params && params.action && (params.action = "feedUpdate")) {
 			this.log("LAUNCHER> scheduled feed update triggered");
 			enyo.application.feeds.enqueueUpdateAll();
 			enyo.application.timer.setTimer();
@@ -102,15 +86,6 @@ enyo.kind({
 	//
 	// Dashboard and card handling
 	//
-
-	openMainView: function(params) {
-		this.openCard("mainview", "FeedReaderMainView", params);
-	},
-
-	openCard: function(name, windowName, windowParams) {
-		var cardPath = "source/" + name + "/index.html";
-		return enyo.windows.activate(cardPath, windowName, windowParams);
-	},
 
 	openItemDashboard: function(newCount) {
 		if(enyo.application.mainView && (!enyo.application.prefs.notifyWhileRunning)) {
@@ -157,40 +132,6 @@ enyo.kind({
 	},
 
 	//
-	// Global notifications
-	//
-
-	notifyFeedUpdated: function(state, index) {
-		if(enyo.application.mainView) {
-			enyo.application.mainView.notifyFeedUpdated(state, index);
-		}
-	},
-
-	notifyDBReady: function() {
-		if(enyo.application.mainView) {
-			enyo.application.mainView.notifyDBReady();
-		}
-	},
-
-	notifyFeedListChanged: function() {
-		if(enyo.application.mainView) {
-			enyo.application.mainView.notifyFeedListChanged();
-		}
-	},
-
-	notifyStoryListChanged: function() {
-		if(enyo.application.mainView) {
-			enyo.application.mainView.notifyStoryListChanged();
-		}
-	},
-
-	notifySpoolerRunningChanged: function(state) {
-		if(enyo.application.mainView) {
-			enyo.application.mainView.notifySpoolerRunningChanged(state);
-		}
-	},
-
-	//
 	// Helper functions
 	//
 
@@ -205,30 +146,5 @@ enyo.kind({
 			return;
 		}
 		throw "Assertion failed: " + msg;
-	},
-
-	openLink: function(url) {
-		this.$.appMgr.call({
-			target: url
-		});
-	},
-
-	openEMail: function(subject, text) {
-		this.$.appMgr.call({
-			id:	"com.palm.app.email",
-			params: {
-				summary:	subject,
-				text:		text
-			}
-		});
-	},
-
-	openMessaging: function(text) {
-		this.$.appMgr.call({
-			id:	"com.palm.app.messaging",
-			params: {
-				messageText: text
-			}
-		});
 	}
 });

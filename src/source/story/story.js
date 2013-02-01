@@ -27,49 +27,18 @@ var mediaKinds = {
 };
 
 enyo.kind({
-	name:	"HeaderInfoLabel",
-	kind:	"HFlexBox",
-
-	align:	"center",
-	pack:	"center",
-
-	published:	{
-		caption:	"",
-		label:		""
-	},
-
-	components:	[{
-		name:			"caption",
-		className:		"enyo-label story-header-label"
-	}, {
-		name:			"label",
-		flex:			1
-	}],
-
-	captionChanged: function() {
-		this.$.caption.setContent(this.caption);
-	},
-
-	labelChanged: function() {
-		this.$.label.setContent(this.label);
-	},
-
-	create: function() {
-		this.inherited(arguments);
-		this.captionChanged();
-		this.labelChanged();
-	}
-});
-
-enyo.kind({
 	name:		"StoryView",
-	kind:		"VFlexBox",
-	className:	"story-body",
+	kind:		"DraggableView",
+	classes:	"story-body",
 
 	published:	{
 		feed:		null,
 		story:		null,
 		updateOnly:	false
+	},
+
+	events:		{
+		onBackClick:	""
 	},
 
 	urls:			[],
@@ -82,39 +51,43 @@ enyo.kind({
 
 	components:	[{
 		name:			"header",
-		kind:			"Toolbar",
-		className:		"enyo-toolbar-light",
+		kind:			"onyx.Toolbar",
+		classes:		"toolbar-light",
 		components:		[{
+			kind:		"TopSceneControl",
+			ontap:		"doBackClick"
+		}, {
 			name:		"backButton",
-			icon:		"../../images/header/icon-back.png",
+            kind:       "onyx.IconButton",
+			icon:		"assets/header/icon-back.png",
 			enabled:	false,
 			showing:	false,
-			onclick:	"backClicked"
+			ontap:		"backClicked"
 		}, {
 			name:		"forwardButton",
-			icon:		"../../images/header/icon-forward.png",
+            kind:       "onyx.IconButton",
+			icon:		"assets/header/icon-forward.png",
 			enabled:	false,
 			showing:	false,
-			onclick:	"forwardClicked"
+			ontap:	"forwardClicked"
 		}, {
 			name:		"loadSpinner",
-			kind:		"Spinner"
-		}, {
-			kind:		"Spacer"
+			kind:		"onyx.Spinner"
 		}, {
 			name:		"starButton",
 			kind:		"StarButton",
+            classes:    "float-right",
 			disabled:	true,
 			onChange:	"storyStarred"
 		}]
 	}, {
 		name:			"storyContainer",
-		kind:			"VFlexBox",
-		flex:			1,
+		kind:			"FittableRows",
+		fit:			true,
 		showing:		false,
 		defaultKind:	"Control",
 		components:		[{
-			className:	"story-body-header",
+			classes:	"story-body-header",
 			components:	[{
 				name:		"date",
 				kind:		"HeaderInfoLabel",
@@ -127,14 +100,14 @@ enyo.kind({
 				caption:	$L("Caption")
 			}]
 		}, {
-			className:	"header-shadow"
+			classes:	    "header-shadow"
 		}, {
 			kind:			"Scroller",
             name:           "contentScroller",
 			style:			"margin: 10px",
             onScrollStart:  "scrollingStarted",
             onScrollStop:   "scrollingStopped",
-			flex:			1,
+			fit:			true,
 			components:		[{
 				name:		"pictureBox",
 				nodeTag:	"div",
@@ -152,27 +125,36 @@ enyo.kind({
 			}, {
 				kind:				"SilverSeparator"
 			}, {
-				name:				"linkButton",
-				kind:				"IconButton",
-				icon:				"weblink-image",
-				iconIsClassName:	true,
-				className:			"weblink-button",
-				caption:			$L("Open Weblink"),
-				onclick:			"linkClicked"
-			}, {
-				name:				"playVideoButton",
-				kind:				"IconButton",
-				icon:				"player-image",
-				iconIsClassName:	true,
-				className:			"weblink-button",
-				caption:			$L("Play Video"),
-				onclick:			"playVideoClicked"
+				classes:			"center-text",
+				components:			[{
+					name:				"linkButton",
+					kind:				"onyx.Button",
+					ontap:				"linkClicked",
+					components:	[{
+						kind:			"onyx.Icon",
+						src:			"assets/web-icon.png",
+						classes:		"button-icon"
+					}, {
+						content:		$L("Open Weblink")
+					}]
+				}, {
+					name:				"playVideoButton",
+					kind:				"onyx.Button",
+					ontap:				"playVideoClicked",
+					components:	[{
+						kind:			"onyx.Icon",
+						src:			"assets/player-icon.png",
+						classes:		"button-icon"
+					}, {
+						content:		$L("Play Video")
+					}]
+				}]
 			}]
 		}]
 	}, {
 		name:				"webView",
-		kind:				"WebView",
-		flex:				1,
+		//kind:				"WebView",
+		fit:				true,
 		showing:			false,
 		ignoreMetaTags:		true,
 		blockPopups:		true,
@@ -185,7 +167,7 @@ enyo.kind({
 		name:		"mediaControls",
 		showing:	false,
 		components:	[{
-			kind:	"HFlexBox",
+			kind:	"FittableColumns",
 			pack:	"center",
 			components: [{
 				name:		"mediaSlider",
@@ -199,7 +181,7 @@ enyo.kind({
 				onChange:	"mediaSeeked"
 			}]
 		}, {
-			kind:		"HFlexBox",
+			kind:		"FittableColumns",
 			style:		"margin: 5px; font-size: 15px; font-weight: bold;",
 			components:	[{
 				name:		"mediaStart",
@@ -208,7 +190,7 @@ enyo.kind({
 				name:		"mediaState",
 				style:		"text-align: center;",
 				content:	$L("Playing"),
-				flex:		1
+				fit:		true
 			}, {
 				name:		"mediaEnd",
 				content:	"99:99"
@@ -216,48 +198,39 @@ enyo.kind({
 		}]
 	}, {
 		name:		"bgContainer",
-		kind:		"HFlexBox",
-		className:	"basic-back",
-		align:		"center",
-		pack:		"center",
-		flex:		1,
-		components:	[{
-			name:	"bgImage",
-			kind:	"Image",
-			src:	"../../images/nodata-background.png"
-		}]
+		kind:		"FittableColumns",
+		classes:	"nodata-panel",
+		fit:		true
 	}, {
-		kind:			"Toolbar",
+		kind:			"onyx.Toolbar",
 		components:		[{
-			kind:		"GrabButton"
-		}, {
-			kind:		"Spacer"
+			kind:		"BottomSubSceneControl"
 		}, {
 			name:		"mediaPlayButton",
-			kind:		"ToolButton",
-			icon:		"../../images/player/enyo-icon-play.png",
-			onclick:	"mediaPlayToggled",
+			kind:		"onyx.IconButton",
+			icon:		"../../assets/player/enyo-icon-play.png",
+			ontap:		"mediaPlayToggled",
 			showing:	false
 		}, {
 			name:		"shareButton",
-			kind:		"ToolButton",
-			icon:		"../../images/toolbars/icon-share.png",
-			onclick:	"shareClicked"
+			kind:		"onyx.IconButton",
+			icon:		"../../assets/toolbars/icon-share.png",
+			ontap:		"shareClicked"
 		}]
-	}, {
+/*	}, {
 		name:			"linkMenu",
-		kind:			"Menu"
+		kind:			"EnhancedMenu"
 	}, {
 		name:			"shareMenu",
-		kind:			"Menu",
+		kind:			"EnhancedMenu",
 		components:		[{
 			caption:	$L("Send via E-Mail"),
-			onclick:	"shareViaEmail"
+			ontap:		"shareViaEmail"
 		}, {
 			caption:	$L("Send via SMS/IM"),
-			onclick:	"shareViaIM"
-		}]
-	}, {
+			ontap:		"shareViaIM"
+		}]*/
+/*	}, {
 		name:			"audio",
 		kind:			"EnhancedAudio",
 		onStateChanged:	"mediaStateChanged",
@@ -267,7 +240,7 @@ enyo.kind({
 		name: 			"videoPlayer",
 		kind: 			"PalmService",
 		service:		"palm://com.palm.applicationManager/",
-		method:			"launch"
+		method:			"launch"*/
 	}],
 
 	//
@@ -290,7 +263,7 @@ enyo.kind({
 			this.$.mediaControls.hide();
 
 			this.setMediaTimer(false);
-			this.$.audio.setSrc("");
+//			this.$.audio.setSrc("");
 
 			this._mediaKind = mediaKinds.none;
 			this.updateOnly = false;
@@ -324,7 +297,7 @@ enyo.kind({
 		this.$.shareButton.setDisabled(false);
 
 		if(this.originFeed.fullStory) {
-            this.$.contentScroller.scrollIntoView(0, 0);
+            this.$.contentScroller.scrollTo(0, 0);
 			this.$.content.setContent(this.story.summary);
             PrependHyperLinks(this.$.content.node, this, this.handleClick);
 			if(!this.story.picture || (this.story.picture.length <= 0)) {
@@ -373,8 +346,9 @@ enyo.kind({
 			this.$.webView.show();
 		}
 
-		this.setupMediaControls();
+//		this.setupMediaControls();
 
+		this.resized();
 		this.updateOnly = false;
 	},
 
@@ -493,15 +467,15 @@ enyo.kind({
 	},
 
 	mediaPlayToggled: function(sender) {
-		enyo.nextTick(this, function() {
+		enyo.asyncMethod(this, function() {
 			var mediaControl = this.getMediaControl();
 			if(mediaControl.getPlaying()) {
 				mediaControl.pause();
-				sender.setIcon("../../images/player/enyo-icon-play.png");
+				sender.setIcon("../../assets/player/enyo-icon-play.png");
 				this.setMediaTimer(false);
 			} else {
 				mediaControl.play();
-				sender.setIcon("../../images/player/enyo-icon-pause.png");
+				sender.setIcon("../../assets/player/enyo-icon-pause.png");
 				this.setMediaTimer(true);
 			}
 		});
@@ -514,7 +488,7 @@ enyo.kind({
 			this.$.mediaEnd.setContent(duration);
 			var mediaControl = this.getMediaControl();
 			if(mediaControl && !mediaControl.getPlaying()) {
-				this.$.mediaPlayButton.setIcon("../../images/player/enyo-icon-play.png");
+				this.$.mediaPlayButton.setIcon("../../assets/player/enyo-icon-play.png");
 			}
 		} catch(e) {
 			this.log("STATE CHANGED EX>", e);

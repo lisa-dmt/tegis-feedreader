@@ -22,10 +22,13 @@
 
 enyo.kind({
 	name:			"ErrorDialog",
-	kind:			"ModalDialog",
-	layoutKind:		"VFlexLayout",
+	kind:			"onyx.Popup",
+	layoutKind:		"FittableRowsLayout",
 	contentHeight:	"95%",
 	style:			"width: 400px; height: 400px;",
+    modal:          true,
+    centered:       true,
+    floating:       true,
 
 	published:	{
 		message:	"",
@@ -34,12 +37,12 @@ enyo.kind({
 
 	components:	[{
 		name:			"message",
-		className:		"enyo-text-error warning-icon",
-		flex:			1
+		classes:		"text-error warning-icon",
+		fit:			true
 	 }, {
-		kind:			"Button",
+		kind:			"onyx.Button",
 		name:			"dismissButton",
-		onclick:		"dismissClick"
+		ontap:			"dismissClick"
 	}],
 
 	dismissClick: function() {
@@ -54,7 +57,7 @@ enyo.kind({
 		this.$.dismissButton.setCaption(this.buttonText);
 	},
 
-	openAtCenter: function(message, caption, buttonText) {
+	show: function(message, caption, buttonText) {
 		this.message = message;
 		this.caption = caption || $L("Error");
 		this.buttonText = buttonText || this.buttonText;

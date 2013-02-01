@@ -23,7 +23,7 @@
 enyo.kind({
 	name:			"dashboard",
 	kind:			"Control",
-	className:		"dashboard-container",
+	classes:		"dashboard-container",
 
 	params:			{
 		newCount:	1,
@@ -32,38 +32,38 @@ enyo.kind({
 
 	components:		[{
 		kind:				"SwipeableItem",
-		layoutKind: 		"HFlexLayout",
+		layoutKind: 		"FittableColumnsLayout",
 		confirmRequired:	false,
 		allowLeft:			false,
 		onConfirm: 			"swipedAway",
-		onclick:			"itemClicked",
+		ontap:				"itemClicked",
 		components:			[{
-			className:		"dashboard-icon-container",
+			classes:		"dashboard-icon-container",
 			components: 	[{
-				className:	"dashboard-icon",
+				classes:	"dashboard-icon",
 				kind:		"Image",
 				src:		"../../icon48.png"
 			}, {
 				name:		"countContainer",
-				className:	"dashboard-count",
+				classes:	"dashboard-count",
 				components:	[{
 					name: 		"count",
 					nodeTag:	"span",
-					className:	"dashboard-count-label",
+					classes:	"dashboard-count-label",
 					content:	"0"
 				}]
 			}]
 		}, {
-			kind:		"VFlexBox",
-			className:	"dashboard-content-container",
-			flex:		1,
+			kind:		"FittableRows",
+			classes:	"dashboard-content-container",
+			fit:		true,
 			components:	[{
 				name:		"title",
-				className:	"dashboard-title",
+				classes:	"dashboard-title",
 				content:	enyo.application.appName
 			}, {
 				name:		"message",
-				className:	"dashboard-text",
+				classes:	"dashboard-text",
 				content:	"Empty"
 			}]
 		}]

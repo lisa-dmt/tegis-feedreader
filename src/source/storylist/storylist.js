@@ -21,7 +21,7 @@
  */
 
 enyo.kind({
-	name:			"storyList",
+	name:			"StoryList",
 	kind:			"ListViewSkeleton",
 
 	published:	{
@@ -31,47 +31,59 @@ enyo.kind({
 
 	events:	{
 		onStorySelected:	"",
-		onStoryDeleted:		""
+		onStoryDeleted:		"",
+		onBackClick:		""
 	},
 
 	components:	[{
-		kind:		"Toolbar",
-		name:		"header",
-		className:	"enyo-toolbar-light"
+		kind:		"onyx.Toolbar",
+		classes:	"toolbar-light",
+		components:	[{
+			kind:		"TopSceneControl",
+			ontap:		"doBackClick"
+		}, {
+			name:		"header",
+			classes:	"float-left"
+		}]
 	}, {
 		name:		"searchBox",
 		showing:	false,
 		components:	[{
-			name:				"searchInput",
-			kind:				"SearchInput",
-			className:			"enyo-box-input",
-			keypressInputDelay:	250,
-			selectAllOnFocus:	true,
-			oninput:			"filterChanged",
-			onCancel:			"filterCanceled"
+            kind: "onyx.InputDecorator",
+            components: [{
+                kind:           "onyx.Input",
+                name:			"searchInput",
+                onchange:		"filterChanged",
+                onCancel:		"filterCanceled"
+            }, {
+                kind: "Image",
+                src: "assets/search-input-search.png"
+            }]
 		}, {
 			className:	"header-shadow"
 		}]
 	}, {
-			kind:		"EnhancedList",
-			name:		"list",
-			flex:		1,
+		kind:			enyo.List,
+		name:			"list",
+		fit:			true,
 
-			onSetupRow: "setupStory",
-			showing:	false,
+		onSetupItem: 	"setupStory",
+		showing:		false,
 
-			components: [{
-				name:		"feedDivider",
-				kind:		"Divider"
-			}, {
-				name:		"timeDivider",
-				kind:		"Divider"
-			}, {
-				name:		"item",
-				kind: 		"SwipeableItem",
-				onConfirm:	"itemDeleted",
-				onclick:	"itemClicked",
-				components:	[{
+		components: [{
+			name:		"feedDivider",
+			kind:		"Divider"
+		}, {
+			name:		"timeDivider",
+			kind:		"Divider"
+		}, {
+			name:		"item",
+			kind:		"onyx.Item",
+			layoutKind:	"FittableRowsLayout",
+			onConfirm:	"itemDeleted",
+			ontap:		"itemClicked",
+			components:	[{
+				components: [{
 					name:		"starButton",
 					kind:		"StarButton",
 					style:		"float: right",
@@ -80,85 +92,83 @@ enyo.kind({
 					name:		"storyDate",
 					nodeTag:	"div",
 					className:	"story-date"
-				}, {
-					name:		"storyTitle",
-					nodeTag:	"div",
-					className:	"story-title",
-					allowHtml:	true
-				}, {
-					name:		"storyText",
-					nodeTag:	"div",
-					className:	"story-content",
-					allowHtml:	true
 				}]
+			}, {
+				name:		"storyTitle",
+				nodeTag:	"div",
+				className:	"story-title",
+				allowHtml:	true
+			}, {
+				name:		"storyText",
+				nodeTag:	"div",
+				className:	"story-content",
+				allowHtml:	true
 			}]
-	}, {
-		name:	"bgContainer",
-		kind:	"HFlexBox",
-		align:	"center",
-		pack:	"center",
-		flex:	1,
-
-		components:	[{
-			name:	"bgImage",
-			kind:	"Image",
-			src:	"../../images/nodata-background.png"
 		}]
 	}, {
-		kind:		"Toolbar",
-		pack:		"justify",
+		name:		"bgContainer",
+		kind:		"FittableColumns",
+		classes:	"nodata-panel",
+		fit:		true
+	}, {
+		kind:		"onyx.Toolbar",
 		components:	[{
-			kind:		"GrabButton"
-		}, {
-			kind:		"Spacer"
+			kind:		"BottomSubSceneControl"
 		}, {
 			name:		"sortButton",
-			kind:		"ToolButton",
-			icon:		"../../images/toolbars/icon-settings.png",
-			onclick:	"sortClicked"
+			kind:		"onyx.IconButton",
+			classes:    "float-right tool-button",
+			src:		"assets/toolbars/icon-settings.png",
+			ontap:		"sortClicked"
 		}, {
 			name:		"shareButton",
-			kind:		"ToolButton",
-			icon:		"../../images/toolbars/icon-share.png",
-			onclick:	"shareClicked"
+			kind:		"onyx.IconButton",
+			classes:    "float-right tool-button",
+			src:		"assets/toolbars/icon-share.png",
+			ontap:		"shareClicked"
 		}, {
 			name:		"searchButton",
-			kind:		"ToolButton",
-			icon:		"../../images/toolbars/icon-search.png",
-			onclick:	"searchClicked"
+			kind:		"onyx.IconButton",
+			classes:    "float-right tool-button",
+			src:		"assets/toolbars/icon-search.png",
+			ontap:		"searchClicked"
 		}, {
 			name:		"refreshButton",
-			kind:		"ToolButton",
-			icon:		"../../images/toolbars/icon-sync.png",
-			onclick:	"refreshClicked"
+			kind:		"onyx.IconButton",
+			classes:    "float-right tool-button",
+			src:		"assets/toolbars/icon-sync.png",
+			ontap:		"refreshClicked"
 		}]
-	}, {
+	}],
+
+	tools: [{
 		name:			"shareMenu",
-		kind:			"Menu",
+		kind:			"EnhancedMenu",
 		components:		[{
 			caption:	$L("Send via E-Mail"),
-			onclick:	"shareViaEmail"
+			ontap:		"shareViaEmail"
 		}, {
 			caption:	$L("Send via SMS/IM"),
-			onclick:	"shareViaIM"
+			ontap:		"shareViaIM"
 		}]
 	}, {
 		name:				"sortMenu",
 		kind:				"EnhancedMenu",
 		autoCloseSubItems:	false
+	}, {
+		kind:						enyo.Signals,
+		onStoryListChanged:			"refresh"
+//		onFeedUpdating:				"setFeedUpdateState",
 	}],
 
 	//
 	// List handling
 	//
 
-	setupStory: function(sender, index) {
-		if((index < 0) || (index >= this.items.length) || (!this.items[index])) {
+	setupStory: function(sender, event) {
+		var index;
+		if((index = this.indexFromEvent(event)) === false)
 			return false;
-		}
-
-		// Every item is deleable.
-		this.$.item.setSwipeable(true);
 
 		// Make the story easily available.
 		var story = this.items[index];
@@ -172,6 +182,8 @@ enyo.kind({
 				summary = summary.slice(0, summaryLength - 1) + "...";
 			}
 		}
+
+		this.$.item.addRemoveClass(this.selectionClass, sender.isSelected(index));
 
 		// Set the contents.
 		this.$.storyTitle.setContent(this.feed.showListCaption ? story.title : "");
@@ -187,19 +199,20 @@ enyo.kind({
 
 		// Set the feedDivider.
 		var feedTitle = "";
+		var dividerShown = false;
 		this.$.feedDivider.canGenerate = false;
 		if((this.feed.feedType == feedTypes.ftAllItems) ||
 		   (this.feed.feedType == feedTypes.ftStarred)) {
 			if((this.feed.sortMode & 0x0100) != 0x0100) {
 				if((index == 0) ||
 				   (this.items[index].fid != this.items[index - 1].fid)) {
-
-					this.log(enyo.json.stringify(story));
-					this.$.feedDivider.setCaption(enyo.application.feeds.getFeedTitle({
+/*					this.$.feedDivider.setCaption(enyo.application.feeds.getFeedTitle({
 						feedType:	story.feedType,
 						title:		story.feedTitle
 					}));
 					this.$.feedDivider.canGenerate = true;
+					dividerShown = true;
+					*/
 				}
 			} else {
 				feedTitle = enyo.application.feeds.getFeedTitle({
@@ -211,19 +224,14 @@ enyo.kind({
 
 		// Set the timeDivider.
 		this.$.timeDivider.canGenerate = false;
-		if((index == 0) ||
+/*		if((index == 0) ||
 		   (!enyo.application.feeds.getDateFormatter().datesEqual(this.items[index].pubdate, this.items[index - 1].pubdate))) {
 			this.$.timeDivider.setCaption(enyo.application.feeds.getDateFormatter().formatDate(story.pubdate));
 			this.$.timeDivider.canGenerate = true;
 			dividerShown = true;
-		}
+		}*/
 
-		if(this.$.feedDivider.canGenerate || this.$.timeDivider.canGenerate) {
-			this.$.item.applyStyle("border-top", "none;");
-		} else {
-			this.$.item.applyStyle("border-top", "1px solid #EEEEEE;");
-		}
-
+		this.$.item.applyStyle("border-top", dividerShown ? "none" : null);
 		this.$.storyDate.setContent(feedTitle + enyo.application.feeds.getDateFormatter().formatTime(story.pubdate));
 
 		return true;
@@ -255,7 +263,7 @@ enyo.kind({
 
 	itemClicked: function(sender, event) {
 		this.inherited(arguments);
-		this.doStorySelected(this.items[event.rowIndex]);
+		this.doStorySelected(this.items[event.index]);
 	},
 
 	storyStarred: function(sender, event) {
@@ -278,17 +286,17 @@ enyo.kind({
 			kind:		"MenuCheckItem",
 			caption:	$L("Show all stories"),
 			checked:	(this.feed.sortMode & 0x00FF) == 0,
-			onclick:	"showAll"
+			ontap:		"showAll"
 		}, {
 			kind:		"MenuCheckItem",
 			caption:	$L("Show only unread stories"),
 			checked:	(this.feed.sortMode & 0x00FF) == 1,
-			onclick:	"showUnRead"
+			ontap:		"showUnRead"
 		}, {
 			kind:		"MenuCheckItem",
 			caption:	$L("Show only new stories"),
 			checked:	(this.feed.sortMode & 0x00FF) == 2,
-			onclick:	"showNew"
+			ontap:		"showNew"
 		}];
 
 		var items = undefined;
@@ -307,12 +315,12 @@ enyo.kind({
 					kind:		"MenuCheckItem",
 					caption:	$L("Order by feed"),
 					checked:	(this.feed.sortMode & 0x0100) == 0,
-					onclick:	"orderToggled"
+					ontap:		"orderToggled"
 				}, {
 					kind:		"MenuCheckItem",
 					caption:	$L("Order by date"),
 					checked:	(this.feed.sortMode & 0x0100) != 0,
-					onclick:	"orderToggled"
+					ontap:		"orderToggled"
 				}]
 			}];
 		}
@@ -346,7 +354,7 @@ enyo.kind({
 	hideSearchBox: function(noRefresh) {
 		if(this.$.searchBox.getShowing()) {
 			if(this.filter != "") {
-				this.$.list.scrollToTop();
+				this.$.list.scrollToStart();
 			}
 			this.$.searchBox.hide();
 			this.$.searchInput.setValue("");
@@ -369,13 +377,13 @@ enyo.kind({
 	filterCanceled: function() {
 		this.filter = "";
 		this.$.searchInput.forceBlur();
-		this.$.list.scrollToTop();
+		this.$.list.scrollToStart();
 		this.refresh();
 	},
 
 	filterChanged: function() {
 		this.filter = this.$.searchInput.getValue();
-		this.$.list.scrollToTop();
+		this.$.list.scrollToStart();
 		this.refresh();
 	},
 
@@ -443,15 +451,8 @@ enyo.kind({
 			this.clear();
 		}
 		this.refresh();
+		this.resized();
 		this.updateOnly = false;
-	},
-
-	//
-	// Database handling
-	//
-
-	updateCount: function(setter) {
-		enyo.application.feeds.getStoryCount(this.feed, this.filter, setter);
 	},
 
 	//
@@ -471,6 +472,11 @@ enyo.kind({
 	//
 	// Initialization
 	//
+
+	initComponents: function() {
+	//	this.createChrome(this.tools);
+		this.inherited(arguments);
+	},
 
 	create: function() {
 		this.inherited(arguments);

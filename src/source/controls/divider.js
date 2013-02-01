@@ -1,6 +1,5 @@
 /*
- *		commonjs/constants.js - Common constants
- *
+ *		source/controls/divider.js
  */
 
 /* FeedReader - A RSS Feed Aggregator for Palm WebOS
@@ -21,10 +20,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-function applyGlobalConstants(to) {
-    to.appName              = "FeedReader";
-    to.appAuthor            = "Timo Tegtmeier";
-    to.versionString        = "3.0.2";
-    to.versionInt           = 22;
-    to.copyrightYears       = "2009-2012";
-}
+enyo.kind({
+    name:		"Divider",
+    kind:		"Control"
+//    classes:	"dotted-separator"
+});

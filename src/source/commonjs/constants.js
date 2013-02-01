@@ -1,9 +1,6 @@
 /*
- *		source/controls/enhancedmenu.js - Improved Menu
+ *		commonjs/constants.js - Common constants
  *
- *		The API reference states, that the Menu kind has a method
- *		'setItems'. It's sad, but this method does not exist.
- *		EnhancedMenu fills this gap.
  */
 
 /* FeedReader - A RSS Feed Aggregator for Palm WebOS
@@ -24,24 +21,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-enyo.kind({
-	name:	"EnhancedMenu",
-    kind:   "onyx.MenuDecorator",
-
-    published:  {
-        items:  []
-    },
-
-    components:     [{
-        kind:       "onyx.Menu",
-        name:       "menu"
-    }],
-
-    itemsChanged: function() {
-        this.$.selector.destroyComponents();
-        for(var item in items) {
-            var menuItem = this.$.menu.createComponent(item);
-            this.$.selector.addComponent(menuItem);
-        }
-    }
-});
+function applyGlobalConstants(to) {
+    to.appName              = "FeedReader";
+    to.appAuthor            = "Timo Tegtmeier";
+    to.versionString        = "4.0.0";
+    to.versionInt           = 22;
+    to.copyrightYears       = "2009-2013";
+}

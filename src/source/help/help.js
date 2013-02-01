@@ -22,104 +22,111 @@
 
 enyo.kind({
 	name:			"HelpDialog",
-	kind:			"ModalDialog",
-	layoutKind:		"VFlexLayout",
-	contentHeight:	"100%",
+    kind:			"ModalDialog",
+	autoDismiss:	true,
+	caption:		$L("FeedReader Help"),
 
 	components:	[{
-		content:	enyo.application.appName + ' v' + enyo.application.versionString,
+        name:       "title",
 		style:		"font-weight: bold; font-size: 18px; margin-bottom: 0px;"
 	}, {
-		content:	$L("by") + " " + enyo.application.appAuthor,
+        name:       "author",
 		style:		"font-weight: bold; font-size: 15px;"
 	}, {
-		kind:		"RowGroup",
-		caption:	$L("Help"),
+		kind:		"enyo.Scroller",
+		horizontal:	"hidden",
+		fit:		true,
 		components:	[{
-			kind:		"HFlexBox",
-			align:		"center",
-			onclick:	"openFeedReaderHomepage",
+			kind:		"onyx.Groupbox",
 			components:	[{
-				kind:		"Image",
-				src:		"../../images/web-icon.png",
-				style:		"margin-right: 15px"
+				kind:       "onyx.GroupboxHeader",
+				content:	$L("Help")
 			}, {
-				flex:		1,
-				content:	$L("FeedReader's Homepage")
-			}]
-		}]
-	}, {
-		kind:		"RowGroup",
-		caption:	$L("Support"),
-		components:	[{
-			kind:		"HFlexBox",
-			align:		"center",
-			onclick:	"openHomepage",
-			components:	[{
-				kind:		"Image",
-				src:		"../../images/web-icon.png",
-				style:		"margin-right: 15px"
-			}, {
-				flex:		1,
-				content:	$L("Homepage")
+				kind:		"FittableColumns",
+				style:		"line-height: 32px; padding: 4px 8px 4px 8px",
+				ontap:		"openFeedReaderHomepage",
+				components:	[{
+					kind:		"Image",
+					src:		"assets/web-icon.png",
+					classes:	"support-icon"
+				}, {
+					fit:		true,
+					content:	$L("FeedReader's Homepage")
+				}]
 			}]
 		}, {
-			kind:		"HFlexBox",
-			align:		"center",
-			onclick:	"openEMail",
+			kind:		"onyx.Groupbox",
 			components:	[{
-				kind:		"Image",
-				src:		"../../images/mail-icon.png",
-				style:		"margin-right: 15px"
+				kind:       "onyx.GroupboxHeader",
+				content:	$L("Support")
 			}, {
-				flex:		1,
-				content:	$L("Write an E-Mail")
+				kind:		"FittableColumns",
+				style:		"line-height: 32px; padding: 4px 8px 4px 8px",
+				ontap:		"openHomepage",
+				components:	[{
+					kind:		"Image",
+					src:		"assets/web-icon.png",
+					classes:	"support-icon"
+				}, {
+					fit:		true,
+					content:	$L("Homepage")
+				}]
+			}, {
+				kind:		"FittableColumns",
+				style:		"line-height: 32px; padding: 4px 8px 4px 8px",
+				ontap:		"openEMail",
+				components:	[{
+					kind:		"Image",
+					src:		"assets/mail-icon.png",
+					classes:	"support-icon"
+				}, {
+					fit:		true,
+					content:	$L("Write an E-Mail")
+				}]
 			}]
+		}, {
+			content:	"The following people helped me to make FeedReader what it is now.<br>Thanks for your great support!",
+			style:		"font-size: 15px;",
+			allowHtml:	true
+		}, {
+			content:	"- Timo Tegtmeier",
+			style:		"margin-left: 10px; margin-bottom: 12px; font-style: italic; font-size: 15px;"
+		}, {
+			style:		"font-size: 15px;",
+			allowHtml:	true,
+			content:	"<li>" +
+						'	<a href="mailto:roubal@keyserver.cz"><b>Milan Roubal</b></a><br>' +
+						"	Tester and author of the czech locale" +
+						"</li>" +
+						"<li>" +
+						'	<a href="mailto:stephan.w.paul@googlemail.com"><b>Stephan PAUL</b></a><br>' +
+						"	Author of the french locale" +
+						"<li>" +
+						'	<a href="mailto:franciscojrivash@gmail.com"><b>Francisco Rivas</b></a><br>' +
+						"	Author of the spanish locale" +
+						"</li>" +
+						"<li>" +
+						'	<a href="mailto:voronov@pisem.net"><b>Vladimir Voronov</b></a><br>' +
+						"	Author of the russian locale" +
+						"</li>" +
+						"<li>" +
+						"	<b>Yannick LE NY</b><br>" +
+						"	Original Author of the french locale" +
+						"</li>"
 		}]
 	}, {
-		kind:		"DividerDrawer",
-		caption:	$L("Contributors"),
-		open:		false,
+		kind:       enyo.FittableRows,
+		classes:	"center-text",
 		components:	[{
-			kind:		"Scroller",
-			style:		"height: 80px;",
-			components:	[{
-				content:	"The following people helped me to make FeedReader what it is now.<br>Thanks for your great support!",
-				style:		"font-size: 15px;",
-				allowHtml:	true
-			}, {
-				content:	"- Timo Tegtmeier",
-				style:		"margin-left: 10px; margin-bottom: 12px; font-style: italic; font-size: 15px;"
-			}, {
-				style:		"font-size: 15px;",
-				allowHtml:	true,
-				content:	"<li>" +
-							'	<a href="mailto:roubal@keyserver.cz"><b>Milan Roubal</b></a><br>' +
-							"	Tester and author of the czech locale" +
-							"</li>" +
-							"<li>" +
-							'	<a href="mailto:stephan.w.paul@googlemail.com"><b>Stephan PAUL</b></a><br>' +
-							"	Author of the french locale" +
-							"<li>" +
-							'	<a href="mailto:franciscojrivash@gmail.com"><b>Francisco Rivas</b></a><br>' +
-							"	Author of the spanish locale" +
-							"</li>" +
-							"<li>" +
-							'	<a href="mailto:voronov@pisem.net"><b>Vladimir Voronov</b></a><br>' +
-							"	Author of the russian locale" +
-							"</li>" +
-							"<li>" +
-							"	<b>Yannick LE NY</b><br>" +
-							"	Original Author of the french locale" +
-							"</li>"
-			}]
+			kind:		"onyx.Button",
+			classes:	"onyx-affirmative",
+			content:	$L("OK"),
+			ontap:		"okClicked"
 		}]
 	}, {
-		kind:		"Button",
-		className:	"enyo-button-affirmative",
-		caption:	$L("OK"),
-		onclick:	"okClicked"
-	}],
+        kind:               "enyo.Signals",
+        onConstantsReady:   "constantsReady"
+    }],
 
 	openFeedReaderHomepage: function(sender, event) {
 		enyo.application.openLink("http://www.tegi-stuff.de/doku.php?id=feedreader");
@@ -134,6 +141,11 @@ enyo.kind({
 	},
 
 	okClicked: function(sender, event) {
-		this.close();
-	}
+		this.hide();
+	},
+
+    constantsReady: function() {
+        this.$.title.setContent(enyo.application.appName + ' v' + enyo.application.versionString);
+        this.$.author.setContent($L("by") + " " + enyo.application.appAuthor);
+    }
 });
