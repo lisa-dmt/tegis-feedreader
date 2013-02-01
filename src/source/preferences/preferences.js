@@ -48,7 +48,8 @@ enyo.kind({
 			align:		"center",
 			components:	[{
 				kind:		"onyx.Groupbox",
-				classes:	"additional-scene-width center-div",
+				classes:	"additional-scene center-div",
+				styles:		additionalSceneWidthStyle(),
 				components:	[{
                     kind:       "onyx.GroupboxHeader",
                     content:    $L("Automatic updating")
@@ -93,7 +94,8 @@ enyo.kind({
 				}]
 			}, {
 				kind:		"onyx.Groupbox",
-				classes:	"additional-scene-width center-div",
+				classes:	"additional-scene center-div",
+				styles:		additionalSceneWidthStyle(),
 				components:	[{
                     kind:       "onyx.GroupboxHeader",
                     content:    $L("Notifications")
@@ -121,7 +123,8 @@ enyo.kind({
 				}]
 			}, {
 				kind:		"onyx.Groupbox",
-				classes:	"additional-scene-width center-div",
+				classes:	"additional-scene center-div",
+				styles:		additionalSceneWidthStyle(),
 				components:	[{
                     kind:       "onyx.GroupboxHeader",
                     content:    $L("Miscellaneous")
@@ -164,7 +167,8 @@ enyo.kind({
 				}]
 			}, {
 				kind:		"onyx.Groupbox",
-				classes:	"additional-scene-width center-div",
+				classes:	"additional-scene center-div",
+				styles:		additionalSceneWidthStyle(),
 				components:	[{
                     kind:       "onyx.GroupboxHeader",
                     content:    $L("Pocket")

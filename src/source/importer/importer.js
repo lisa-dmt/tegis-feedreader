@@ -47,7 +47,8 @@ enyo.kind({
 		}]	}, {
 		kind:		"onyx.Groupbox",
 		layoutKind:	"FittableRowsLayout",
-		classes:	"additional-scene-width center-div",
+		classes:	"additional-scene center-div",
+		styles:		additionalSceneWidthStyle(),
 		components:	[{
 			kind:       "onyx.GroupboxHeader",
 			content:    $L("Origin")
@@ -60,7 +61,8 @@ enyo.kind({
 			}]
 		}]
 	},{
-		classes:		"additional-scene-width center-div center-text",
+		classes:		"additional-scene center-div center-text",
+		styles:			additionalSceneWidthStyle(),
 		components:		[{
 			name:		"scanButton",
 			kind:		"ActivityButton",
@@ -83,7 +85,8 @@ enyo.kind({
 	}, {
 		name:			"list",
 		kind:			enyo.List,
-		classes:		"additional-scene-width center-div",
+		classes:		"additional-scene center-div",
+		styles:			additionalSceneWidthStyle(),
 		reorderable:	false,
 		fit:			true,
 		onSetupItem:	"setupRow",
