@@ -187,3 +187,11 @@ enyo.kind({
 		return event.originator.kind != "onyx.Grabber";
 	}
 });
+
+function additionalSceneWidthStyle() {
+	if(enyo.Panels.isScreenNarrow()) {
+		return "width: 98%;";
+	} else {
+		return 	"width: 640px;";
+	}
+}
