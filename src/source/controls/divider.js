@@ -22,6 +22,32 @@
 
 enyo.kind({
     name:		"Divider",
-    kind:		"Control"
-//    classes:	"dotted-separator"
+    kind:		"Control",
+	layoutKind:	"FittableColumnsLayout",
+	classes:	"divider",
+
+	published:	{
+		caption:	""
+	},
+
+	components:	[{
+		name:		"caption",
+		classes:	"caption"
+	}, {
+		classes: 	"filler"
+	}],
+
+	captionChanged: function() {
+		this.$.caption.setContent(this.caption);
+	},
+
+	rendered: function() {
+		this.resized();
+		this.inherited(arguments);
+	},
+
+	create: function() {
+		this.inherited(arguments);
+		this.captionChanged();
+	}
 });
