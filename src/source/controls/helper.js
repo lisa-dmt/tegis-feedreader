@@ -58,7 +58,9 @@ enyo.kind({
 });
 
 enyo.openMenuAtEvent = function(menu, sender, event) {
-	menu.dispatchEvent("onRequestShowMenu", {activator: new FakeActivator(event.target)}, sender);
+	enyo.asyncMethod(this, function() {
+		menu.dispatchEvent("onRequestShowMenu", {activator: new FakeActivator(event.target)}, sender);
+	});
 };
 
 enyo.kind({

@@ -42,7 +42,7 @@ enyo.kind({
 			kind:		"TopSceneControl",
 			ontap:		"doBackClick"
 		}, {
-			content:	$L("Import feeds"),
+			content:	$L("Discover feeds"),
 			classes:	"float-left"
 		}]	}, {
 		kind:		"onyx.Groupbox",
@@ -70,7 +70,7 @@ enyo.kind({
 			ontap:		"scanURL"
 		}, {
 			kind:		"Divider",
-			caption:	$L("Feeds")
+			caption:	$L("Feeds found on website")
 		}, {
 			name:		"noScanLabel",
 			allowHtml:	true,

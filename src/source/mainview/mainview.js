@@ -101,7 +101,7 @@ enyo.kind({
 			content:			$L("License"),
 			ontap:				"openLicense"
 		}, {
-			content:			$L("Import feeds"),
+			content:			$L("Discover feeds"),
 			ontap:				"openImporter"
 		}, {
 			content:			$L("Preferences"),
@@ -144,8 +144,11 @@ enyo.kind({
 			this.$.storyList.setFeed(feed);
 			this.$.storyView.setFeed(feed);
 
-			if(enyo.Panels.isScreenNarrow())
-				this.$.mainPane.setIndex(1);
+			if(enyo.Panels.isScreenNarrow()) {
+				enyo.asyncMethod(this, function() {
+					this.$.mainPane.setIndex(1);
+				});
+			}
 		});
 	},
 
@@ -171,10 +174,13 @@ enyo.kind({
 			if(selectedStory && story && (selectedStory.id == story.id)) {
 				this.$.storyView.setUpdateOnly(true);
 			}
+
 			this.$.storyView.setStory(story);
+
 			if(enyo.Panels.isScreenNarrow()) {
-				this.$.mainPane.setIndex(2);
-				this.log("MAINVIEW> Switching to story view");
+				enyo.asyncMethod(this, function() {
+					this.$.mainPane.setIndex(2);
+				});
 			}
 		});
 	},
@@ -184,11 +190,15 @@ enyo.kind({
 	//
 
 	backToFeedList: function() {
-		this.$.mainPane.setIndex(0);
+		enyo.asyncMethod(this, function() {
+			this.$.mainPane.setIndex(0);
+		});
 	},
 
 	backToStoryList: function() {
-		this.$.mainPane.setIndex(1);
+		enyo.asyncMethod(this, function() {
+			this.$.mainPane.setIndex(1);
+		});
 	},
 
 	//
