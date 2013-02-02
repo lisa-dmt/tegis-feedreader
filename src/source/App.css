@@ -261,7 +261,7 @@ span.italic {
 }
 
 .feed-countlabel {
-	font-size: 16px;
+	font-size: 15px;
 	color: white;
 	font-weight: bold;
 }
@@ -285,8 +285,8 @@ span.italic {
 	bottom: -5px;
 	line-height: 28px;
 	border-image: url(../assets/lists/icon-newitem.png);
-	border-image-width: 14px 12px;
-	border-image-slice: 12;
+	border-image-width: 12px 12px;
+	border-image-slice: 12 fill;
 	-moz-box-sizing: border-box;
 	padding: 0px 6px 2px 6px;
 	min-width: 25px;
@@ -307,8 +307,8 @@ span.italic {
 	top: -10px;
 	line-height: 28px;
 	border-image: url(../assets/lists/icon-unreaditem.png);
-	border-image-width: 14px 12px;
-	border-image-slice: 12;
+	border-image-width: 12px 12px;
+	border-image-slice: 12 fill;
 	-moz-box-sizing: border-box;
 	padding: 0px 6px 2px 6px;
 	min-width: 25px;
