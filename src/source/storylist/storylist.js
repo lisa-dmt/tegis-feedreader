@@ -43,7 +43,8 @@ enyo.kind({
 			ontap:		"doBackClick"
 		}, {
 			name:		"header",
-			classes:	"float-left"
+			classes:	"float-left",
+			style:		"text-overflow: ellipsis; overflow: none; white-space: nowrap; width: 80%;" // ToDo
 		}]
 	}, {
 		name:		"searchBox",
@@ -143,13 +144,49 @@ enyo.kind({
 
 	tools: [{
 		name:			"shareMenu",
-		kind:			"EnhancedMenu",
+		kind:			"onyx.Menu",
+		scrolling:		false,
+		floating:		true,
 		components:		[{
-			caption:	$L("Send via E-Mail"),
+			content:	$L("Send via E-Mail"),
 			ontap:		"shareViaEmail"
 		}, {
-			caption:	$L("Send via SMS/IM"),
+			content:	$L("Send via SMS/IM"),
 			ontap:		"shareViaIM"
+		}]
+	}, {
+		name:			"sortMenu",
+		kind:			"onyx.Menu",
+		scrolling:		false,
+		floating:		true,
+		components:		[{
+			name:		"visibilityItem",
+			content: 	$L("Visible stories"),
+			classes: 	"onyx-menu-label"
+		}, {
+			name:		"showAllItem",
+			content:	$L("Show all stories"),
+			ontap:		"showAll"
+		}, {
+			name:		"showUnreadItem",
+			content:	$L("Show only unread stories"),
+			ontap:		"showUnRead"
+		}, {
+			name:		"showNewItem",
+			content:	$L("Show only new stories"),
+			ontap:		"showNew"
+		}, {
+			name:		"orderingItem",
+			content:	$L("Ordering"),
+			classes: 	"onyx-menu-label"
+		}, {
+			name:		"orderByFeedItem",
+			content:	$L("Order by feed"),
+			ontap:		"orderToggled"
+		}, {
+			name:		"orderByDateItem",
+			content:	$L("Order by date"),
+			ontap:		"orderToggled"
 		}]
 	}, {
 		name:				"sortMenu",
@@ -157,8 +194,8 @@ enyo.kind({
 		autoCloseSubItems:	false
 	}, {
 		kind:						enyo.Signals,
-		onStoryListChanged:			"refresh"
-//		onFeedUpdating:				"setFeedUpdateState",
+		onStoryListChanged:			"refresh",
+		onSpoolerRunningChanged:	"spoolerRunningChanged"
 	}],
 
 	//
@@ -206,13 +243,12 @@ enyo.kind({
 			if((this.feed.sortMode & 0x0100) != 0x0100) {
 				if((index == 0) ||
 				   (this.items[index].fid != this.items[index - 1].fid)) {
-/*					this.$.feedDivider.setCaption(enyo.application.feeds.getFeedTitle({
+					this.$.feedDivider.setCaption(enyo.application.feeds.getFeedTitle({
 						feedType:	story.feedType,
 						title:		story.feedTitle
 					}));
 					this.$.feedDivider.canGenerate = true;
 					dividerShown = true;
-					*/
 				}
 			} else {
 				feedTitle = enyo.application.feeds.getFeedTitle({
@@ -224,12 +260,12 @@ enyo.kind({
 
 		// Set the timeDivider.
 		this.$.timeDivider.canGenerate = false;
-/*		if((index == 0) ||
+		if((index == 0) ||
 		   (!enyo.application.feeds.getDateFormatter().datesEqual(this.items[index].pubdate, this.items[index - 1].pubdate))) {
 			this.$.timeDivider.setCaption(enyo.application.feeds.getDateFormatter().formatDate(story.pubdate));
 			this.$.timeDivider.canGenerate = true;
 			dividerShown = true;
-		}*/
+		}
 
 		this.$.item.applyStyle("border-top", dividerShown ? "none" : null);
 		this.$.storyDate.setContent(feedTitle + enyo.application.feeds.getDateFormatter().formatTime(story.pubdate));
@@ -246,6 +282,7 @@ enyo.kind({
 	},
 
 	refreshFinished: function() {
+		this.log("STORYVIEW> Finished refresh");
 		this.inherited(arguments);
 		if(this.selectedIndex >= 0) {
 			this.doStorySelected(this.items[this.selectedIndex]);
@@ -282,51 +319,27 @@ enyo.kind({
 	//
 
 	sortClicked: function(sender, event) {
-		var visibleItems = [{
-			kind:		"MenuCheckItem",
-			caption:	$L("Show all stories"),
-			checked:	(this.feed.sortMode & 0x00FF) == 0,
-			ontap:		"showAll"
-		}, {
-			kind:		"MenuCheckItem",
-			caption:	$L("Show only unread stories"),
-			checked:	(this.feed.sortMode & 0x00FF) == 1,
-			ontap:		"showUnRead"
-		}, {
-			kind:		"MenuCheckItem",
-			caption:	$L("Show only new stories"),
-			checked:	(this.feed.sortMode & 0x00FF) == 2,
-			ontap:		"showNew"
-		}];
+		this.log("OPENING SORT MENU");
+		var isAggregation = (this.feed.feedType == feedTypes.ftAllItems) ||
+			(this.feed.feedType == feedTypes.ftStarred);
 
-		var items = undefined;
-		if((this.feed.feedType == feedTypes.ftAllItems) ||
-		   (this.feed.feedType == feedTypes.ftStarred)) {
-			items = [{
-				kind:		"MenuItem",
-				caption:	$L("Visible stories"),
-				open:		true,
-				components:	visibleItems
-			}, {
-				kind:		"MenuItem",
-				caption:	$L("Ordering"),
-				open:		true,
-				components:	[{
-					kind:		"MenuCheckItem",
-					caption:	$L("Order by feed"),
-					checked:	(this.feed.sortMode & 0x0100) == 0,
-					ontap:		"orderToggled"
-				}, {
-					kind:		"MenuCheckItem",
-					caption:	$L("Order by date"),
-					checked:	(this.feed.sortMode & 0x0100) != 0,
-					ontap:		"orderToggled"
-				}]
-			}];
+		// The headers are only shown in feed aggregations.
+		this.$.visibilityItem.setShowing(isAggregation);
+		this.$.orderingItem.setShowing(isAggregation);
+
+		// Enyo2 has no MenuCheckItem like Enyo1 had. We simulate
+		// that by making the 'checked' item look selected.
+		this.$.showAllItem.addRemoveClass(this.selectionClass, (this.feed.sortMode & 0x00FF) == 0);
+		this.$.showUnreadItem.addRemoveClass(this.selectionClass, (this.feed.sortMode & 0x00FF) == 1);
+		this.$.showNewItem.addRemoveClass(this.selectionClass, (this.feed.sortMode & 0x00FF) == 2);
+
+		if(isAggregation) {
+			this.$.orderByFeedItem.addRemoveClass(this.selectionClass, (this.feed.sortMode & 0x0100) == 0);
+			this.$.orderByDateItem.addRemoveClass(this.selectionClass, (this.feed.sortMode & 0x0100) != 0);
 		}
 
-		this.$.sortMenu.setItems(items || visibleItems);
-		this.$.sortMenu.openAtEvent(event);
+		this.log("OPENING SORT MENU NOW");
+		enyo.openMenuAtEvent(this.$.sortMenu, sender, event);
 	},
 
 	setSortMode: function(value) {
@@ -398,7 +411,7 @@ enyo.kind({
 	},
 
 	shareClicked: function(sender, event) {
-		this.$.shareMenu.openAtEvent(event);
+		enyo.openMenuAtEvent(this.$.shareMenu, sender, event);
 	},
 
 	//
@@ -474,7 +487,7 @@ enyo.kind({
 	//
 
 	initComponents: function() {
-	//	this.createChrome(this.tools);
+		this.createChrome(this.tools);
 		this.inherited(arguments);
 	},
 
