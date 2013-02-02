@@ -41,6 +41,57 @@
 
 /* Custom styles */
 
+/* General layouting */
+.center-text {
+	text-align: center;
+}
+
+.center-div {
+	margin-left: auto !important;
+	margin-right: auto !important;
+}
+
+.float-left {
+	float: left;
+}
+
+.float-right {
+	float: right;
+}
+
+.float-breaker {
+	clear: both;
+	float: none;
+	line-height:0;
+	font-size: 0;
+}
+
+/* Specific control styles */
+
+.divider {
+	display: block;
+	width: 100%;
+	line-height: 18px;
+	font-size: 16px;
+	font-weight: bold;
+	padding-top: 4px;
+	padding-left: 6px;
+	color: #3a8bcb;
+	margin-bottom: -2px;
+}
+
+.divider > .caption {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.divider > .filler {
+	background: url(../assets/divider.png) repeat-x center;
+	height: 16px;
+	margin-left: 4px;
+	width: 100%;
+}
+
 .back-button {
 	height: 20px !important;
 }
@@ -63,35 +114,6 @@
 .header-back-button.pressed {
 	background-color: #888888;
 	box-shadow: inset 0px 1px 0px rgba(0,0,0,0.1);
-}
-
-.center-text {
-    text-align: center;
-}
-
-.center-div {
-	margin-left: auto !important;
-	margin-right: auto !important;
-}
-
-.float-left {
-	float: left;
-}
-
-.float-right {
-    float: right;
-}
-
-.float-breaker {
-	clear: both;
-	float: none;
-	line-height:0;
-	font-size: 0;
-}
-
-.display-inline {
-	display: inline-block;
-	vertical-align: middle;
 }
 
 .back-color {
