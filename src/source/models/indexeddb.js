@@ -6,7 +6,11 @@
  */
 
 function pubdateSort(a, b) {
-	return a.pubdate - b.pubdate;
+	return b.pubdate - a.pubdate;
+}
+
+function feedOrderSort(a, b) {
+	return a.feedOrder - b.feedOrder;
 }
 
 enyo.kind({
@@ -509,10 +513,36 @@ enyo.kind({
 		enyo.application.assert(onSuccess, "DB> getStories needs data handler");
 		onFail = onFail || this.errorHandler;
 
+
+		var self = this;
 		var data = [];
 		var request = this.readTransaction(["stories"], function() {
 			data.sort(pubdateSort);
-			onSuccess(data);
+			if(feed.feedType < feedTypes.ftUnknown) {
+				self.getFeeds("", function(feeds) {
+					function getFeed(fid) {
+						for(var i = 0; i < feeds.length; i++) {
+							if(feeds[i].id == fid)
+								return feeds[i];
+						}
+						return null;
+					}
+					for(var i = 0; i < data.length; i++) {
+						var feed = getFeed(data[i].fid);
+						data[i].feedType = feed.feedType;
+						data[i].feedTitle = feed.title;
+						data[i].feedOrder = feed.feedOrder;
+					}
+					if((feed.sortMode & 0xFF00) != 0x0100) {
+						data.sort(feedOrderSort);
+					}
+					onSuccess(data);
+				});
+			} else {
+				// Is is not needed to retrieve information about the feed if only
+				// a single feeds stories are requested.
+				onSuccess(data);
+			}
 		}, onFail).objectStore("stories");
 
 		switch(feed.feedType) {
@@ -527,12 +557,13 @@ enyo.kind({
 				break;
 		}
 
+		var showMode = feed.sortMode & 0xFF;
 		request.onsuccess = function(event) {
 			var cursor = event.target.result;
 			if(cursor) {
-				if((feed.sortMode == 0) ||
-					((feed.sortMode == 1) && (!cursor.value.isRead)) ||
-					((feed.sortMode == 1) && (!cursor.value.isNew))) {
+				if((showMode == 0) ||
+					((showMode == 1) && (!cursor.value.isRead)) ||
+					((showMode == 1) && (!cursor.value.isNew))) {
 					data.push(new Story(cursor.value));
 				}
 				cursor.continue();
