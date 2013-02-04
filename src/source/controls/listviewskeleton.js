@@ -21,6 +21,50 @@
  */
 
 enyo.kind({
+	name:		"SwipeableList",
+	kind:		enyo.List,
+
+	events:		{
+		onStartSwiping:			"",
+		onItemDeleted:			"",
+		onItemDeleteCanceled:	"",
+		onIsItemSwipeable:		""
+	},
+
+	swipeableComponents:	[{
+		kind:		SwipeItem
+	}],
+
+	swipe: function() {
+		this.doStartSwiping({ index: this.swipeIndex });
+		this.inherited(arguments);
+	},
+
+	swipeDragStart: function(sender, event) {
+		if(event.index == null || event.vertical || (this.doIsItemSwipeable(event) === false))
+			return false;
+		if(this.persistentItemVisible)
+			this.finishSwiping();
+		this.inherited(arguments);
+	},
+
+	getPersistSwipeableItem: function() {
+		return true;
+	},
+
+	finishSwiping: function(index) {
+		this.clearSwipeables();
+		this.renderRow(index);
+		this.persistentItemVisible = false;
+	},
+
+	beginPinnedReorder: function(event) {
+		this.pinnedReorderMode = true;
+		this.completeFinishReordering(event);
+	}
+});
+
+enyo.kind({
 	name:				"ListViewSkeleton",
 	kind:				"DraggableView",
     classes:            "back-color",
@@ -30,9 +74,16 @@ enyo.kind({
 
 	selectedIndex:		-1,
 	deletedItem:		null,
+	swipedIndex:		-1,
 
 	refreshInProgress:	false,
 	selectionClass:		"list-item-selected",
+
+	handlers:			{
+		onStartSwiping:	"itemSwipingStarted",
+		onDelete:		"itemDeleted",
+		onCancel:		"itemDeleteCanceled"
+	},
 
 	//
 	// List handling
@@ -51,11 +102,18 @@ enyo.kind({
 		return true;
 	},
 
-	itemDeleted: function(sender, index) {
+	itemSwipingStarted: function(sender, event) {
+		this.swipedIndex = event.index;
+	},
+
+	itemDeleted: function() {
+		var index = this.swipedIndex;
 		var delSelected = this.selectedIndex === index;
 		if(delSelected) {
 			this.selectedIndex = -1;
 		}
+
+		this.$.list.finishSwiping(this.swipedIndex);
 
 		this.deletedItem = this.items[index];
 		this.items.splice(index, 1);
@@ -63,6 +121,13 @@ enyo.kind({
 		this.$.list.refresh(); // Provide quick visual response.
 
 		return delSelected;
+	},
+
+	itemDeleteCanceled: function() {
+		if(this.swipedIndex >= 0) {
+			this.$.list.finishSwiping(this.swipedIndex);
+		}
+		this.swipedIndex = -1;
 	},
 
 	//

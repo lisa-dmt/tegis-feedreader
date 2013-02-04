@@ -39,7 +39,9 @@
 	background: url(../assets/spinner-small-light.gif) no-repeat 0 0;
 }
 
-/* Custom styles */
+/*
+ * Custom styles
+ */
 
 /* General layouting */
 .center-text {
@@ -160,6 +162,16 @@
 .list-item-selected {
 	background-color: #bde8f6 !important;
 	border-top-color: #cdf8ff !important;
+}
+
+.list-item-swiped {
+	background-color: #555555 !important;
+	height: 100%;
+	width: 100%;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	text-align: center;
+	padding-left: 0;
 }
 
 .dialog-header {
@@ -337,6 +349,13 @@ span.italic {
 	position: absolute;
 	left: 70px;
 	right: 48px;
+	top: 12px;
+}
+
+.feed-title-box .large {
+	position: absolute;
+	left: 70px;
+	right: 8px;
 	top: 12px;
 }
 

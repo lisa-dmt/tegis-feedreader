@@ -37,11 +37,11 @@ enyo.kind({
 	},
 
 	components:	[{
-		kind:		"onyx.Toolbar",
+		kind:		onyx.Toolbar,
 		name:		"header",
 		classes:	"toolbar-light",
 		components:	[{
-			kind:	"onyx.Icon",
+			kind:	onyx.Icon,
 			src:	"icon32.png",
 			style:	"height: 32px; width: 32px; margin-top: 0px; vertical-align: center;",
 			ontap:	"openAppMenu"
@@ -49,28 +49,29 @@ enyo.kind({
 			content:	$L("Feed Subscriptions")
 		}]
 	}, {
-        kind:				"enyo.PulldownList",
-        name:				"list",
-        fit:				true,
-		reorderable:		true,
-		enableSwipe:		true,
-		fixedHeight:		true,
+        kind:						SwipeableList,
+        name:						"list",
+        fit:						true,
+		reorderable:				true,
+		enableSwipe:				true,
+		fixedHeight:				true,
 
-        onSetupItem:    	"setupFeed",
-        onReorder:			"reorderFeed",
-		onPullRelease:		"listPulled",
+        onSetupItem:    			"setupFeed",
+		onSetupReorderComponents:	"setupReorder",
+        onReorder:					"reorderFeed",
+		onIsItemSwipeable:			"isItemSwipeable",
+		onPullRelease:				"listPulled",
 
-        components: [{
+		components: [{
             name:		"item",
-			kind:		"onyx.Item",
+			kind:		onyx.Item,
 			classes:	"feedlist-item",
             ontap:		"itemClicked",
-            onConfirm:	"itemDeleted",
             components:	[{
 				name:		"feedInfoBox",
                 classes:	"feed-infobox",
 				components:	[{
-					kind:		"Image",
+					kind:		enyo.Image,
 					name:		"feedIcon",
 					classes:	isFirefox() ? "feed-icon mozilla" : "feed-icon webkit",
 					src:		"assets/lists/icon-rss.png"
@@ -106,7 +107,7 @@ enyo.kind({
 					classes:	"feed-url"
 				}]
 			}, {
-				kind:				"MenuDecoupler",
+				kind:				MenuDecoupler,
 				menu:				"feedMenu",
 				list:				"list",
 				classes:    		"list-edit-button",
@@ -120,7 +121,29 @@ enyo.kind({
 					}]
 				}]
 			}]
-        }]
+        }],
+		reorderComponents: [{
+			kind:		onyx.Item,
+			classes:	"feedlist-item",
+			components:	[{
+				classes:	"feed-infobox",
+				components:	[{
+					kind:		enyo.Image,
+					name:		"reorderFeedIcon",
+					classes:	isFirefox() ? "feed-icon mozilla" : "feed-icon webkit",
+					src:		"assets/lists/icon-rss.png"
+				}]
+			}, {
+				classes:	"feed-title-box large",
+				components: [{
+					name:		"reorderFeedTitle",
+					classes:	"feed-title"
+				}, {
+					name:		"reorderFeedURL",
+					classes:	"feed-url"
+				}]
+			}]
+		}]
 	}, {
 		name:		"loadSpinnerBox",
         fit:        true,
@@ -217,6 +240,29 @@ enyo.kind({
         this.$.newCountBadge.setShowing((feed.numNew > 0) && enyo.application.prefs.showNewCount);
 	},
 
+	setupReorder: function(sender, event) {
+		var index;
+		if((index = this.indexFromEvent(event)) === false)
+			return false;
+
+		var feed = this.items[index];
+
+		this.$.reorderFeedTitle.applyStyle("color", enyo.application.prefs.getCSSTitleColor());
+		this.$.reorderFeedTitle.applyStyle("font-size", enyo.application.prefs.largeFont ? "20px" : "18px");
+		this.$.reorderFeedTitle.setContent(enyo.application.feeds.getFeedTitle(feed));
+		this.$.reorderFeedURL.applyStyle("font-size", enyo.application.prefs.largeFont ? "16px" : "14px");
+		this.$.reorderFeedURL.setContent(enyo.application.feeds.getFeedURL(feed));
+		this.$.reorderFeedIcon.setSrc(enyo.application.feeds.getFeedIcon(feed));
+	},
+
+	isItemSwipeable: function(sender, event) {
+		var index;
+		if((index = this.indexFromEvent(event)) === false)
+			return false;
+
+		return this.items[index].feedType >= feedTypes.ftUnknown;
+	},
+
 	listPulled: function() {
 		enyo.Signals.send("onUpdateAll");
 	},
@@ -226,6 +272,16 @@ enyo.kind({
 	},
 
 	reorderFeed: function(sender, event) {
+		if(event.reorderFrom == event.reorderTo)
+			return;
+
+		// The list will refresh itself after the re-ordering has been completed, so we
+		// need to temporarily re-order our item array to make the list appear correctly.
+		var itemToMove = this.items.splice(event.reorderFrom);
+		this.items.splice(event.reorderTo, 0, itemToMove[0]);
+
+		// Now update the database. After finishing, the list will be refreshed
+		// automatically.
 		enyo.application.feeds.moveFeed(event.reorderFrom, event.reorderTo);
 	},
 
@@ -262,6 +318,9 @@ enyo.kind({
 	},
 
 	itemDeleted: function(sender, index) {
+		if(this.swipedIndex === undefined)
+			throw "Missed dragstart event!";
+
 		if(this.inherited(arguments)) {
 			this.doFeedSelected(null);
 		}
