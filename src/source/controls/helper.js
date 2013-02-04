@@ -204,3 +204,35 @@ function additionalSceneWidthStyle() {
 		return "width: 640px;";
 	}
 }
+
+enyo.kind({
+	name:		"SwipeItem",
+	kind:		onyx.Item,
+	classes:	"list-item-swiped",
+	styles:		"line-height: 0; horizontal-align: center; text-align: center",
+
+	events:		{
+		onDelete:	"",
+		onCancel:	""
+	},
+
+	components:	[{
+		kind:		onyx.Button,
+		classes:	"onyx-negative",
+		content:	$L("Delete"),
+		ontap:		"deleteTap"
+	}, {
+		kind:		onyx.Button,
+		classes:	"onyx-affirmative",
+		content:	$L("Cancel"),
+		ontap:		"cancelTap"
+	}],
+
+	deleteTap: function() {
+		this.doDelete();
+	},
+
+	cancelTap: function() {
+		this.doCancel();
+	}
+});

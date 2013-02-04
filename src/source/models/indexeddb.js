@@ -196,6 +196,59 @@ enyo.kind({
 		this.error("DB> query failed");
 	},
 
+	/** @private
+	 *
+	 * Reorder a database item list by changing the order property.
+	 *
+	 * @param items			array of items
+	 * @param orderProp		name of order property
+	 * @param oldOrder		old order value of the item
+	 * @param newOrder		new order value of the item
+	 */
+	reorderList: function(items, orderProp, oldOrder, newOrder) {
+		var itemToMove;
+		for(var i = 0; i < items.length; i++) {
+			var item = items[i];
+			if(item[orderProp] == oldOrder) {
+				itemToMove = item;
+				item[orderProp] = -1;
+			} else if(item[orderProp] > oldOrder) {
+				item[orderProp]--;
+			}
+		}
+		for(var i = 0; i < items.length; i++) {
+			var item = items[i];
+			if(item[orderProp] >= newOrder) {
+				item[orderProp]++;
+			}
+		}
+		itemToMove[orderProp] = newOrder;
+	},
+
+	/**
+	 * Retrieve a list of categories.
+	 *
+	 * @param	onSuccess	{function}		function to be called on success
+	 * @param	onFail		{function}		function to be called on failure
+	 */
+	getCategories: function(onSuccess, onFail) {
+		enyo.application.assert(onSuccess, "DB> getCategories needs data handler");
+		onFail = onFail || this.errorHandler;
+
+		var result = [];
+		var cats = this.readTransaction(["categories"], function() {
+			onSuccess(result);
+		}, onFail).objectStore("categories");
+		cats.index("feedOrder").openCursor().onsuccess = function(event) {
+			var cursor = event.target.result;
+			if(cursor) {
+				var cat = cursor.value;
+				result.push(new Category(cat));
+				cursor.continue();
+			}
+		}
+	},
+
 	/**
 	 * Delete a category.
 	 *
@@ -249,20 +302,14 @@ enyo.kind({
 		onSuccess = onSuccess || this.nullData;
 		onFail = onFail || this.errorHandler;
 
-		if(oldOrder == newOrder) {
-			onSuccess();
-			return;
-		}
-
-		var transaction = this.writeTransaction(["categories"], onSuccess, onFail);
-		var cats = transaction.objectStore("categories");
-		cats.index("catOrder").openCursor(this.boundBetween(newOrder, oldOrder)).onSuccess = function(event) {
-			var cursor = event.target.result;
-			if(cursor) {
-
-				cats.put(cat);
+		var self = this;
+		this.getCategories(function(cats) {
+			self.reorderList(cats, "catOrder", oldOrder, newOrder);
+			var catStore = this.writeTransaction(["categories"], onSuccess, onFail).objectStore("categories");
+			for(var i = 0; i < cats.length; i++) {
+				catStore.put(new Category(cats[i]));
 			}
-		}
+		}, onFail);
 	},
 
 	/** @private
@@ -354,6 +401,15 @@ enyo.kind({
 		this.saveFeed(feed, onSuccess, onFail);
 	},
 
+	/**	@protected
+	 *
+	 * Update the counts of a feed.
+	 *
+	 * @param feeds				feed object store
+	 * @param deltaUnRead		count to be added to the current "unread count"
+	 * @param deltaNew			count to be added to the current "new count"
+	 * @param event				result of a get operation on the feed object store
+	 */
 	updateFeedCount: function(feeds, deltaUnRead, deltaNew, event) {
 		var feed = event.target.result;
 		feed.numUnRead += deltaUnRead;
@@ -392,7 +448,7 @@ enyo.kind({
 		stories.index("fid").openCursor(this.boundOnly(feed.id)).onsuccess = function(event) {
 			var cursor = event.target.result;
 			if(cursor) {
-				stories.delete(story.id);
+				stories.delete(cursor.value.id);
 				cursor.continue();
 			} else {
 				feeds.get(feed.id).onsuccess = updateFeed;
@@ -412,7 +468,14 @@ enyo.kind({
 		onSuccess = onSuccess || this.nullData;
 		onFail = onFail || this.errorHandler;
 
-
+		var self = this;
+		this.getFeeds(null, function(feeds) {
+			self.reorderList(feeds, "feedOrder", oldOrder, newOrder);
+			var feedsStore = self.writeTransaction(["feeds"], onSuccess, onFail).objectStore("feeds");
+			for(var i = 0; i < feeds.length; i++) {
+				feedsStore.put(new Feed(feeds[i]));
+			}
+		}, onFail);
 	},
 
 	/**
@@ -519,7 +582,7 @@ enyo.kind({
 		var request = this.readTransaction(["stories"], function() {
 			data.sort(pubdateSort);
 			if(feed.feedType < feedTypes.ftUnknown) {
-				self.getFeeds("", function(feeds) {
+				self.getFeeds(null, function(feeds) {
 					function getFeed(fid) {
 						for(var i = 0; i < feeds.length; i++) {
 							if(feeds[i].id == fid)
@@ -878,7 +941,8 @@ enyo.kind({
 		var transaction = this.writeTransaction(["feeds", "stories"], onSuccess, onFail);
 		var stories = transaction.objectStore("stories");
 		var feeds = transaction.objectStore("feeds");
-		var feedupdater = enyo.bind(this, this.updateFeedCount, feeds, -1, story.isNew ? -1 : 0);
+		var feedupdater = enyo.bind(this, this.updateFeedCount, feeds,
+			story.isRead ? 0 : -1, story.isNew ? -1 : 0);
 
 		story.isRead = true;
 		story.isNew = false;
@@ -891,7 +955,7 @@ enyo.kind({
 	},
 
 	/**
-	 * Mark all stories of a feed as being read.
+	 * Mark all stories of a feed as being read or unread.
 	 *
 	 * @param	feed		{Object}		feed object
 	 * @param	state		{boolean}		state of the flag
@@ -926,7 +990,7 @@ enyo.kind({
 
 	/**
 	 * Delete a story.
-	 * This does no "real" delete as the item would come back on the next
+	 * This does no "real" delete as the item would possibly come back on the next
 	 * update. Instead, the story is marked as being deleted and will not
 	 * be selected again.
 	 *
@@ -938,10 +1002,19 @@ enyo.kind({
 		onSuccess = onSuccess || this.nullData;
 		onFail = onFail || this.errorHandler;
 
-		this.log("DB> deleting story", story.id);
+		var transaction = this.writeTransaction(["feeds", "stories"], onSuccess, onFail);
+		var stories = transaction.objectStore("stories");
+		var feeds = transaction.objectStore("feeds");
 
 		story.deleted = 1;
-		var stories = this.writeTransaction(["stories"], onSuccess, onFail).objectStore("stories");
 		stories.put(story);
+		if(story.isNew || !story.isRead) {
+			var feedupdater = enyo.bind(this, this.updateFeedCount, feeds,
+				story.isRead ? 0 : -1, story.isNew ? -1 : 0);
+			feeds.get(story.fid).onsuccess = feedupdater;
+			feeds.index(feedType).get(feedTypes.ftAllItems).onsuccess = feedupdater;
+			if(story.isStarred)
+				feeds.index("feedType").get(feedTypes.ftStarred).onsuccess = feedupdater;
+		}
 	}
 });
