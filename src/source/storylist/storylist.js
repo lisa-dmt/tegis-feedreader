@@ -189,10 +189,6 @@ enyo.kind({
 			ontap:		"orderToggled"
 		}]
 	}, {
-		name:				"sortMenu",
-		kind:				"EnhancedMenu",
-		autoCloseSubItems:	false
-	}, {
 		kind:						enyo.Signals,
 		onStoryListChanged:			"refresh",
 		onSpoolerRunningChanged:	"spoolerRunningChanged"
