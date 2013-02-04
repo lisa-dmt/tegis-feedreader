@@ -40,7 +40,6 @@ enyo.depends(
     "controls/selectoritem.js",
     "controls/errordialog.js",
 	"controls/helper.js",
-    "controls/enhancedmenu.js",
     "controls/listviewskeleton.js",
     "controls/dottedseparator.js",
     "controls/silverseparator.js",
