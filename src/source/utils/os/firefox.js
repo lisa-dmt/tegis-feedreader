@@ -87,9 +87,11 @@ enyo.kind({
 			var cookie = enyo.getCookie(this.cookieName);
 			if(!cookie)
 				return;
-			var alarms = enyo.json.parse(this.cookie);
-			if(alarms.id)
+			var alarms = enyo.json.parse(cookie);
+			if(alarms.id) {
 				navigator.mozAlarms.remove(alarms.id);
+				this.log("FXOSTIMER> Unscheduled alarm", alarms.id);
+			}
 			enyo.setCookie(this.cookieName, "{}");
 		} finally {
 			this.firstRun = false;
