@@ -73,7 +73,8 @@ enyo.kind({
 				}, {
 					name:		"wakingEnabled",
 					kind:		"ToggleItem",
-					caption:	$L("Wake device for updating")
+					caption:	$L("Wake device for updating"),
+					showing:	!isFirefox()
 				}, {
 					name:		"updateOnStart",
 					kind:		"ToggleItem",
