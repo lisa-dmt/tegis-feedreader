@@ -36,7 +36,7 @@ DefaultPrefs.prototype = {
     notifyWhileRunning:			true,
     unobtrusiveNotifications:	true,
     wakingEnabled:				false,
-    titleColor:					IsEnyo() ? "black" : "red",
+    titleColor:					"black",
     summaryLength: 				120,
     largeFont: 					false,
     showNewCount:               true,
