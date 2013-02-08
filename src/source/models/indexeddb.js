@@ -19,6 +19,7 @@ enyo.kind({
 
 	indexedDb:			null,
 	db:					null,
+	isReady:			false,
 
 	create: function() {
 		this.inherited(arguments);
@@ -51,10 +52,12 @@ enyo.kind({
 
 		this.log("DB> Database schema ready");
 
-		if(enyo.application.prefs.updateOnStart || enyo.application.feeds.updateWhenReady) {
-			enyo.application.feeds.updateWhenReady = false;
-			enyo.Signals.send("onUpdateAll");
-		}
+		enyo.asyncMethod(function() {
+			if(enyo.application.prefs.updateOnStart || enyo.application.feeds.updateWhenReady) {
+				enyo.application.feeds.updateWhenReady = false;
+				enyo.Signals.send("onUpdateAll");
+			}
+		});
 
 		this.isReady = true;
 		enyo.Signals.send("onDbReady");
