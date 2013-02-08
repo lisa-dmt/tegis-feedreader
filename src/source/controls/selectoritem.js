@@ -67,12 +67,16 @@ enyo.kind({
 	},
 
 	pickerSelected: function(sender, event) {
+		this.value = this.items[event.index].value;
 		if(!this.updating)
 			this.doChange();
 		return true;
 	},
 
-	pickerChanged: function() {
+	pickerChanged: function(sender, event) {
+		if(event.index) {
+			this.value = this.items[event.index].value;
+		}
 		return true;
 	},
 
@@ -86,7 +90,7 @@ enyo.kind({
 		this.updating++;
 		this.$.selector.setCount(this.items.length);
 		if(this.items && this.items.length > 0)
-			this.setValue(this.items[0]);
+			this.setValue(this.items[0].value);
 		this.updating--;
 	},
 
