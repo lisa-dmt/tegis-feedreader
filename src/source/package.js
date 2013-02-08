@@ -8,6 +8,12 @@ enyo.depends(
 
 	"$lib/g11n",
 
+	// OS specific stuff
+	"utils/os/webOSExt.js",
+	"utils/os/palm.js",
+	"utils/os/firefox.js",
+	"utils/os/generic.js",
+
     // Commons
     "commonjs/constants.js",
     "commonjs/helper.js",
@@ -62,11 +68,6 @@ enyo.depends(
     "license/license.js",
     "help/help.js",
     "importer/importer.js",
-
-    // OS specific stuff
-    "utils/os/webOSExt.js",
-    "utils/os/palm.js",
-    "utils/os/generic.js",
 
 	// CSS
 	"App.css",

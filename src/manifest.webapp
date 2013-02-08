@@ -16,7 +16,12 @@
     "launch_path": "/index.html",
     "type": "privileged",
     "permissions": {
+    	"alarms": { "description": "Needed for scheduled feed updates" },
     	"systemXHR": { "description": "Needed for feed retrieval" },
     	"storage": { "description": "Needed to store feed data" }
-    }
+    },
+  "orientation": "portrait-primary",
+  "messages": [{
+  	"alarm": "/index.html"
+  	}]
 }

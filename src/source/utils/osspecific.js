@@ -21,39 +21,15 @@
  */
 
 function applyOSSpecific(to) {
-    if(window.PalmSystem) {
-        // Palm webOS
-        enyo.log("OSSPECIFIC> Detected Palm webOS");
-        window.AppHelper = window.PalmAppHelper;
-        window.Timer = window.PalmTimer;
-        window.ConnectionChecker = window.PalmConnectionChecker;
-        window.PowerManager = window.PalmPowerManager;
-		window.Database = window.WebSQLDatabase;
-        enyo.openDatabase = function() {
-            return openDatabase("ext:FeedReader", "", "FeedReader Database");
-        }
+    if(enyo.platform.webos) {
+		applyPalmSpecifics();
+	} else if(isFirefox()) {
+		applyFirefoxSpecifics();
     } else {
-        // Unknown host OS/browser
-        enyo.log("OSSPECIFIC> Using generic handlers; platform unkown/unsupported or running in browser");
-        window.AppHelper = window.GenericAppHelper;
-        window.Timer = window.GenericTimer;
-        window.ConnectionChecker = window.GenericConnectionChecker;
-        window.PowerManager = window.GenericPowerManager;
-		window.Database = window.IndexedDB;
+        applyGenericHandlers();
     }
 
-	if(enyo.platform.firefox || enyo.platform.firefoxOS) {
-		enyo.log("This is Firefox - patching XHR request machanism");
-		enyo.xhr.getXMLHttpRequest = function(inParams) {
-			try {
-				return new XMLHttpRequest({ mozSystem: true });
-			} catch(e) {}
-			return null;
-		}
-	}
-
     enyo.application.helper = new AppHelper();
-
     to.openLink = function(url) {
         enyo.application.helper.openLink(url);
     };
@@ -63,7 +39,7 @@ function applyOSSpecific(to) {
     to.openMessaging = function(text) {
         enyo.application.helper.openMessaging(text);
     };
-    to.openMainView = function() {
-        new FeedReaderMainView().renderInto(document.body);
+    to.openMainView = function(params) {
+		enyo.application.helper.openMainView(params);
     };
 }

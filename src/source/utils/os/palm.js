@@ -68,7 +68,10 @@ enyo.kind({
     _openCard: function(name, windowName, windowParams) {
         var cardPath = "source/" + name + "/index.html";
         return enyo.windows.activate(cardPath, windowName, windowParams);
-    }
+    },
+
+	afterScheduledUpdate: function() {
+	}
 });
 
 enyo.kind({
@@ -289,3 +292,14 @@ enyo.kind({
         this.error("POWER> Unable to leave activity", response);
     }
 });
+
+function applyPalmSpecifics() {
+	window.AppHelper = window.PalmAppHelper;
+	window.Timer = window.PalmTimer;
+	window.ConnectionChecker = window.PalmConnectionChecker;
+	window.PowerManager = window.PalmPowerManager;
+	window.Database = window.WebSQLDatabase;
+	enyo.openDatabase = function() {
+		return openDatabase("ext:FeedReader", "", "FeedReader Database");
+	}
+}

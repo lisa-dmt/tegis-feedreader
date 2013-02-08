@@ -58,7 +58,6 @@ enyo.kind({
 		// Initialize helper objects.
 		enyo.application.prefs.load();
 		enyo.application.ril.checkCredentials(false);
-		enyo.application.timer.setTimer();
 
 		// Create the feeds object
 		enyo.application.feeds = new Feeds();
@@ -73,13 +72,18 @@ enyo.kind({
 	relaunch: function(sender) {
 		var params = enyo.windowParams;
 
- 		if(params && params.action && (params.action = "feedUpdate")) {
+		if(params && params.action && (params.action = "feedUpdate")) {
 			this.log("LAUNCHER> scheduled feed update triggered");
-			enyo.application.feeds.enqueueUpdateAll();
-			enyo.application.timer.setTimer();
+			if(enyo.application.db.isReady) {
+				enyo.application.feeds.enqueueUpdateAll();
+			} else {
+				enyo.application.feeds.updateWhenReady = true;
+			}
+			enyo.application.helper.afterScheduledUpdate();
 		} else {
 			this.openMainView(params);
 		}
+		enyo.application.timer.setTimer();
 		return true;
 	},
 
