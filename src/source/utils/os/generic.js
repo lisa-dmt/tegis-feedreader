@@ -21,8 +21,10 @@
  */
 
 enyo.kind({
-    name:   "GenericAppHelper",
-    kind:   enyo.Component,
+    name:		"GenericAppHelper",
+    kind:   	enyo.Component,
+
+	rendered:	false,
 
     openLink: function(url) {
         alert("Should open link: " + url);
@@ -34,7 +36,17 @@ enyo.kind({
 
     openMessaging: function(text) {
         alert("Should open messaging: " + text);
-    }
+    },
+
+	openMainView: function() {
+		if(!this.rendered)
+			(new FeedReaderMainView()).renderInto(document.body);
+		this.rendered = true;
+	},
+
+	afterScheduledUpdate: function() {
+		this.openMainView();
+	}
 });
 
 enyo.kind({
@@ -64,3 +76,13 @@ enyo.kind({
     leaveActivity: function() {
     }
 });
+
+function applyGenericHandlers() {
+	// Unknown host OS/browser
+	enyo.log("OSSPECIFIC> Using generic handlers; platform unkown/unsupported or running in browser");
+	window.AppHelper = window.GenericAppHelper;
+	window.Timer = window.GenericTimer;
+	window.ConnectionChecker = window.GenericConnectionChecker;
+	window.PowerManager = window.GenericPowerManager;
+	window.Database = window.IndexedDB;
+}
