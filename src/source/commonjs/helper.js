@@ -22,30 +22,7 @@
  */
 
 function LogException(exception, message) {
-    if(IsEnyo()) {
-        enyo.error(message, exception);
-    } else {
-        Mojo.Log.logException(exception, message);
-    }
-};
-
-function IsEnyo() {
-    return window.enyo !== undefined;
-}
-
-function Bind(scope, fnc) {
-    var baseArgs = [];
-    for(var i = 2; i < arguments.length; i++) {
-        baseArgs.push(arguments[i]);
-    }
-    return function() {
-        var args = [];
-        for(var i = 0; i < baseArgs.length; i++)
-            args.push(baseArgs[i]);
-        for(i = 0; i < arguments.length; i++)
-            args.push(arguments[i]);
-        fnc.apply(scope, args);
-    };
+	enyo.error(message, exception);
 }
 
 function PrependHyperLinks(node, scope, handler) {
@@ -55,7 +32,7 @@ function PrependHyperLinks(node, scope, handler) {
 
     try {
         if((node.nodeName == 'A') && node.href && (!node.href.match(/javascript.*/))) {
-            node.onclick = Bind(scope, handler, node.href);
+            node.onclick = enyo.bind(scope, handler, node.href);
             node.href = 'javascript:void(0)';
         }
 

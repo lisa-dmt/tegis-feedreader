@@ -100,10 +100,6 @@ enyo.kind({
 	}
 });
 
-function isFirefox() {
-	return !!enyo.platform.firefox || !!enyo.platform.firefoxOS;
-}
-
 function useTopBackButton() {
 	return isFirefox() && !showGrabButtons();
 }

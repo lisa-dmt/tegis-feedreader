@@ -222,9 +222,6 @@ enyo.kind({
 
 		var feed = this.items[index];
 
-//		this.$.item.setSwipeable((feed.feedType != feedTypes.ftAllItems) &&
-//								 (feed.feedTypr != feedTypes.ftStarred));
-
 		this.$.item.addRemoveClass(this.selectionClass, sender.isSelected(index));
 
 		this.$.feedTitle.applyStyle("color", enyo.application.prefs.getCSSTitleColor());
