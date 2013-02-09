@@ -104,7 +104,20 @@ enyo.kind({
 	kind:   enyo.Component,
 
 	checkConnection: function(onSuccess, onFail) {
-		enyo.asyncMethod(this, onSuccess);
+		var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+		if(!connection) {
+			enyo.asyncMethod(this, onSuccess);
+		} else if(connection.bandwidth > 0) {
+			if(connection.bandwidth !== Infinity || navigator.onLine) {
+				enyo.asyncMethod(this, onSuccess);
+			} else {
+				enyo.log("CONNCHECKER> No internet connection at the moment");
+				enyo.asyncMethod(this, onFail);
+			}
+		} else {
+			enyo.log("CONNCHECKER> No internet connection at the moment");
+			enyo.asyncMethod(this, onFail);
+		}
 	}
 });
 
