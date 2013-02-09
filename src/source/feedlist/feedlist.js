@@ -78,7 +78,7 @@ enyo.kind({
                 }, {
 					kind:	    "onyx.Spinner",
 					name:	    "feedSpinner",
-					classes:    "onyx-spinner-light small feed-spinner",
+					classes:    "onyx-spinner onyx-light small feed-spinner",
 					showing:    false
 				}, {
 					name:		"unreadCountBadge",
@@ -334,7 +334,7 @@ enyo.kind({
 				return;
 			}
 			this.$.list.prepareRow(index);
-			//this.$.feedSpinner.setShowing(state);
+			this.$.feedSpinner.setShowing(state);
 			this.spinningIndex = state ? index : -1;
 		}
 	},
