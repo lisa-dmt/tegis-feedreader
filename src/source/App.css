@@ -267,8 +267,8 @@ span.italic {
 
 .feed-spinner {
 	position: absolute;
-	left: 4px;
-	top: 5px;
+	left: 14px;
+	top: 10px;
 	z-index: 100000;
 }
 
