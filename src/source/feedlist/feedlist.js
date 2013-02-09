@@ -41,10 +41,10 @@ enyo.kind({
 		name:		"header",
 		classes:	"toolbar-light",
 		components:	[{
-			kind:	onyx.Icon,
-			src:	"icon32.png",
-			style:	"height: 32px; width: 32px; margin-top: 0px; vertical-align: center;",
-			ontap:	"openAppMenu"
+			kind:		onyx.IconButton,
+			src:		"assets/header/app-menu.png",
+			showing:	isFirefox(),
+			ontap:		"openAppMenu"
 		}, {
 			content:	$L("Feed Subscriptions")
 		}]
