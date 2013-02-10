@@ -37,14 +37,16 @@ enyo.kind({
 
 	components:	[{
 		kind:		"onyx.Toolbar",
+		layoutKind:	"FittableColumnsLayout",
 		classes:	"toolbar-light",
+		noStretch:	true,
 		components:	[{
 			kind:		"TopSceneControl",
 			ontap:		"doBackClick"
 		}, {
 			name:		"header",
-			classes:	"float-left",
-			style:		"text-overflow: ellipsis; overflow: none; white-space: nowrap; width: 80%;" // ToDo
+			classes:	"shorten-text",
+			fit:		true
 		}]
 	}, {
 		name:		"searchBox",
@@ -64,12 +66,14 @@ enyo.kind({
 			className:	"header-shadow"
 		}]
 	}, {
-		kind:			enyo.List,
-		name:			"list",
-		fit:			true,
+		kind:				SwipeableList,
+		name:				"list",
+		fit:				true,
+		showing:			false,
+		enableSwipe:		true,
 
-		onSetupItem: 	"setupStory",
-		showing:		false,
+		onSetupItem: 		"setupStory",
+		onIsItemSwipeable:	"isItemSwipeable",
 
 		components: [{
 			name:		"feedDivider",
@@ -266,6 +270,10 @@ enyo.kind({
 		this.$.item.applyStyle("border-top", dividerShown ? "none" : null);
 		this.$.storyDate.setContent(feedTitle + enyo.application.feeds.getDateFormatter().formatTime(story.pubdate));
 
+		return true;
+	},
+
+	isItemSwipeable: function(sender, event) {
 		return true;
 	},
 

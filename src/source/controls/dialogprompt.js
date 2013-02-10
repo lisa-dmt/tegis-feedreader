@@ -47,7 +47,6 @@ enyo.kind({
 			classes:	"onyx-affirmative",
 			ontap:		"accepted"
 		}, {
-			styles:     "width: 8px"
 		}, {
 			name:		"cancelButton",
 			kind:		"onyx.Button",

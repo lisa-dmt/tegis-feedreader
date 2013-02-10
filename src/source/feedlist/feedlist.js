@@ -43,7 +43,7 @@ enyo.kind({
 		components:	[{
 			kind:		onyx.IconButton,
 			src:		"assets/header/app-menu.png",
-			showing:	isFirefox(),
+			showing:	!appMenuSupported(),
 			ontap:		"openAppMenu"
 		}, {
 			content:	$L("Feed Subscriptions")
@@ -73,7 +73,7 @@ enyo.kind({
 				components:	[{
 					kind:		enyo.Image,
 					name:		"feedIcon",
-					classes:	isFirefox() ? "feed-icon mozilla" : "feed-icon webkit",
+					classes:	addBrowerClass("feed-icon"),
 					src:		"assets/lists/icon-rss.png"
                 }, {
 					kind:	    "onyx.Spinner",
@@ -82,18 +82,18 @@ enyo.kind({
 					showing:    false
 				}, {
 					name:		"unreadCountBadge",
-					classes:	isFirefox() ? "feed-badge feed-unreaditem mozilla" : "feed-badge feed-unreaditem webkit",
+					classes:	addBrowerClass("feed-badge feed-unreaditem"),
 					components:	[{
 						name:		"unreadCount",
-						classes:	isFirefox() ? "feed-countlabel mozilla" : "feed-count-label webkit",
+						classes:	addBrowerClass("feed-countlabel"),
 						content:	"0"
 					}]
 				}, {
 					name:		"newCountBadge",
-					classes:	isFirefox() ? "feed-badge feed-newitem mozilla" : "feed-badge feed-newitem webkit",
+					classes:	addBrowerClass("feed-badge feed-newitem"),
 					components:	[{
 						name:		"newCount",
-						classes:	isFirefox() ? "feed-countlabel mozilla" : "feed-count-label webkit",
+						classes:	addBrowerClass("feed-countlabel"),
 						content:	"0"
 					}]
 				}]
@@ -101,10 +101,10 @@ enyo.kind({
 				classes:	"feed-title-box",
 				components: [{
 					name:		"feedTitle",
-					classes:	"feed-title"
+					classes:	"feed-title shorten-text"
 				}, {
 					name:		"feedURL",
-					classes:	"feed-url"
+					classes:	"feed-url shorten-text"
 				}]
 			}, {
 				kind:				MenuDecoupler,
@@ -130,7 +130,7 @@ enyo.kind({
 				components:	[{
 					kind:		enyo.Image,
 					name:		"reorderFeedIcon",
-					classes:	isFirefox() ? "feed-icon mozilla" : "feed-icon webkit",
+					classes:	addBrowerClass("feed-icon"),
 					src:		"assets/lists/icon-rss.png"
 				}]
 			}, {
@@ -178,7 +178,6 @@ enyo.kind({
 	}, {
 		name:		"feedMenu",
 		kind:		"onyx.Menu",
-		scrolling:	false,
 		floating:	true,
 		components:	[{
 			content:	$L("Update feed"),

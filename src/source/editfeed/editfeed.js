@@ -162,7 +162,6 @@ enyo.kind({
 			content:	$L("Save"),
 			ontap:		"saveClicked"
 		}, {
-			styles:     "width: 8px"
 		}, {
 			name:		"cancelButton",
 			kind:		"onyx.Button",

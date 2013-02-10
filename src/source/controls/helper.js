@@ -101,11 +101,11 @@ enyo.kind({
 });
 
 function useTopBackButton() {
-	return isFirefox() && !showGrabButtons();
+	return true; //isFirefox() && !showGrabButtons();
 }
 
 function showGrabButtons() {
-	return !enyo.Panels.isScreenNarrow();
+	return false;// !enyo.Panels.isScreenNarrow();
 }
 
 enyo.kind({
@@ -152,15 +152,13 @@ enyo.kind({
 enyo.kind({
 	name:		"TopSceneControl",
 	kind:		"BackButton",
-	position:	"top",
-	classes:	"float-left"
+	position:	"top"
 });
 
 enyo.kind({
 	name:		"BottomMainSceneControl",
 	kind:		"BackButton",
-	position:	"bottom",
-	classes:	"float-left"
+	position:	"bottom"
 });
 
 enyo.kind({
@@ -205,7 +203,6 @@ enyo.kind({
 	name:		"SwipeItem",
 	kind:		onyx.Item,
 	classes:	"list-item-swiped",
-	styles:		"line-height: 0; horizontal-align: center; text-align: center",
 
 	events:		{
 		onDelete:	"",
