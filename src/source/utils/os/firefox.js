@@ -153,12 +153,14 @@ function applyFirefoxSpecifics() {
 		}
 	}
 
-	navigator.mozSetMessageHandler("alarm", function (message) {
-		if(enyo.application && enyo.application.feeds) {
-			enyo.application.feeds.enqueueUpdateAll();
-			enyo.application.timer.setTimer();
-		} else {
-			enyo.windowParams = { action: "feedUpdate" };
-		}
-	});
+	if(navigator.mozSetMessageHandler) {
+		navigator.mozSetMessageHandler("alarm", function (message) {
+			if(enyo.application && enyo.application.feeds) {
+				enyo.application.feeds.enqueueUpdateAll();
+				enyo.application.timer.setTimer();
+			} else {
+				enyo.windowParams = { action: "feedUpdate" };
+			}
+		});
+	}
 }

@@ -20,6 +20,20 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+function addBrowerClass(classes) {
+	if(isFirefox()) {
+		return classes + " mozilla";
+	} else if(enyo.platform.ie) {
+		return classes + " badass";
+	} else {
+		return classes + " webkit";
+	}
+}
+
+function appMenuSupported() {
+	return enyo.platform.webos || enyo.platform.android;
+}
+
 function applyOSSpecific(to) {
     if(enyo.platform.webos) {
 		applyPalmSpecifics();

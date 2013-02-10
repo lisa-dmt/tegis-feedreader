@@ -48,7 +48,7 @@ enyo.kind({
 		kind:		"onyx.Groupbox",
 		layoutKind:	"FittableRowsLayout",
 		classes:	"additional-scene center-div",
-		styles:		additionalSceneWidthStyle(),
+		style:		additionalSceneWidthStyle(),
 		components:	[{
 			kind:       "onyx.GroupboxHeader",
 			content:    $L("Origin")
@@ -62,7 +62,7 @@ enyo.kind({
 		}]
 	},{
 		classes:		"additional-scene center-div center-text",
-		styles:			additionalSceneWidthStyle(),
+		style:			additionalSceneWidthStyle(),
 		components:		[{
 			name:		"scanButton",
 			kind:		"ActivityButton",
@@ -73,6 +73,7 @@ enyo.kind({
 			caption:	$L("Feeds found on website")
 		}, {
 			name:		"noScanLabel",
+			style:		"margin-top: 10px",
 			allowHtml:	true,
 			content:	$L("Enter a URL and tap <b>Scan for feeds</b>.")
 		}, {
@@ -86,15 +87,14 @@ enyo.kind({
 		name:			"list",
 		kind:			enyo.List,
 		classes:		"additional-scene center-div",
-		styles:			additionalSceneWidthStyle(),
+		style:			additionalSceneWidthStyle(),
 		reorderable:	false,
 		fit:			true,
 		onSetupItem:	"setupRow",
 		components:	[{
 			name:		"item",
 			kind:		"onyx.Item",
-			classes:	"feedlist-item",
-			style:		"border-left: 1px solid silver; border-right: 1px solid silver;",
+			classes:	"feedlist-item inline-item",
 			ontap:		"feedClicked",
 			components:	[{
 				name:		"feedInfoBox",
@@ -106,13 +106,13 @@ enyo.kind({
 					style:	"max-width: 40px; max-height: 40px;"
 				}]
 			}, {
-				classes:	"feed-title-box",
+				classes:	"feed-title-box large",
 				components: [{
 					name:		"feedTitle",
-					classes:	"feed-title"
+					classes:	"feed-title shorten-text"
 				}, {
 					name:		"feedURL",
-					classes:	"feed-url"
+					classes:	"feed-url shorten-text"
 				}]
 			}]
 		}]

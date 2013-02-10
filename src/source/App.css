@@ -39,13 +39,25 @@
 	background: url(../assets/spinner-small-light.gif) no-repeat 0 0;
 }
 
+.onyx-toolbar {
+	border-left: 0 !important;
+	border-right: 0 !important;
+}
+
 /*
  * Custom styles
  */
 
 /* General layouting */
+
 .center-text {
 	text-align: center;
+}
+
+.shorten-text {
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow:hidden;
 }
 
 .center-div {
@@ -104,9 +116,9 @@
 }
 
 .header-back-button {
-	margin: -8px 0px 0px -8px;
+	margin: -5px 0px 0px -7px !important;
 	height: 46px;
-	line-height: 44px;
+	line-height: 46px;
 	border-right: 2px groove silver;
 	padding-left: 5px;
 	padding-right: 5px;
@@ -144,13 +156,15 @@
 .onyx-toolbar.toolbar-light {
     background-color: #a9a9a9 !important;
 	height: 48px;
+	padding-top: 5px;
+	line-height: 31px;
 }
 
- .modal-dialog > .onyx-button {
-	 margin-top: 10px;
-	 margin-bottom: 8px;
-	 color: black !important;
- }
+.modal-dialog > .onyx-button {
+	margin-top: 10px;
+	margin-bottom: 8px;
+	color: black !important;
+}
 
 .list-edit-button {
     position: absolute;
@@ -211,27 +225,12 @@
  * Custom styles
  */
 
-span.bold {
-	font-weight: bold;
-}
-
-span.underline {
-	text-decoration: underline;
-}
-
-span.italic {
-	font-style: italic;
-}
-
 /* lists */
 .feed-title {
 	padding-left: 4px;
     font-size: 18px;
 	font-weight: bold;
 	margin-bottom: 0px;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-	overflow:hidden;
 }
 
 .feed-url {
@@ -240,13 +239,6 @@ span.italic {
 	padding-left: 4px;
     font-size: 14px;
     color: gray;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-	overflow:hidden;
-}
-
-.list-text.large {
-	font-size: 16px;
 }
 
 /* item badges */
@@ -336,13 +328,14 @@ span.italic {
 	border-width: 0px 12px 0px 12px;
 }
 
-.feed-count {
-	color: white;
-}
-
 .feedlist-item {
 	position: relative;
 	height:	36px;
+}
+
+.feedlist-item.inline-item {
+	border-left: 1px solid silver;
+	border-right: 1px solid silver;
 }
 
 .feed-title-box {
@@ -352,7 +345,7 @@ span.italic {
 	top: 12px;
 }
 
-.feed-title-box .large {
+.feed-title-box.large {
 	position: absolute;
 	left: 70px;
 	right: 8px;
@@ -452,6 +445,20 @@ h3 {
 	font-weight: bold;
 }
 
+span.bold {
+	font-weight: bold;
+}
+
+span.underline {
+	text-decoration: underline;
+}
+
+span.italic {
+	font-style: italic;
+}
+
+/***********/
+
 .header-shadow,
 .footer-shadow,
 .search-shadow {
@@ -493,8 +500,8 @@ h3 {
 }
 
 .additional-scene {
-	margin-top: 20px;
-	margin-bottom: 20px;
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 
 /*

@@ -49,7 +49,7 @@ enyo.kind({
 			components:	[{
 				kind:		"onyx.Groupbox",
 				classes:	"additional-scene center-div",
-				styles:		additionalSceneWidthStyle(),
+				style:		additionalSceneWidthStyle(),
 				components:	[{
                     kind:       "onyx.GroupboxHeader",
                     content:    $L("Automatic updating")
@@ -96,7 +96,7 @@ enyo.kind({
 			}, {
 				kind:		"onyx.Groupbox",
 				classes:	"additional-scene center-div",
-				styles:		additionalSceneWidthStyle(),
+				style:		additionalSceneWidthStyle(),
 				components:	[{
                     kind:       "onyx.GroupboxHeader",
                     content:    $L("Notifications")
@@ -125,7 +125,7 @@ enyo.kind({
 			}, {
 				kind:		"onyx.Groupbox",
 				classes:	"additional-scene center-div",
-				styles:		additionalSceneWidthStyle(),
+				style:		additionalSceneWidthStyle(),
 				components:	[{
                     kind:       "onyx.GroupboxHeader",
                     content:    $L("Miscellaneous")
@@ -161,15 +161,15 @@ enyo.kind({
                     kind:       "SelectorItem",
                     caption:    $L("Item badges"),
                     items:      [
-                        {   caption:    $L("New story count & unread story count"), value: 0 },
-                        {   caption:    $L("Only unread story count"),              value: 1 },
-                        {   caption:    $L("Only new story count"),                 value: 2 }
+                        {   caption:    $L("New & unread story count"), value: 0 },
+                        {   caption:    $L("Only unread story count"),  value: 1 },
+                        {   caption:    $L("Only new story count"),     value: 2 }
                     ]
 				}]
 			}, {
 				kind:		"onyx.Groupbox",
 				classes:	"additional-scene center-div",
-				styles:		additionalSceneWidthStyle(),
+				style:		additionalSceneWidthStyle(),
 				components:	[{
                     kind:       "onyx.GroupboxHeader",
                     content:    $L("Pocket")
