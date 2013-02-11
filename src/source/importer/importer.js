@@ -169,6 +169,7 @@ enyo.kind({
 
 		this.$.scanButton.setCaption($L("Scanning for feeds..."));
 		this.$.scanButton.setActive(true);
+		this.resized();
 
 		enyo.application.connChecker.checkConnection(this.connectionAvailable, this.connectionNotAvailable);
 	},
