@@ -150,7 +150,7 @@ enyo.kind({
 		components:	[{
 			name:		"loadSpinner",
 			kind:		"onyx.Spinner",
-            style:      "width: 64px; height: 64px; margin: auto auto",
+            style:      "position: absolute; margin: auto; top: 0; left: 0; right: 0; bottom: 0;",
             classes:    "onyx-light"
 		}]
 	}, {
