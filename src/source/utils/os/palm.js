@@ -21,8 +21,12 @@
  */
 
 enyo.kind({
-    name:   "PalmAppHelper",
-    kind:   enyo.Component,
+    name:   			"PalmAppHelper",
+    kind:   			enyo.Component,
+
+	hasHTMLMail:		true,
+	hasEmbeddedVideo:	false,
+	canShareViaIM:		true,
 
     components: [{
         kind: 					"ApplicationEvents",

@@ -21,17 +21,41 @@
  */
 
 enyo.kind({
-	name:   	"FirefoxAppHelper",
-	kind:   	enyo.Component,
+	name:   			"FirefoxAppHelper",
+	kind:   			enyo.Component,
 
-	rendered:	false,
+	hasHTMLMail:		false,
+	hasEmbeddedVideo:	false,
+	canShareViaIM:		false,
+
+	rendered:			false,
+	activity:			null,
+
+	create: function() {
+		this.inherited(arguments);
+		this.activity = window.MozActivity;
+		if(!this.activity)
+			this.log("APPHELPER> No Acitivity support");
+	},
 
 	openLink: function(url) {
-		alert("Should open link: " + url);
+		this._runActivity({
+			name:	"view",
+			data:	{
+				type:	"url",
+				url:	url
+			}
+		});
 	},
 
 	openEMail: function(subject, text) {
-		alert("Should start email: " + subject);
+		this._runActivity({
+			name:	"new",
+			data:	{
+				type:	"mail",
+				URI:	"mailto:?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(text)
+			}
+		});
 	},
 
 	openMessaging: function(text) {
@@ -47,6 +71,22 @@ enyo.kind({
 	afterScheduledUpdate: function() {
 		this.log("APPHELPER> Opening mainview after scheduled update");
 		this.openMainView();
+	},
+
+	_runActivity: function(activity) {
+		if(!this.activity)
+			return;
+
+		enyo.asyncMethod(this, function() {
+			var self = this;
+			var act = new this.activity(activity);
+			act.onsuccess = function() {
+				self.log("Activity launched");
+			};
+			act.onerror = function() {
+				self.warn("Unable to launch activity ", activity.name, "of type", activity.data.type);
+			};
+		});
 	}
 });
 

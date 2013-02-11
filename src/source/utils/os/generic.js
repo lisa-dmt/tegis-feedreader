@@ -21,21 +21,24 @@
  */
 
 enyo.kind({
-    name:		"GenericAppHelper",
-    kind:   	enyo.Component,
+    name:				"GenericAppHelper",
+    kind:   			enyo.Component,
 
-	rendered:	false,
+	hasHTMLMail:		false,
+	hasEmbeddedVideo:	false,
+	canShareViaIM:		false,
+
+	rendered:		false,
 
     openLink: function(url) {
-        alert("Should open link: " + url);
+        window.open(url);
     },
 
     openEMail: function(subject, text) {
-        alert("Should start email: " + subject);
+		window.open("mailto:?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(text));
     },
 
     openMessaging: function(text) {
-        alert("Should open messaging: " + text);
     },
 
 	openMainView: function() {
