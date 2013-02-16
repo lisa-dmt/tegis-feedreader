@@ -33,7 +33,8 @@ enyo.kind({
 
 	create: function() {
 		this.inherited(arguments);
-		this.activity = window.MozActivity;
+		if(enyo.platform.firefoxOS)
+			this.activity = window.MozActivity;
 		if(!this.activity)
 			this.log("APPHELPER> No Acitivity support");
 	},
@@ -96,12 +97,27 @@ enyo.kind({
 
 	cookieName:	"comtegi-stuffAppFeedReaderAlarms",
 
+	components:	[{
+		kind:	"FirefoxConnectionChecker",
+		name:	"connChecker"
+	}],
+
+	getCookieData: function() {
+		var cookie = enyo.getCookie(this.cookieName);
+		if(!cookie)
+			return {};
+		return enyo.json.parse(cookie);
+	},
+
 	setTimer: function() {
 		if(!window.navigator.mozAlarms) {
 			this.warn("FXOSTIMER> No mozAlarms available, unable to schedule updates");
 			return;
 		}
 
+		var self = this;
+		var haveConnection;
+		var errorCount = this.getCookieData().error || 0;
 		if(!enyo.windowParams || enyo.windowParams.action != "feedUpdate" ||
 			enyo.application.prefs.updateInterval == 0) {
 			this.clearTimer();
@@ -110,52 +126,68 @@ enyo.kind({
 		if(enyo.application.prefs.updateInterval == 0)
 			return;
 
-		var alarmTime = new Date((new Date()).getTime() + enyo.application.prefs.updateInterval * 60000);
-		var request = window.navigator.mozAlarms.add(alarmTime, "ignoreTimezone", { action: "feedUpdate" });
-		var self = this;
-		request.onsuccess = function (event) {
-			self.log("FXOSTIMER> alarm scheduled, ID:", event.target.result);
-			enyo.setCookie(self.cookieName, enyo.json.stringify({
-				id:	event.target.result
-			}));
-		};
-		request.onerror = function (e) { self.error("FXOSTIMER> Failed to setup alarm", e.target.error.name); };
+		function scheduleAlarm(when) {
+			var request = window.navigator.mozAlarms.add(when, "ignoreTimezone", { action: "feedUpdate" });
+			request.onsuccess = function (event) {
+				self.log("FXOSTIMER> alarm scheduled, ID:", event.target.result);
+				enyo.setCookie(self.cookieName, enyo.json.stringify({
+					id:		event.target.result,
+					error:	errorCount
+				}));
+			};
+			request.onerror = function (e) { self.error("FXOSTIMER> Failed to setup alarm", e.target.error.name); };
+		}
+
+		var regularScheduleTime = new Date((new Date()).getTime() + enyo.application.prefs.updateInterval * 60000);
+		if(enyo._haveConnection === undefined)
+			enyo._haveConnection = fxOSHaveConnection();
+		if(enyo._haveConnection) {
+			errorCount = 0;
+			scheduleAlarm(regularScheduleTime);
+		} else {
+			if(++errorCount >= 3) {
+				errorCount = 0;
+				scheduleAlarm(regularScheduleTime);
+			} else {
+				self.log("FXOSTIMER> No connection; scheduling alarm in 10 seconds");
+				scheduleAlarm(new Date((new Date()).getTime() + 10000));
+			}
+		}
 	},
 
 	clearTimer: function() {
-		try {
-			var cookie = enyo.getCookie(this.cookieName);
-			if(!cookie)
-				return;
-			var alarms = enyo.json.parse(cookie);
-			if(alarms.id) {
-				navigator.mozAlarms.remove(alarms.id);
-				this.log("FXOSTIMER> Unscheduled alarm", alarms.id);
-			}
-			enyo.setCookie(this.cookieName, "{}");
-		} finally {
-			this.firstRun = false;
+		var alarms = this.getCookieData();
+		if(alarms.id) {
+			navigator.mozAlarms.remove(alarms.id);
+			this.log("FXOSTIMER> Unscheduled alarm", alarms.id);
 		}
+		enyo.setCookie(self.cookieName, "{}");
 	}
 });
+
+function fxOSHaveConnection() {
+	var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+	if(!connection) {
+		enyo.asyncMethod(this, onSuccess);
+	} else if(connection.bandwidth > 0) {
+		if(connection.bandwidth !== Infinity || navigator.onLine) {
+			return true;
+		} else {
+			return false;
+		}
+	} else {
+		return false;
+	}
+}
 
 enyo.kind({
 	name:   "FirefoxConnectionChecker",
 	kind:   enyo.Component,
 
 	checkConnection: function(onSuccess, onFail) {
-		var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-		if(!connection) {
+		if(fxOSHaveConnection()) {
 			enyo.asyncMethod(this, onSuccess);
-		} else if(connection.bandwidth > 0) {
-			if(connection.bandwidth !== Infinity || navigator.onLine) {
-				enyo.asyncMethod(this, onSuccess);
-			} else {
-				enyo.log("CONNCHECKER> No internet connection at the moment");
-				enyo.asyncMethod(this, onFail);
-			}
 		} else {
-			enyo.log("CONNCHECKER> No internet connection at the moment");
 			enyo.asyncMethod(this, onFail);
 		}
 	}
@@ -195,6 +227,7 @@ function applyFirefoxSpecifics() {
 
 	if(navigator.mozSetMessageHandler) {
 		navigator.mozSetMessageHandler("alarm", function (message) {
+			enyo._haveConnection = fxOSHaveConnection();
 			if(enyo.application && enyo.application.feeds) {
 				enyo.application.feeds.enqueueUpdateAll();
 				enyo.application.timer.setTimer();
