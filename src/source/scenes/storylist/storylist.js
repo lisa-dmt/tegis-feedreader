@@ -324,7 +324,6 @@ enyo.kind({
 	//
 
 	sortClicked: function(sender, event) {
-		this.log("OPENING SORT MENU");
 		var isAggregation = (this.feed.feedType == feedTypes.ftAllItems) ||
 			(this.feed.feedType == feedTypes.ftStarred);
 
@@ -343,7 +342,6 @@ enyo.kind({
 			this.$.orderByDateItem.addRemoveClass(this.selectionClass, (this.feed.sortMode & 0x0100) != 0);
 		}
 
-		this.log("OPENING SORT MENU NOW");
 		enyo.openMenuAtEvent(this.$.sortMenu, sender, event);
 	},
 
@@ -491,8 +489,12 @@ enyo.kind({
 		}
 	},
 
-	spoolerRunningChanged: function(state) {
-		this.$.refreshButton.setDisabled(state || !this.feed || !this.feed.enabled);
+	spoolerRunningChanged: function(sender, event) {
+		this.$.refreshButton.setDisabled(event.state || !this.feed || !this.feed.enabled);
+		if(!event.state) {
+			this.log("STORYLIST> Spooler finished; refreshing");
+			this.refresh();
+		}
 	},
 
 	//
