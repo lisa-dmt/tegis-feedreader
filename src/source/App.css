@@ -184,8 +184,14 @@
 	width: 100%;
 	box-sizing: border-box;
 	-moz-box-sizing: border-box;
+	padding: 0;
+	display: table;
+}
+
+.list-item-swiped > .inner {
+	display: table-cell;
+	vertical-align: middle;
 	text-align: center;
-	padding-left: 0;
 }
 
 .dialog-header {
