@@ -127,6 +127,7 @@ enyo.kind({
                 action.execute();
 			} else {
 				if(this.actionRunning) {
+					this.log("SPOOLER> All spooled activities processed");
 					enyo.Signals.send("onSpoolerRunningChanged", { state: false });
 				}
 				this.actionRunning = false;
