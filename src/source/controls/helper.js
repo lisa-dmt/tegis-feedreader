@@ -101,11 +101,11 @@ enyo.kind({
 });
 
 function useTopBackButton() {
-	return true; //isFirefox() && !showGrabButtons();
+	return isFirefox() && !showGrabButtons();
 }
 
 function showGrabButtons() {
-	return false;// !enyo.Panels.isScreenNarrow();
+	return !enyo.Panels.isScreenNarrow();
 }
 
 enyo.kind({
@@ -210,15 +210,18 @@ enyo.kind({
 	},
 
 	components:	[{
-		kind:		onyx.Button,
-		classes:	"onyx-negative",
-		content:	$L("Delete"),
-		ontap:		"deleteTap"
-	}, {
-		kind:		onyx.Button,
-		classes:	"onyx-affirmative",
-		content:	$L("Cancel"),
-		ontap:		"cancelTap"
+		classes:	"inner",
+		components:	[{
+			kind:		onyx.Button,
+			classes:	"onyx-negative",
+			content:	$L("Delete"),
+			ontap:		"deleteTap"
+		}, {
+			kind:		onyx.Button,
+			classes:	"onyx-affirmative",
+			content:	$L("Cancel"),
+			ontap:		"cancelTap"
+		}]
 	}],
 
 	deleteTap: function() {
