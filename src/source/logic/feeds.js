@@ -204,6 +204,7 @@ enyo.kind({
 		}
 
         this.notifyOfUpdate(feed, false);
+		this.log("FEEDS> Finished updating feed", feed.url);
 		enyo.application.spooler.nextAction();
 	},
 
@@ -218,6 +219,7 @@ enyo.kind({
 		var feed = sender.feed;
 		try {
 			var error = "";
+			var ignore = (!sender.xhr) || (sender.xhr.status == 0);
 			switch(sender.xhr ? sender.xhr.status : 0) {
 				case 400:
 					error = $L("Bad Request");
@@ -245,11 +247,13 @@ enyo.kind({
 					}
 					break;
 			}
-			this.warn("FEEDS> Feed", feed.url, "is defect; error:", error);
-			if (this.changingFeed) {
-				enyo.application.db.disableFeed(feed);
-				enyo.application.showError($L("The Feed '{$title}' could not be retrieved. The server responded: {$err}. The Feed was automatically disabled."),
-										   { title: feed.url, err: error} );
+			if(!ignore) {
+				this.warn("FEEDS> Feed", feed.url, "is defect; error:", error);
+				if (this.changingFeed) {
+					enyo.application.db.disableFeed(feed);
+					enyo.application.showError($L("The Feed '{$title}' could not be retrieved. The server responded: {$err}. The Feed was automatically disabled."),
+											   { title: feed.url, err: error} );
+				}
 			}
 		} catch(e) {
 			this.error("FEEDS EXCEPTION>", e);

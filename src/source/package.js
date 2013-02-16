@@ -14,20 +14,13 @@ enyo.depends(
 	"utils/os/firefox.js",
 	"utils/os/generic.js",
 
-    // Commons
-    "commonjs/constants.js",
-    "commonjs/helper.js",
-    "commonjs/story.js",
-    "commonjs/feed.js",
-	"commonjs/category.js",
-    "commonjs/simplehtmlparser.js",
-    "commonjs/codepages.js",
-    "commonjs/formatting.js",
-    "commonjs/prefs.js",
-    "commonjs/feeds.js",
-    "commonjs/transactionmgr.js",
-    "commonjs/simplehtmlparser.js",
-    "commonjs/helper.js",
+	// Utility functions
+	"utils/constants.js",
+	"utils/formatting.js",
+	"utils/simplehtmlparser.js",
+	"utils/codepages.js",
+    "utils/helper.js",
+    "utils/transactionmgr.js",
 
     // Utilities
     "utils/spooler.js",
@@ -36,10 +29,17 @@ enyo.depends(
 
 	// Models
 	"models/prefs.js",
-	"models/database.js",
-	"models/indexeddb.js",
-	"models/feeds.js",
-	"models/readitlater.js",
+	"models/category.js",
+	"models/feed.js",
+	"models/story.js",
+
+	// Business logic
+	"logic/feedsprocessor.js",
+	"logic/prefs.js",
+	"logic/database.js",
+	"logic/indexeddb.js",
+	"logic/feeds.js",
+	"logic/readitlater.js",
 
     // Controls
     "controls/toggleitem.js",
@@ -59,15 +59,15 @@ enyo.depends(
     "controls/progressslider.js",
 
     // Scenes
-    "mainview/mainview.js",
-    "feedlist/feedlist.js",
-    "storylist/storylist.js",
-    "story/story.js",
-    "editfeed/editfeed.js",
-    "preferences/preferences.js",
-    "license/license.js",
-    "help/help.js",
-    "importer/importer.js",
+    "scenes/mainview/mainview.js",
+    "scenes/feedlist/feedlist.js",
+    "scenes/storylist/storylist.js",
+    "scenes/story/story.js",
+    "scenes/editfeed/editfeed.js",
+    "scenes/preferences/preferences.js",
+    "scenes/license/license.js",
+    "scenes/help/help.js",
+    "scenes/importer/importer.js",
 
 	// CSS
 	"App.css",

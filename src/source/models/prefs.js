@@ -1,5 +1,8 @@
 /*
- *		source/models/prefs.js - preferences data model
+ *		commonjs/prefs.js - preferences defaults and helper functions
+ *
+ *  This class is used to make the prefs handling between the different versions
+ *  more uniform. The functions here are completely framework agnostic.
  */
 
 /* FeedReader - A RSS Feed Aggregator for Palm WebOS
@@ -20,42 +23,60 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-enyo.kind({
-	name:						"Prefs",
-	kind:						"Component",
+function DefaultPrefs() {
+}
 
-	cookieName:					"comtegi-stuffAppFeedReaderPrefs",
-	timer: 						null,
+DefaultPrefs.prototype = {
+    updateInterval:				30,
+    storyKeepTime:				24 * 3,
+    updateOnStart:				true,
+    notificationEnabled:		true,
+    notifyWithSound:			false,
+    blinkingEnabled:			true,
+    notifyWhileRunning:			true,
+    unobtrusiveNotifications:	true,
+    wakingEnabled:				false,
+    titleColor:					"black",
+    summaryLength: 				120,
+    largeFont: 					false,
+    showNewCount:               true,
+    showUnreadCount:            true,
+    showChanges: 				false,
+    leftHanded: 				true,
+    enableRotation: 			true,
 
-	constructor: function() {
-		this.cookie = enyo.getCookie(this.cookieName);
-	},
+    rilUser: 					"",	// Read it Later
+    rilPassword:				"",
 
-	load: function() {
-        var settings = {};
-		if(this.cookie) {
-			settings = enyo.json.parse(this.cookie);
-		}
-        var loader = new PrefsLoader(settings, enyo.application.versionInt);
-        loader.loadInto(this);
-	},
+    gReaderUser:				"",	// Google Reader
+    gReaderPassword:			""
+};
 
-	save: function(showCredentialsWarning) {
-        var settings = {};
-        var saver = new PrefsSaver(this, enyo.application.versionInt);
-        saver.saveInto(settings);
-		enyo.setCookie(this.cookieName, enyo.json.stringify(settings));
-		enyo.application.timer.setTimer();
-		enyo.application.ril.checkCredentials(showCredentialsWarning);
-	},
+function _copyPrefs(source, target) {
+    var defaults = new DefaultPrefs();
+    for(key in defaults) {
+        var sourceSetting = source[key];
+        target[key] = sourceSetting !== undefined ? sourceSetting : defaults[key];
+    }
+}
 
-	getCSSTitleColor: function() {
-		switch(this.titleColor) {
-			case "purple":
-				return "#800080";
+function PrefsLoader(source) {
+    this.source = source;
+}
 
-			default:
-				return this.titleColor || "black";
-		}
-	}
-});
+PrefsLoader.prototype.loadInto = function(target, currentVersion) {
+    _copyPrefs(this.source, target);
+    if(this.source.version < currentVersion) {
+        target.showChanges = true;
+        target.save(false);
+    }
+};
+
+function PrefsSaver(source) {
+    this.source = source;
+}
+
+PrefsSaver.prototype.saveInto = function(target, currentVersion) {
+    _copyPrefs(this.source, target);
+    target["version"] = currentVersion;
+};

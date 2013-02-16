@@ -252,6 +252,9 @@ enyo.kind({
 	},
 
 	isItemSwipeable: function(sender, event) {
+		return true;
+
+
 		var index;
 		if((index = this.indexFromEvent(event)) === false)
 			return false;
@@ -395,6 +398,7 @@ enyo.kind({
 	spoolerRunningChanged: function(sender, event) {
 		this.$.refreshButton.setDisabled(event.state);
         if(!event.state) {
+			this.log("FEEDLIST> Spooler finished; refreshing");
             this.refresh();
         }
 	},

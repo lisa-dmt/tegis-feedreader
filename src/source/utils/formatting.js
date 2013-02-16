@@ -93,7 +93,7 @@ Formatting.prototype.reformatSummary = function(summary) {
 
 		return summary;
 	} catch(e) {
-		LogException(e, "FORMAT EXCEPTION>")
+		enyo.error("FORMAT EXCEPTION>", e);
 	}
 	return "";
 };

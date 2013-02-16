@@ -21,10 +21,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-function LogException(exception, message) {
-	enyo.error(message, exception);
-}
-
 function PrependHyperLinks(node, scope, handler) {
     if(!node) {
         return;
