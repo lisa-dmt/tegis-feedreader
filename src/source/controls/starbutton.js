@@ -21,41 +21,55 @@
  */
 
 enyo.kind({
-	name:		"StarButton",
-	kind:		"onyx.IconButton",
+	name:		"ListStarButton",
+	kind:		onyx.IconButton,
 
-    src:	    "assets/lists/star-icon.png",
+	src:	    "assets/lists/star-icon.png",
 
-	published:	{
-		checked:	false
+	handlers:	{
+		ontap:	"tapped"
 	},
 
 	events:		{
 		onChange:	""
 	},
 
-	handlers:	{
-		ontap:	"tapped"
-	},
-
-	checkedChanged: function() {
-		var image = "assets/lists/" + (this.checked ? "starred-icon.png" : "star-icon.png");
+	updateState: function(checked) {
+		var image = "assets/lists/" + (checked ? "starred-icon.png" : "star-icon.png");
 		this.setSrc(image);
 	},
 
 	tapped: function(sender, event) {
-		// Prevent any further handling. As a result, no
-		// 'onclick'/'ontap' event will be triggered. Instead, we
-		// fire the custom 'onChange' event here.
 		if(!this.disabled) {
-			this.setChecked(!this.checked);
+			this.toggled();
 			this.doChange(event);
 		}
 		return true;
 	},
 
+	toggled: function() {
+	}
+});
+
+enyo.kind({
+	name:		"StarButton",
+	kind:		ListStarButton,
+
+	published:	{
+		checked:	false
+	},
+
+	toggled: function() {
+		this.setChecked(!this.checked);
+		this.updateState(this.checked);
+	},
+
+	checkedChanged: function() {
+		this.updateState(this.checked);
+	},
+
 	create: function() {
 		this.inherited(arguments);
-		this.checkedChanged();
+		this.updateState(this.checked);
 	}
 });
