@@ -81,9 +81,6 @@ enyo.kind({
 		feeds.createIndex("feedOrder", "feedOrder", { unique: false });
 
 		stories.createIndex("fid", "fid", { unique: false });
-		stories.createIndex("isNew", "isNew", { unique: false });
-		stories.createIndex("isRead", "isRead", { unique: false });
-		stories.createIndex("isStarred", "isStarred", { unique: false });
 
 		// Create default objects.
 		categories.add(new Category({ title: "Uncategorized", catOrder: 0 }));
@@ -242,7 +239,7 @@ enyo.kind({
 		var cats = this.readTransaction(["categories"], function() {
 			onSuccess(result);
 		}, onFail).objectStore("categories");
-		cats.index("feedOrder").openCursor().onsuccess = function(event) {
+		cats.index("catOrder").openCursor().onsuccess = function(event) {
 			var cursor = event.target.result;
 			if(cursor) {
 				var cat = cursor.value;
@@ -594,10 +591,10 @@ enyo.kind({
 						return null;
 					}
 					for(var i = 0; i < data.length; i++) {
-						var feed = getFeed(data[i].fid);
-						data[i].feedType = feed.feedType;
-						data[i].feedTitle = feed.title;
-						data[i].feedOrder = feed.feedOrder;
+						var aFeed = getFeed(data[i].fid);
+						data[i].feedType = aFeed.feedType;
+						data[i].feedTitle = aFeed.title;
+						data[i].feedOrder = aFeed.feedOrder;
 					}
 					if((feed.sortMode & 0xFF00) != 0x0100) {
 						data.sort(feedOrderSort);
@@ -613,8 +610,6 @@ enyo.kind({
 
 		switch(feed.feedType) {
 			case feedTypes.ftStarred:
-				request = request.index("isStarred").openCursor();
-				break;
 			case feedTypes.ftAllItems:
 				request = request.openCursor();
 				break;
@@ -627,10 +622,12 @@ enyo.kind({
 		request.onsuccess = function(event) {
 			var cursor = event.target.result;
 			if(cursor) {
-				if((showMode == 0) ||
-					((showMode == 1) && (!cursor.value.isRead)) ||
-					((showMode == 1) && (!cursor.value.isNew))) {
-					data.push(new Story(cursor.value));
+				if(feed.feedType != feedTypes.ftStarred || cursor.value.isStarred) {
+					if((showMode == 0) ||
+						((showMode == 1) && (!cursor.value.isRead)) ||
+						((showMode == 1) && (!cursor.value.isNew))) {
+						data.push(new Story(cursor.value));
+					}
 				}
 				cursor.continue();
 			}
@@ -656,23 +653,26 @@ enyo.kind({
 
 		switch(feed.feedType) {
 			case feedTypes.ftStarred:
-				request = request.index("isStarred");
+			case feedTypes.ftAllItems:
+				request = request.openCursor();
 				break;
 			default:
-				request = request.index("fid");
+				request = request.index("fid").openCursor(this.boundOnly(feed.id));
 				break;
 		}
 
 		request.openCursor().onsuccess = function(event) {
 			var cursor = event.target.result;
 			if(cursor) {
-				var urls = cursor.value.url;
-				for(var i = 0; i < urls.length; i++) {
-					data.push({
-						title:		urls[i].title,
-						url:		urls[i].href,
-						pubdate:	cursor.value.pubdate
-					});
+				if(feed.feedType != feedTypes.ftStarred || cursor.value.isStarred) {
+					var urls = cursor.value.url;
+					for(var i = 0; i < urls.length; i++) {
+						data.push({
+							title:		urls[i].title,
+							url:		urls[i].href,
+							pubdate:	cursor.value.pubdate
+						});
+					}
 				}
 				cursor.continue();
 			}
@@ -845,9 +845,11 @@ enyo.kind({
 						stories[i].id = allStories[index].id;
 						stories[i].isNew = allStories[index].isNew;
 						stories[i].isRead = allStories[index].isRead;
+						stories[i].isStarred = allStories[index].isStarred;
 					} else {
 						stories[i].isNew = true;
 						stories[i].isRead = false;
+						stories[i].isStarred = false;
 					}
 					storyStore.put(stories[i]);
 				}
@@ -866,24 +868,33 @@ enyo.kind({
 		onSuccess = onSuccess || this.nullData;
 		onFail = onFail || this.errorHandler;
 
-		if(story.isStarred) {
-			onSuccess();
-			return;
-		}
-
 		var transaction = this.writeTransaction(["feeds", "stories"], onSuccess, onFail);
 		var stories = transaction.objectStore("stories");
 
-		story.isStarred = true;
-		stories.put(story);
-		if(!story.isRead || story.isNew) {
-			var deltaUnread = !story.isRead ? 1 : 0;
-			var deltaNew = story.isNew ? 1 : 0;
+		var self = this;
+		stories.get(story.id).onsuccess = function(event) {
+			var original = event.target.result;
+			if(original.isStarred == story.isStarred)
+				return;
 
-			var feeds = transaction.objectStore("feeds");
-			var feedupdater = enyo.bind(this, this.updateFeedCount, feeds, deltaUnread, deltaNew);
-			feeds.index("feedType").get(feedTypes.ftStarred).onsuccess = feedupdater;
-		}
+			original.isStarred = story.isStarred;
+			stories.put(original);
+			if(!story.isRead || story.isNew) {
+				var deltaUnread = !story.isRead ? 1 : 0;
+				var deltaNew = story.isNew ? 1 : 0;
+
+				// If the story was starred before, the counts need to be decreased, so
+				// simply multiply them by -1.
+				if(!story.isStarred) {
+					deltaNew *= -1;
+					deltaUnread *= -1;
+				}
+
+				var feeds = transaction.objectStore("feeds");
+				var feedupdater = enyo.bind(self, self.updateFeedCount, feeds, deltaUnread, deltaNew);
+				feeds.index("feedType").get(feedTypes.ftStarred).onsuccess = feedupdater;
+			}
+		};
 	},
 
 	/**
