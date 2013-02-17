@@ -22,7 +22,7 @@
 
 enyo.kind({
 	name:			"StoryList",
-	kind:			"ListViewSkeleton",
+	kind:			ListViewSkeleton,
 
 	published:	{
 		feed:		undefined,
@@ -36,12 +36,12 @@ enyo.kind({
 	},
 
 	components:	[{
-		kind:		"onyx.Toolbar",
-		layoutKind:	"FittableColumnsLayout",
+		kind:		onyx.Toolbar,
+		layoutKind:	enyo.FittableColumnsLayout,
 		classes:	"toolbar-light",
 		noStretch:	true,
 		components:	[{
-			kind:		"TopSceneControl",
+			kind:		TopSceneControl,
 			ontap:		"doBackClick"
 		}, {
 			name:		"header",
@@ -52,14 +52,14 @@ enyo.kind({
 		name:		"searchBox",
 		showing:	false,
 		components:	[{
-            kind: "onyx.InputDecorator",
+            kind: onyx.InputDecorator,
             components: [{
-                kind:           "onyx.Input",
+                kind:           onyx.Input,
                 name:			"searchInput",
                 onchange:		"filterChanged",
                 onCancel:		"filterCanceled"
             }, {
-                kind: "Image",
+                kind: enyo.Image,
                 src: "assets/search-input-search.png"
             }]
 		}, {
@@ -77,20 +77,20 @@ enyo.kind({
 
 		components: [{
 			name:		"feedDivider",
-			kind:		"Divider"
+			kind:		Divider
 		}, {
 			name:		"timeDivider",
-			kind:		"Divider"
+			kind:		Divider
 		}, {
 			name:		"item",
-			kind:		"onyx.Item",
+			kind:		onyx.Item,
 			layoutKind:	"FittableRowsLayout",
 			onConfirm:	"itemDeleted",
 			ontap:		"itemClicked",
 			components:	[{
 				components: [{
 					name:		"starButton",
-					kind:		"StarButton",
+					kind:		ListStarButton,
 					style:		"float: right",
 					onChange:	"storyStarred"
 				}, {
@@ -112,34 +112,34 @@ enyo.kind({
 		}]
 	}, {
 		name:		"bgContainer",
-		kind:		"FittableColumns",
+		kind:		enyo.FittableColumns,
 		classes:	"nodata-panel",
 		fit:		true
 	}, {
-		kind:		"onyx.Toolbar",
+		kind:		onyx.Toolbar,
 		components:	[{
-			kind:		"BottomSubSceneControl"
+			kind:		BottomSubSceneControl
 		}, {
 			name:		"sortButton",
-			kind:		"onyx.IconButton",
+			kind:		onyx.IconButton,
 			classes:    "float-right tool-button",
 			src:		"assets/toolbars/icon-settings.png",
 			ontap:		"sortClicked"
 		}, {
 			name:		"shareButton",
-			kind:		"onyx.IconButton",
+			kind:		onyx.IconButton,
 			classes:    "float-right tool-button",
 			src:		"assets/toolbars/icon-share.png",
 			ontap:		"shareClicked"
 		}, {
 			name:		"searchButton",
-			kind:		"onyx.IconButton",
+			kind:		onyx.IconButton,
 			classes:    "float-right tool-button",
 			src:		"assets/toolbars/icon-search.png",
 			ontap:		"searchClicked"
 		}, {
 			name:		"refreshButton",
-			kind:		"onyx.IconButton",
+			kind:		onyx.IconButton,
 			classes:    "float-right tool-button",
 			src:		"assets/toolbars/icon-sync.png",
 			ontap:		"refreshClicked"
@@ -148,7 +148,7 @@ enyo.kind({
 
 	tools: [{
 		name:			"shareMenu",
-		kind:			"onyx.Menu",
+		kind:			onyx.Menu,
 		scrolling:		false,
 		floating:		true,
 		components:		[{
@@ -161,7 +161,7 @@ enyo.kind({
 		}]
 	}, {
 		name:			"sortMenu",
-		kind:			"onyx.Menu",
+		kind:			onyx.Menu,
 		scrolling:		false,
 		floating:		true,
 		components:		[{
@@ -226,7 +226,7 @@ enyo.kind({
 		// Set the contents.
 		this.$.storyTitle.setContent(this.feed.showListCaption ? story.title : "");
 		this.$.storyText.setContent(this.feed.showListSummary ? summary : "");
-		this.$.starButton.setChecked(story.isStarred);
+		this.$.starButton.updateState(story.isStarred);
 
 		this.$.storyTitle.applyStyle("color", enyo.application.prefs.getCSSTitleColor());
 		this.$.storyTitle.applyStyle("font-weight", story.isRead ? "normal" : "bold");
@@ -310,7 +310,8 @@ enyo.kind({
 
 	storyStarred: function(sender, event) {
 		var story = this.items[event.rowIndex];
-		story.isStarred = sender.getChecked();
+		story.isStarred = !story.isStarred;
+		sender.updateState(story.isStarred);
 		enyo.application.feeds.markStarred(story);
 
 		if(this.selectedIndex == event.rowIndex) {
