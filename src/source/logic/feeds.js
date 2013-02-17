@@ -345,7 +345,7 @@ enyo.kind({
 				enyo.application.ril.removeURL(urls[0].href);
 			}
 		};
-		enyo.application.db.getStory(story.id, enyo.bind(this, storyMarker));
+		enyo.application.db.getStory(story.id, storyMarker);
 	},
 
 	/**
