@@ -59,25 +59,20 @@ enyo.kind({
 	 */
 	addAction: function(action, identifier, unique) {
 		try {
+			this.log("SPOOLER> Action action", identifier);
 			if(!identifier) {
 				identifier = "anon-action";
 			}
 
 			if(unique) {
-				var skip = false;
 				if(this.actionIdent == identifier) {
-					skip = true;
+					return;
 				} else {
 					for(var i = 0; i < this.list.length; i++) {
 						if(this.list[i].ident == identifier) {
-							skip = true;
-							break;
+							return;
 						}
 					}
-				}
-
-				if(skip) {
-					return;
 				}
 			}
 
@@ -127,7 +122,6 @@ enyo.kind({
                 action.execute();
 			} else {
 				if(this.actionRunning) {
-					this.log("SPOOLER> All spooled activities processed");
 					enyo.Signals.send("onSpoolerRunningChanged", { state: false });
 				}
 				this.actionRunning = false;
@@ -151,9 +145,9 @@ enyo.kind({
 	 */
 	aboutToClose: function() {
 		try {
-			if(this.hasWork()) {
-				this.log("SPOOLER> creating dashboard");
-				enyo.application.launcher.openUpdateDashboard(true);
+			if(this.hasWork() && enyo.application.helper.canExtendLifetime) {
+				this.log("SPOOLER> trying to extend app lifetime");
+				enyo.application.helper.extendAppLifeTime();
 			}
 		} catch(e) {
 			this.error(e);

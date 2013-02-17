@@ -18,10 +18,11 @@
     "permissions": {
     	"alarms": { "description": "Needed for scheduled feed updates" },
     	"systemXHR": { "description": "Needed for feed retrieval" },
-    	"storage": { "description": "Needed to store feed data" }
+    	"storage": { "description": "Needed to store feed data" },
+    	"desktop-notification": { "description": "Needed show notification about new stories" }
     },
-  "orientation": "portrait-primary",
-  "messages": [{
-  	"alarm": "/index.html"
-  	}]
+	"orientation": "portrait-primary",
+	"messages": [{
+		"alarm": "/index.html"
+	}]
 }

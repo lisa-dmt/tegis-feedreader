@@ -58,6 +58,7 @@ enyo.kind({
         });
         this.getNewCount = enyo.bind(this, this.getNewCount);
         this.enqueueUpdateList = enyo.bind(this, this.enqueueUpdateList);
+		this.postNotification = enyo.bind(this, this.postNotification);
 	},
 
 	/**
@@ -78,7 +79,6 @@ enyo.kind({
             return;
         }
 
-		this.updateInProgress = true;
 		enyo.application.spooler.addAction(enyo.bind(this, this.doUpdateFeed, feed), feed.id, true);
 	},
 
@@ -142,7 +142,6 @@ enyo.kind({
 	haveConnection: function(feed) {
 		try {
 			this.log("FEEDS> Internet connection available, requesting", feed.url);
-			this.updateInProgress = true;
 			this.notifyOfUpdate(feed, true);
             enyo.application.db.beginStoryUpdate(feed);
 
@@ -267,7 +266,7 @@ enyo.kind({
 	 * Get the count of new stories and post a notification.
 	 */
 	getNewCount: function() {
-		enyo.application.db.getNewStoryCount(enyo.bind(this, this.postNotification));
+		enyo.application.db.getNewStoryCount(this.postNotification);
 	},
 
 	/** @private

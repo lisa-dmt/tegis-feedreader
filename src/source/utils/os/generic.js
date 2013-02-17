@@ -27,8 +27,9 @@ enyo.kind({
 	hasHTMLMail:		false,
 	hasEmbeddedVideo:	false,
 	canShareViaIM:		false,
+	canExtendLifetime:	false,
 
-	rendered:		false,
+	rendered:			false,
 
     openLink: function(url) {
         window.open(url);
@@ -49,6 +50,10 @@ enyo.kind({
 
 	afterScheduledUpdate: function() {
 		this.openMainView();
+	},
+
+	notifyAboutNewItems: function(count) {
+		alert("" + count + " new items arrived!");
 	}
 });
 

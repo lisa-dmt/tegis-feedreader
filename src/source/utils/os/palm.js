@@ -27,6 +27,7 @@ enyo.kind({
 	hasHTMLMail:		true,
 	hasEmbeddedVideo:	false,
 	canShareViaIM:		true,
+	canExtendLifetime:	true,
 
     components: [{
         kind: 					"ApplicationEvents",
@@ -75,7 +76,63 @@ enyo.kind({
     },
 
 	afterScheduledUpdate: function() {
-	}
+	},
+
+	extendAppLifeTime: function(force) {
+		this.openUpdateDashboard(force);
+	},
+
+	notifyAboutNewItems: function(count) {
+		this.openItemDashboard(count);
+	},
+
+	//
+	// Dashboard and card handling
+	//
+
+	openItemDashboard: function(newCount) {
+		if(enyo.application.mainView && (!enyo.application.prefs.notifyWhileRunning)) {
+			return undefined;
+		}
+
+		return this._doOpenDashboard({
+			newCount:	newCount,
+			isUpdate:	false
+		});
+	},
+
+	openUpdateDashboard: function(force) {
+		var dbWindow = enyo.windows.fetchWindow("dashboard");
+		if(dbWindow) {
+			return dbWindow;
+		}
+		return this._doOpenDashboard({
+			newCount:	-1,
+			isUpdate:	true
+		}, force);
+	},
+
+	_doOpenDashboard: function(params, force) {
+		if(!force && enyo.application.isActive) {
+			return undefined;
+		}
+
+		enyo.application.updateDashboardVisible = params.isUpdate;
+		return enyo.windows.openDashboard("source/dashboard/index.html", "dashboard", params);
+	},
+
+	closeDashboard: function() {
+		var dbWindow = enyo.windows.fetchWindow("dashboard");
+		if(dbWindow) {
+			dbWindow.close();
+		}
+	},
+
+	closeUpdateDashboard: function() {
+		if(enyo.application.updateDashboardVisible) {
+			this.closeDashboard();
+		}
+	},
 });
 
 enyo.kind({

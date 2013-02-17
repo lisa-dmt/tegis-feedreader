@@ -555,14 +555,15 @@ enyo.kind({
 		onFail = onFail || this.errorHandler;
 
 		var count = 0;
-		var stories = this.readTransaction(["stories"], function() {
-			onSuccess(count);
-		}, onFail).objectStore("stories");
-		stories.index("isNew").openCursor().onsuccess = function(event) {
+		var stories = this.readTransaction(["stories"], null, onFail).objectStore("stories");
+		stories.openCursor().onsuccess = function(event) {
 			var cursor = event.target.result;
 			if(cursor) {
-				count++;
+				if(cursor.value.isNew)
+					count++;
 				cursor.continue();
+			} else {
+				onSuccess(count);
 			}
 		};
 	},
@@ -578,7 +579,6 @@ enyo.kind({
 	getStories: function(feed, filter, onSuccess, onFail) {
 		enyo.application.assert(onSuccess, "DB> getStories needs data handler");
 		onFail = onFail || this.errorHandler;
-
 
 		var self = this;
 		var data = [];

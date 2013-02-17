@@ -21,15 +21,57 @@
  */
 
 enyo.kind({
+	name:		"FirefoxNotificationManager",
+	kind:		enyo.Component,
+
+	current:	null,
+
+	show: function(newCount) {
+		if(!('mozNotification' in navigator))
+			return;
+		if(this.current)
+			return;
+
+		var body = enyo.macroize($L("Received {$num} new stories"), { num: newCount });
+		var self = this;
+		var request = navigator.mozApps.getSelf();
+		request.onsuccess = function() {
+			var app = request.result;
+			var iconPath = app.installOrigin + "/icon.png";
+
+			self.current = navigator.mozNotification.createNotification(
+				enyo.application.appName, body,	iconPath);
+			self.current.onclick = function() {
+				app.launch();
+				self.current = null;
+			};
+			self.current.onclose = function() {
+				self.current = null;
+			}
+			self.current.show();
+		};
+	}
+});
+
+enyo.kind({
 	name:   			"FirefoxAppHelper",
 	kind:   			enyo.Component,
 
 	hasHTMLMail:		false,
 	hasEmbeddedVideo:	false,
 	canShareViaIM:		false,
+	canExtendLifetime:	false,
 
 	rendered:			false,
 	activity:			null,
+
+	components:			[{
+		kind:				enyo.Signals,
+		onNewItemsArrived:	"newItemsArrived"
+	}, {
+		name:				"notifier",
+		kind:				FirefoxNotificationManager
+	}],
 
 	create: function() {
 		this.inherited(arguments);
@@ -72,6 +114,11 @@ enyo.kind({
 	afterScheduledUpdate: function() {
 		this.log("APPHELPER> Opening mainview after scheduled update");
 		this.openMainView();
+	},
+
+	newItemsArrived: function(sender, event) {
+		this.log("SHOW NEW ITEMS", event.count);
+		this.$.notifier.show(event.count);
 	},
 
 	_runActivity: function(activity) {
@@ -215,14 +262,11 @@ function applyFirefoxSpecifics() {
 	window.PowerManager = window.FirefoxPowerManager;
 	window.Database = window.IndexedDB;
 
-	if(isFirefox()) {
-		enyo.log("This is Firefox - patching XHR request machanism");
-		enyo.xhr.getXMLHttpRequest = function(inParams) {
-			try {
-				return new XMLHttpRequest({ mozSystem: true });
-			} catch(e) {}
-			return null;
-		}
+	enyo.xhr.getXMLHttpRequest = function(inParams) {
+		try {
+			return new XMLHttpRequest({ mozSystem: true });
+		} catch(e) {}
+		return null;
 	}
 
 	if(navigator.mozSetMessageHandler) {
