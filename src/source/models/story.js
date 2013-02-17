@@ -43,6 +43,11 @@ function Story(proto) {
 		this.pubdate = proto.pubdate;
 		this.flag = proto.flag;
 		this.deleted = proto.deleted;
+		if(proto.url) {
+			for(var i = 0; i < proto.url.length; i++) {
+				this.url.push(new URL(proto.url[i]));
+			}
+		}
 	}
 }
 
@@ -59,3 +64,9 @@ Story.prototype.isStarred = false;
 Story.prototype.pubdate = 0;
 Story.prototype.flag = false;
 Story.prototype.deleted = false;
+Story.prototype.url = [];
+
+function URL(proto) {
+	this.href = proto.href;
+	this.title = proto.title;
+}
