@@ -23,7 +23,6 @@
 enyo.kind({
     name:		"Divider",
     kind:		"Control",
-	layoutKind:	"FittableColumnsLayout",
 	classes:	"divider",
 
 	published:	{
@@ -31,10 +30,15 @@ enyo.kind({
 	},
 
 	components:	[{
-		name:		"caption",
-		classes:	"caption"
-	}, {
-		classes: 	"filler"
+		classes:	"container",
+		components:	[{
+			name:		"caption",
+			classes:	"caption"
+		}, {
+			classes:	"spacer"
+		}, {
+			classes: 	"filler"
+		}]
 	}],
 
 	captionChanged: function() {
