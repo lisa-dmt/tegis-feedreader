@@ -325,7 +325,7 @@ enyo.kind({
 		onFail = onFail || this.errorHandler;
 
 		var feeds = this.writeTransaction(["feeds"], null, onFail).objectStore("feeds");
-		feeds.put(feed).onsuccess = function(event) {
+		feeds.put(new Feed(feed)).onsuccess = function(event) {
 			feed.id = event.target.result;
 			onSuccess(feed);
 		};
@@ -412,6 +412,9 @@ enyo.kind({
 	 */
 	updateFeedCount: function(feeds, deltaUnRead, deltaNew, event) {
 		var feed = event.target.result;
+		if(!feed)
+			return;
+
 		feed.numUnRead += deltaUnRead;
 		feed.numNew += deltaNew;
 		feeds.put(feed);
@@ -625,7 +628,7 @@ enyo.kind({
 				if(feed.feedType != feedTypes.ftStarred || cursor.value.isStarred) {
 					if((showMode == 0) ||
 						((showMode == 1) && (!cursor.value.isRead)) ||
-						((showMode == 1) && (!cursor.value.isNew))) {
+						((showMode == 2) && (cursor.value.isNew))) {
 						data.push(new Story(cursor.value));
 					}
 				}
@@ -649,7 +652,7 @@ enyo.kind({
 		var request = this.readTransaction(["stories"], function() {
 			data.sort(pubdateSort);
 			onSuccess(data);
-		}, onFail);
+		}, onFail).objectStore("stories");
 
 		switch(feed.feedType) {
 			case feedTypes.ftStarred:
@@ -765,12 +768,15 @@ enyo.kind({
 			var deltaNew = newNewCount - oldNewCount;
 
 			// Update feed aggregations.
-			feeds.index("feedType").get(feedTypes.ftAllItems).onsuccess = enyo.bind(self, self.updateFeedCount,
-																					feeds, deltaUnread, deltaNew);
-			if((unreadStarDelta > 0) || (newStarDelta > 0))
+			if((deltaUnread > 0) || (deltaNew > 0)) {
+				feeds.index("feedType").get(feedTypes.ftAllItems).onsuccess = enyo.bind(self, self.updateFeedCount,
+																						feeds, deltaUnread, deltaNew);
+			}
+			if((unreadStarDelta > 0) || (newStarDelta > 0)) {
 				feeds.index("feedType").get(feedTypes.ftStarred).onsuccess = enyo.bind(self, self.updateFeedCount,
 																					   feeds, -unreadStarDelta,
 																					   -newStarDelta);
+			}
 		}
 
 		stories.index("fid").openCursor(this.boundOnly(feed.id)).onsuccess = function(event) {
