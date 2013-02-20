@@ -83,27 +83,36 @@
 /* Specific control styles */
 
 .divider {
-	display: block;
 	width: 100%;
-	line-height: 18px;
 	font-size: 16px;
 	font-weight: bold;
-	padding-top: 4px;
-	padding-left: 6px;
+	padding: 4px 4px 0px 4px;
 	color: #3a8bcb;
-	margin-bottom: -2px;
 }
 
-.divider > .caption {
+.divider > .container {
+	width: 100%;
+	display: table-row;
+	line-height: 18px;
+}
+
+.divider > .container > .caption {
+	display: table-cell;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
-.divider > .filler {
+.divider > .container > .spacer {
+	display: table-cell;
+	min-width: 0.5em;
+}
+
+.divider > .container > .filler {
+	display: table-cell;
 	background: url(../assets/divider.png) repeat-x center;
 	height: 16px;
-	margin-left: 4px;
-	width: 100%;
+	width: 99%;
 }
 
 .back-button {
