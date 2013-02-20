@@ -349,7 +349,6 @@ enyo.kind({
 	setSortMode: function(value) {
 		this.feed.sortMode = value;
 		enyo.application.feeds.setSortMode(this.feed);
-		this.refresh();
 	},
 
 	showAll: function() {
