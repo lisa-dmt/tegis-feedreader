@@ -63,19 +63,9 @@ enyo.kind({
             name:					"feedImporter",
             kind:					"FeedImporter",
             onBackClick:			"importerClosed"
-        }]
+		}]
+	}],
 
-
-    /*	}, {
-            name:					"applicationEvents",
-            kind:					"ApplicationEvents",
-
-            onWindowActivated:		"windowActivated",
-            onWindowDeactivated:	"windowDeActivated",
-            onWindowRotated:		"optimizeSpace",
-            onUnload:				"unloaded"*/
-    //	}],
-    }],
 
     tools:  [{
         name:					"errorDialog",
@@ -93,6 +83,13 @@ enyo.kind({
     }, {
         kind:                   enyo.Signals,
         onDbReady:              "dbReady"
+    }, {
+		name:					"applicationEvents",
+		kind:					"ApplicationEvents",
+
+		onWindowActivated:		"windowActivated",
+		onWindowDeactivated:	"windowDeActivated",
+		onUnload:				"unloaded"
     }, {
 		name:					"mainMenu",
 		kind:					"onyx.Menu",
@@ -270,26 +267,22 @@ enyo.kind({
 	//
 
 	windowActivated: function() {
-		this.log("ACTIVATED");
+		this.log("WINDOW ACTIVATED");
 		enyo.application.mainView = this;
 		enyo.application.isActive = true;
 
 		if(enyo.application.db.isReady) {
 			this.dbReady();
 		}
-
-		enyo.application.launcher.closeDashboard();
 	},
 
 	windowDeActivated: function() {
-		this.log("DE-ACTIVATED");
+		this.log("WINDOW DE-ACTIVATED");
 		enyo.application.isActive = false;
 	},
 
 	unloaded: function() {
-		if(!enyo.application.updateDashboardVisible){
-			enyo.application.launcher.closeDashboard();
-		}
+		this.log("CLOSING");
 		enyo.application.spooler.aboutToClose();
 		enyo.application.mainView = undefined;
 	},

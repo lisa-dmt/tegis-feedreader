@@ -85,6 +85,26 @@ enyo.kind({
     }
 });
 
+enyo.kind({
+	name:	"GenericApplicationEvents",
+	kind:	enyo.Component,
+
+	events:	{
+		onWindowActivated:		"",
+		onWindowDeactivated:	"",
+		onUnload:				""
+	},
+
+	create: function() {
+		this.inherited(arguments);
+		var self = this;
+		window.addEventListener("activate", function() { self.log("ACTIVATE"); self.doWindowActivated(); });
+		window.addEventListener("deactivate", function() { self.log("DE-ACTIVATE"); self.doWindowDeactivated() });
+		window.addEventListener("unload", function() { self.log("DIE"); self.doUnload(); });
+		window.addEventListener("sizemodechange", function() { self.log("SIZE MODE", window.windowState); });
+	}
+});
+
 function applyGenericHandlers() {
 	// Unknown host OS/browser
 	enyo.log("OSSPECIFIC> Using generic handlers; platform unkown/unsupported or running in browser");
@@ -93,4 +113,5 @@ function applyGenericHandlers() {
 	window.ConnectionChecker = window.GenericConnectionChecker;
 	window.PowerManager = window.GenericPowerManager;
 	window.Database = window.IndexedDB;
+	window.ApplicationEvents = window.GenericApplicationEvents;
 }

@@ -251,6 +251,33 @@ enyo.kind({
 	}
 });
 
+enyo.kind({
+	name:	"FirefoxApplicationEvents",
+	kind:	enyo.Component,
+
+	events:	{
+		onWindowActivated:		"",
+		onWindowDeactivated:	"",
+		onUnload:				""
+	},
+
+	create: function() {
+		this.inherited(arguments);
+
+		var self = this;
+		var fireEvent = function() {
+			if(document.hidden) {
+				self.doWindowDeactivated();
+			} else {
+				self.doWindowActivated();
+			}
+		};
+		document.addEventListener("visibilitychange", fireEvent);
+		document.addEventListener("unload", function() { self.doUnload(); });
+		enyo.asyncMethod(this, fireEvent);
+	}
+});
+
 function isFirefox() {
 	return enyo.platform.firefox || enyo.platform.firefoxOS;
 }
@@ -261,6 +288,7 @@ function applyFirefoxSpecifics() {
 	window.ConnectionChecker = window.FirefoxConnectionChecker;
 	window.PowerManager = window.FirefoxPowerManager;
 	window.Database = window.IndexedDB;
+	window.ApplicationEvents = window.FirefoxApplicationEvents;
 
 	enyo.xhr.getXMLHttpRequest = function(inParams) {
 		try {
