@@ -9,10 +9,10 @@ enyo.depends(
 	"$lib/g11n",
 
 	// OS specific stuff
+	"utils/os/generic.js",
 	"utils/os/webOSExt.js",
 	"utils/os/palm.js",
 	"utils/os/firefox.js",
-	"utils/os/generic.js",
 
 	// Utility functions
 	"utils/constants.js",
