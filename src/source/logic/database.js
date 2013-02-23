@@ -851,11 +851,12 @@ enyo.kind({
 	/**
 	 * Called to indicate a beginning update.
 	 *
+	 * @param 	transaction	{object}		db transaction
 	 * @param 	feed		{object}		feed object
 	 * @param	onSuccess	{function}		function to be called on success
 	 * @param	onFail		{function}		function to be called on failure
 	 */
-	beginStoryUpdate: function(feed, onSuccess, onFail) {
+	_beginStoryUpdate: function(transaction, feed, onSuccess, onFail) {
 		onSuccess = onSuccess || this.nullData;
 		onFail = onFail || this.errorHandler;
 		var nullData = this.nullData;
@@ -864,55 +865,53 @@ enyo.kind({
 		var keepthreshold = date.getTime() - (enyo.application.prefs.storyKeepTime * 60 * 60 * 1000);
 		var newthreshold = date.getTime() - (24 * 60 * 60 * 1000);
 
-		this.writeTransaction(function(transaction) {
-			transaction.executeSql("UPDATE stories" +
-								   "  SET isNew = 0" +
-								   "  WHERE (isRead = 1" +
-								   "    OR pubdate < ?)" +
-								   "    AND fid = ?",
-								   [newthreshold, feed.id],
-								    nullData, onFail);
-			transaction.executeSql("UPDATE stories" +
-								   "  SET flag = 1" +
-								   "  WHERE isStarred = 0"+
-								   "    AND (isRead = 1" +
-								   "    OR pubdate < ?)" +
-								   "    AND fid = ?",
-								   [keepthreshold, feed.id], onSuccess, onFail);
-		});
+		transaction.executeSql("UPDATE stories" +
+							   "  SET isNew = 0" +
+							   "  WHERE (isRead = 1" +
+							   "    OR pubdate < ?)" +
+							   "    AND fid = ?",
+							   [newthreshold, feed.id],
+								nullData, onFail);
+		transaction.executeSql("UPDATE stories" +
+							   "  SET flag = 1" +
+							   "  WHERE isStarred = 0"+
+							   "    AND (isRead = 1" +
+							   "    OR pubdate < ?)" +
+							   "    AND fid = ?",
+							   [keepthreshold, feed.id], onSuccess, onFail);
 	},
 
 	/**
 	 * Called to indicate a finished update.
 	 *
+	 * @param 	transaction	{object}		db transaction
 	 * @param 	feed		{object}		feed object
 	 * @param	successful	{bool}			update was successful?
 	 * @param	onSuccess	{function}		function to be called on success
 	 * @param	onFail		{function}		function to be called on failure
 	 */
-	endStoryUpdate: function(feed, successful, onSuccess, onFail) {
+	_endStoryUpdate: function(transaction, feed, successful, onSuccess, onFail) {
 		onSuccess = onSuccess || this.nullData;
 		onFail = onFail || this.errorHandler;
 
-		this.writeTransaction(function(transaction) {
-			if(successful) {
-				transaction.executeSql("DELETE FROM stories" +
-									   "  WHERE flag = 1" +
-									   "    AND isStarred = 0" +
-									   "    AND fid = ?",
-									   [feed.id], onSuccess, onFail);
-			} else {
-				transaction.executeSql("UPDATE stories" +
-									   "  SET flag = 0" +
-									   "  WHERE fid = ?",
-									   [feed.id], onSuccess, onFail);
-			}
-		});
+		if(successful) {
+			transaction.executeSql("DELETE FROM stories" +
+								   "  WHERE flag = 1" +
+								   "    AND isStarred = 0" +
+								   "    AND fid = ?",
+								   [feed.id], onSuccess, onFail);
+		} else {
+			transaction.executeSql("UPDATE stories" +
+								   "  SET flag = 0" +
+								   "  WHERE fid = ?",
+								   [feed.id], onSuccess, onFail);
+		}
 	},
 
 	/**
 	 * Add or edit a story.
 	 *
+	 * @param 	transaction	{object}		db transaction
 	 * @param 	feed		{object}		feed object
 	 * @param	story		{Object}		story object
 	 * @param	onSuccess	{function}		function to be called on success
@@ -975,22 +974,32 @@ enyo.kind({
         onFail);
 	},
 
-    /**
-     *
-     * @param feed          {object}    feed to which the stories belong
-     * @param stories       {Array}     Stories to be inserted or updated
-     * @param onSuccess     {function}  function to call on success
-     * @param onFail        {function}  function to call on failure
-     */
-    updateStories: function(feed, stories, onSuccess, onFail) {
+
+	/**
+	 * Called update the feed, when new stories have arrived.
+	 *
+	 * @param 	feed			{object}		feed object
+	 * @param 	stories			{Array}			stories received
+	 * @param 	wasSuccesful	{bool}			indicate whether the retrieval was successful
+	 * @param	onSuccess		{function}		function to be called on success
+	 * @param	onFail			{function}		function to be called on failure
+	 */
+	updateStories: function(feed, stories, wasSuccesful, onSuccess, onFail) {
         onSuccess = onSuccess || this.nullData;
         onFail = onFail || this.errorHandler;
 
         var self = this;
         this.writeTransaction(function(transaction) {
-            for(var i = 0; i < stories.length; i++) {
-                self._addOrEditStory(transaction, feed, stories[i], onSuccess, onFail);
-            }
+			self._beginStoryUpdate(transaction, feed, function() {
+				if(wasSuccesful) {
+					for(var i = 0; i < stories.length; i++) {
+						self._addOrEditStory(transaction, feed, stories[i], self.nullData);
+					}
+				}
+				self._endStoryUpdate(transaction, feed, wasSuccesful, onSuccess, onFail)
+			}, function() {
+				onFail();
+			})
         });
     },
 

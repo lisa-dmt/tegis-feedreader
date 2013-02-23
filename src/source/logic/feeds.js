@@ -143,7 +143,6 @@ enyo.kind({
 		try {
 			this.log("FEEDS> Internet connection available, requesting", feed.url);
 			this.notifyOfUpdate(feed, true);
-            enyo.application.db.beginStoryUpdate(feed);
 
 			var ajax = new enyo.Ajax({
 				feed:		feed,
@@ -185,7 +184,6 @@ enyo.kind({
 			if(response === null) {
 				if(sender.xhr.responseText.length <= 0) {
 					this.log("FEEDS> No response at all... maybe no connection available");
-					enyo.application.db.endStoryUpdate(feed, false);
 					enyo.application.spooler.nextAction();
 					return;
 				} else if(sender.xhr.responseText !== null) {
@@ -199,7 +197,6 @@ enyo.kind({
             this.processor.parseFeed(enyo.application.db, feed, type, response, sender.xhr.getResponseHeader("Content-Type"));
 		} catch(e) {
 			this.error("FEEDS EXCEPTION>", e);
-			enyo.application.db.endStoryUpdate(feed, false);
 		}
 
         this.notifyOfUpdate(feed, false);
@@ -257,7 +254,6 @@ enyo.kind({
 		} catch(e) {
 			this.error("FEEDS EXCEPTION>", e);
 		}
-		enyo.application.db.endStoryUpdate(feed, false);	// Don't delete old storys.
 		enyo.application.spooler.nextAction();
 	},
 

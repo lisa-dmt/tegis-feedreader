@@ -702,162 +702,129 @@ enyo.kind({
 		}
 	},
 
+	_findStory: function(allStories, storyToFind) {
+		for(var i = 0; i < allStories.length; i++) {
+			if(allStories[i].uuid == storyToFind.uuid)
+				return i;
+		}
+		return undefined;
+	},
+
 	/**
-	 * Called to indicate a beginning update.
+	 * Called update the feed, when new stories have arrived.
 	 *
-	 * @param 	feed		{object}		feed object
-	 * @param	onSuccess	{function}		function to be called on success
-	 * @param	onFail		{function}		function to be called on failure
+	 * @param 	feed			{object}		feed object
+	 * @param 	stories			{Array}			stories received
+	 * @param 	wasSuccesful	{bool}			indicate whether the retrieval was successful
+	 * @param	onSuccess		{function}		function to be called on success
+	 * @param	onFail			{function}		function to be called on failure
 	 */
-	beginStoryUpdate: function(feed, onSuccess, onFail) {
+	updateStories: function(feed, stories, wasSuccesful, onSuccess, onFail) {
 		onSuccess = onSuccess || this.nullData;
 		onFail = onFail || this.errorHandler;
-		var nullData = this.nullData;
 
+		var self = this, storiesToDelete = [], i;
+		var deltaNew = 0, deltaUnread = 0;
+		var starDeltaNew = 0, starDeltaUnread = 0;
 		var date = new Date();
 		var keepthreshold = date.getTime() - (enyo.application.prefs.storyKeepTime * 60 * 60 * 1000);
 		var newthreshold = date.getTime() - (24 * 60 * 60 * 1000);
 
-		var stories = this.writeTransaction(["stories"], onSuccess, onFail).objectStore("stories")
-		stories.index("fid").openCursor(this.boundOnly(feed.id)).onsuccess = function(event) {
-			var cursor = event.target.result;
-			if(cursor) {
-				var story = cursor.value;
-				if((story.pubdate < newthreshold) && (story.isRead == 1))
-					story.isNew = 0;
-				if((story.isStarred == 0) && ((story.isRead == 1) || (story.pubdate < keepthreshold)))
-					story.flag = 1;
-				stories.put(story);
-				cursor.continue();
-			}
-		}
-	},
-
-	/**
-	 * Called to indicate a finished update.
-	 *
-	 * @param 	feed		{object}		feed object
-	 * @param	successful	{bool}			update was successful?
-	 * @param	onSuccess	{function}		function to be called on success
-	 * @param	onFail		{function}		function to be called on failure
-	 */
-	endStoryUpdate: function(feed, successful, onSuccess, onFail) {
-		onSuccess = onSuccess || this.nullData;
-		onFail = onFail || this.errorHandler;
-
-		var newUnreadCount = 0, unreadStarDelta = 0;
-		var newNewCount = 0, newStarDelta = 0;
-
-		var self = this;
 		var transaction = this.writeTransaction(["stories", "feeds"], onSuccess, onFail);
-		var stories = transaction.objectStore("stories");
-		var feeds = transaction.objectStore("feeds");
-
-		function updateFeed(event) {
-			var oldFeed = event.target.result;
-			var oldUnreadCount = oldFeed.numUnRead;
-			var oldNewCount = oldFeed.numNew;
-
-			// Update feed information.
-			oldFeed.numUnRead = feed.numUnRead = newUnreadCount;
-			oldFeed.numNew = feed.numNew = newNewCount;
-			feeds.put(oldFeed);
-
-			// Calculate delta.
-			var deltaUnread = newUnreadCount - oldUnreadCount;
-			var deltaNew = newNewCount - oldNewCount;
-
-			// Update feed aggregations.
-			if((deltaUnread > 0) || (deltaNew > 0)) {
-				feeds.index("feedType").get(feedTypes.ftAllItems).onsuccess = enyo.bind(self, self.updateFeedCount,
-																						feeds, deltaUnread, deltaNew);
-			}
-			if((unreadStarDelta > 0) || (newStarDelta > 0)) {
-				feeds.index("feedType").get(feedTypes.ftStarred).onsuccess = enyo.bind(self, self.updateFeedCount,
-																					   feeds, -unreadStarDelta,
-																					   -newStarDelta);
-			}
-		}
-
-		stories.index("fid").openCursor(this.boundOnly(feed.id)).onsuccess = function(event) {
-			var cursor = event.target.result;
-			if(cursor) {
-				var story = cursor.value;
-				if(story.flag) {
-					if(successful) {
-						stories.delete(story.id);
-					} else {
-						delete story.flag;
-						stories.put(story);
-						if(story.isStarred) {
-							if(!story.isRead)
-								unreadStarDelta++;
-							if(story.isNew)
-								newStarDelta++;
-						}
-					}
-				}
-				if(!story.flag || !successful) {
-					if(story.isNew)
-						newNewCount++;
-					if(!story.isRead)
-						newUnreadCount++;
-				}
-				cursor.continue();
-			} else {
-				feeds.get(feed.id).onsuccess = updateFeed;
-			}
-		}
-	},
-
-	/**
-	 *
-	 * @param feed          {object}    feed to which the stories belong
-	 * @param stories       {Array}     Stories to be inserted or updated
-	 * @param onSuccess     {function}  function to call on success
-	 * @param onFail        {function}  function to call on failure
-	 */
-	updateStories: function(feed, stories, onSuccess, onFail) {
-		onSuccess = onSuccess || this.nullData;
-		onFail = onFail || this.errorHandler;
-
-		var transaction = this.writeTransaction(["feeds", "stories"], onSuccess, onFail);
-		var feeds = transaction.objectStore("feeds");
 		var storyStore = transaction.objectStore("stories");
+		var feedStore = transaction.objectStore("feeds");
 
-		var allStories = [];
-
-		// Helper function.
-		function findStory(story) {
-			for(var i = 0; i < allStories.length; i++) {
-				if(allStories[i].uuid == story.uuid)
-					return i;
-			}
-			return undefined;
-		}
-
-		// Collect all stories and when we have them, update existing stories
-		// and insert new ones.
 		storyStore.index("fid").openCursor(this.boundOnly(feed.id)).onsuccess = function(event) {
 			var cursor = event.target.result;
 			if(cursor) {
-				allStories.push(cursor.value);
-				cursor.continue();
-			} else {
-				for(var i = 0; i < stories.length; i++) {
-					stories[i].fid = feed.id;
-					var index = findStory(allStories[i]);
-					if(index !== undefined) {
-						stories[i].id = allStories[index].id;
-						stories[i].isNew = allStories[index].isNew;
-						stories[i].isRead = allStories[index].isRead;
-						stories[i].isStarred = allStories[index].isStarred;
+				var story = cursor.value;
+
+				// Check, whether the story is still in the feed.
+				var newStoryIndex = self._findStory(stories, story);
+				if((story.pubdate < keepthreshold) && (!story.isStarred) && wasSuccesful) {
+					// Do story count accounting. The star counts won't be bothered,
+					// as starred stories won't be deleted.
+					if(story.isNew)
+						deltaNew--;
+					if(!story.isRead)
+						deltaUnread--;
+
+					// The story is old and not starred, it should no longer be displayed.
+					// If the story is still in the feed, we mark it deleted, otherwise we
+					// delete it from the database.
+					if(newStoryIndex !== undefined) {
+						story.deleted = 1;
+						stories.put(story);
 					} else {
-						stories[i].isNew = true;
-						stories[i].isRead = false;
-						stories[i].isStarred = false;
+						storiesToDelete.push(story);
 					}
+				} else {
+					if(newStoryIndex !== undefined) {
+						// If the story is still in the feed, remove it from the new stories
+						// array, as we do not need to insert it afterwards.
+						var newStory = stories[newStoryIndex];
+						stories.splice(newStoryIndex, 1);
+
+						// Update the story contents.
+						story.title = newStory.title;
+						story.summary = newStory.summary;
+						story.picture = newStory.picture;
+						story.audio = newStory.audio;
+						story.video = newStory.video;
+						story.url = [];
+						if(newStory.url) {
+							for(i = 0; i < newStory.url.length; i++) {
+								story.url.push(new URL(newStory.url[i]));
+							}
+						}
+					}
+
+					// Update new flag and do accounting.
+					if((story.pubdate < newthreshold) && (story.isRead == 1)) {
+						if(story.isNew)
+							deltaNew--;
+						if(story.isStarred)
+							starDeltaNew--;
+						story.isNew = 0;
+					}
+
+					// Save the story.
+					storyStore.put(story);
+				}
+
+				cursor.continue();
+			} else  {
+				// Delete stories that are no longer in the feed.
+				for(i = 0; i < storiesToDelete.length; i++)
+					storyStore.delete(storiesToDelete[i].id);
+
+				// Insert stories that are new in the feed.
+				for(i = 0; i < stories.length; i++) {
+					// If the story is new in the feed, but for whatever reason
+					// is older than the keep time, we simply ignore it.
+					if(stories[i].pubdate < keepthreshold)
+						continue;
+
+					stories[i].fid = feed.id;
+					stories[i].isNew = stories[i].pubdate >= newthreshold;
+					stories[i].isRead = false;
+					stories[i].isStarred = false;
+					deltaUnread++;
+					if(stories[i].isNew)
+						deltaNew++;
 					storyStore.put(stories[i]);
+				}
+
+				// And now apply the new counts to the feeds.
+				if((deltaNew != 0) || (deltaUnread != 0)) {
+					feedStore.get(feed.id).onsuccess = enyo.bind(self, self.updateFeedCount, feedStore,
+						deltaUnread, deltaNew);
+					feedStore.index("feedType").get(feedTypes.ftAllItems).onsuccess = enyo.bind(self,
+						self.updateFeedCount, feedStore, deltaUnread, deltaNew);
+				}
+				if((starDeltaNew != 0) || (starDeltaUnread != 0)) {
+					feedStore.index("feedType").get(feedTypes.ftStarred).onsuccess = enyo.bind(self,
+						self.updateFeedCount, feedStore, starDeltaUnread, starDeltaNew);
 				}
 			}
 		}
