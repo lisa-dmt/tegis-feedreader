@@ -206,7 +206,7 @@ FeedProcessor.prototype = {
                 this.error("FEEDS EXCEPTION>", e);
             }
         }
-        db.updateStories(feed, allStories);
+        db.updateStories(feed, allStories, true);
     },
 
     /** @private
@@ -315,7 +315,7 @@ FeedProcessor.prototype = {
                 this.error("FEEDS EXCEPTION>", e);
             }
         }
-        db.updateStories(feed, allStories);
+        db.updateStories(feed, allStories, true);
     },
 
     /** @private
@@ -342,7 +342,7 @@ FeedProcessor.prototype = {
      */
     parseFeed: function(db, feed, feedType, response, contentType) {
         try {
-            switch(feedType) {
+			switch(feedType) {
                 case feedTypes.ftATOM:
                     this._parseAtom(db, feed, response, contentType);
                     break;
@@ -354,10 +354,8 @@ FeedProcessor.prototype = {
                 case feedTypes.ftRDF:
                     this._parseRDF(db, feed, response, contentType);
             }
-            db.endStoryUpdate(feed, feedType != feedTypes.ftUnknown);
         } catch(ex) {
             this.error("FEEDS EXCEPTION>", ex);
-            db.endStoryUpdate(feed, false);
         }
     }
 };
