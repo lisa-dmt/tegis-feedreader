@@ -28,6 +28,4 @@ if [ -f "$STARTDIR/deploy" ]
 then
     cd $STARTDIR
     . $STARTDIR/deploy
-else
-    echo "No deployment script found"
 fi
