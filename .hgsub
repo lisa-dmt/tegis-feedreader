@@ -1,0 +1,4 @@
+src/enyo = [git]https://github.com/enyojs/enyo.git
+src/lib/onyx = [git]https://github.com/enyojs/onyx.git
+src/lib/g11n = [git]https://github.com/enyojs/g11n.git
+src/lib/layout = [git]https://github.com/enyojs/layout.git
