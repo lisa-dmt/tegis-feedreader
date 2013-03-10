@@ -66,7 +66,6 @@ enyo.kind({
 		}]
 	}],
 
-
     tools:  [{
         name:					"errorDialog",
         kind:					"ErrorDialog"
@@ -92,8 +91,7 @@ enyo.kind({
 		onUnload:				"unloaded"
     }, {
 		name:					"mainMenu",
-		kind:					"onyx.Menu",
-		floating:				true,
+		kind:					PopupMenu,
 		components:				[{
 			content:			$L("License"),
 			ontap:				"openLicense"

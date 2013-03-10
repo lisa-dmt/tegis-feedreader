@@ -177,8 +177,7 @@ enyo.kind({
 		onSpoolerRunningChanged:	"spoolerRunningChanged"
 	}, {
 		name:		"feedMenu",
-		kind:		"onyx.Menu",
-		floating:	true,
+		kind:		PopupMenu,
 		components:	[{
 			content:	$L("Update feed"),
 			ontap:		"menuUpdateFeed"

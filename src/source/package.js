@@ -57,6 +57,7 @@ enyo.depends(
     "controls/dialogprompt.js",
     "controls/divider.js",
     "controls/progressslider.js",
+	"controls/popupmenu.js",
 
     // Scenes
     "scenes/mainview/mainview.js",
