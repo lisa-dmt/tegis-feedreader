@@ -65,7 +65,7 @@ enyo.openMenuAtEvent = function(menu, sender, event) {
 
 enyo.kind({
 	name:			"HeaderInfoLabel",
-	kind:			"FittableColumns",
+	kind:			enyo.FittableColumns,
 	classes:		"story-header-info",
 
 	published:	{

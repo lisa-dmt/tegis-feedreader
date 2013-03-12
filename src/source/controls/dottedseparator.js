@@ -22,6 +22,6 @@
 
 enyo.kind({
 	name:		"DottedSeparator",
-	kind:		"Control",
+	kind:		enyo.Control,
 	classes:	"dotted-separator"
 });

@@ -32,7 +32,7 @@ var mediaStates = {
 
 enyo.kind({
 	name:		"EnhancedAudio",
-	kind:		"Control",
+	kind:		enyo.Control,
 
 	nodeTag:	"audio",
 

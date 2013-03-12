@@ -34,7 +34,7 @@ function appMenuSupported() {
 	return enyo.platform.webos || enyo.platform.android;
 }
 
-function applyOSSpecific(to) {
+function applyOSSpecific() {
     if(enyo.platform.webos) {
 		applyPalmSpecifics();
 	} else if(isFirefox()) {
@@ -42,18 +42,4 @@ function applyOSSpecific(to) {
     } else {
         applyGenericHandlers();
     }
-
-    enyo.application.helper = new AppHelper();
-    to.openLink = function(url) {
-        enyo.application.helper.openLink(url);
-    };
-    to.openEMail = function(subject, text) {
-        enyo.application.helper.openEMail(subject, text);
-    };
-    to.openMessaging = function(text) {
-        enyo.application.helper.openMessaging(text);
-    };
-    to.openMainView = function(params) {
-		enyo.application.helper.openMainView(params);
-    };
 }

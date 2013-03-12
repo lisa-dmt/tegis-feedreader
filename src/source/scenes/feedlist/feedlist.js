@@ -22,7 +22,7 @@
 
 enyo.kind({
 	name:			"FeedList",
-	kind:			"ListViewSkeleton",
+	kind:			ListViewSkeleton,
 
 	menuIndex:		0,
 	spinningIndex:	-1,
@@ -76,7 +76,7 @@ enyo.kind({
 					classes:	addBrowerClass("feed-icon"),
 					src:		"assets/lists/icon-rss.png"
                 }, {
-					kind:	    "onyx.Spinner",
+					kind:	    onyx.Spinner,
 					name:	    "feedSpinner",
 					classes:    "onyx-spinner onyx-light small feed-spinner",
 					showing:    false
@@ -113,7 +113,7 @@ enyo.kind({
 				classes:    		"list-edit-button",
 				onBeforeShowMenu:	"beforeShowFeedMenu",
 				components: [{
-					kind:		"onyx.Button",
+					kind:		onyx.Button,
 					classes:	"feed-edit-button",
 					components:	[{
 						kind:		"onyx.Icon",
@@ -149,12 +149,12 @@ enyo.kind({
         fit:        true,
 		components:	[{
 			name:		"loadSpinner",
-			kind:		"onyx.Spinner",
+			kind:		onyx.Spinner,
             style:      "position: absolute; margin: auto; top: 0; left: 0; right: 0; bottom: 0;",
             classes:    "onyx-light"
 		}]
 	}, {
-		kind:		"onyx.Toolbar",
+		kind:		onyx.Toolbar,
 		pack:		"justify",
 		components:	[{
 			kind:		"onyx.IconButton",

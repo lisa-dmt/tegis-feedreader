@@ -28,7 +28,7 @@ var mediaKinds = {
 
 enyo.kind({
 	name:		"StoryView",
-	kind:		"DraggableView",
+	kind:		DraggableView,
 	classes:	"story-body",
 
 	published:	{
@@ -51,59 +51,59 @@ enyo.kind({
 
 	components:	[{
 		name:			"header",
-		kind:			"onyx.Toolbar",
+		kind:			onyx.Toolbar,
 		classes:		"toolbar-light",
 		components:		[{
-			kind:		"TopSceneControl",
+			kind:		TopSceneControl,
 			ontap:		"doBackClick"
 		}, {
 			name:		"backButton",
-            kind:       "onyx.IconButton",
+            kind:       onyx.IconButton,
 			icon:		"assets/header/icon-back.png",
 			enabled:	false,
 			showing:	false,
 			ontap:		"backClicked"
 		}, {
 			name:		"forwardButton",
-            kind:       "onyx.IconButton",
+            kind:       onyx.IconButton,
 			icon:		"assets/header/icon-forward.png",
 			enabled:	false,
 			showing:	false,
-			ontap:	"forwardClicked"
+			ontap:		"forwardClicked"
 		}, {
 			name:		"loadSpinner",
-			kind:		"onyx.Spinner"
+			kind:		onyx.Spinner
 		}, {
 			name:		"starButton",
-			kind:		"StarButton",
+			kind:		StarButton,
             classes:    "float-right",
 			disabled:	true,
 			onChange:	"storyStarred"
 		}]
 	}, {
 		name:			"storyContainer",
-		kind:			"FittableRows",
+		kind:			enyo.FittableRows,
 		fit:			true,
 		showing:		false,
-		defaultKind:	"Control",
+		defaultKind:	enyo.Control,
 		components:		[{
 			classes:	"story-body-header",
 			components:	[{
 				name:		"date",
-				kind:		"HeaderInfoLabel",
+				kind:		HeaderInfoLabel,
 				caption:	$L("Date")
 			}, {
-				kind:		"DottedSeparator"
+				kind:		DottedSeparator
 			}, {
 				name:		"caption",
-				kind:		"HeaderInfoLabel",
+				kind:		HeaderInfoLabel,
 				caption:	$L("Caption")
 			}]
 		}, {
 			classes:	    "header-shadow"
 		}, {
-			kind:			"Scroller",
-            name:           "contentScroller",
+			name:           "contentScroller",
+			kind:			enyo.Scroller,
 			style:			"margin: 10px",
             onScrollStart:  "scrollingStarted",
             onScrollStop:   "scrollingStopped",
@@ -114,24 +114,24 @@ enyo.kind({
 				style:		"text-align: center;",
 				components:	[{
 					name:			"picture",
-					kind:			"Image",
+					kind:			enyo.Image,
 					style:			"max-width: 98%",
 					onload:			"pictureLoaded"
 				}]
 			}, {
 				name:			    "content",
-				kind:			    "HtmlContent",
+				kind:			    HtmlContent,
 				onLinkClick:	    "innerLinkClicked"
 			}, {
-				kind:				"SilverSeparator"
+				kind:				SilverSeparator
 			}, {
 				classes:			"center-text",
 				components:			[{
 					name:				"linkButton",
-					kind:				"onyx.Button",
+					kind:				onyx.Button,
 					ontap:				"linkClicked",
 					components:	[{
-						kind:			"onyx.Icon",
+						kind:			onyx.Icon,
 						src:			"assets/web-icon.png",
 						classes:		"button-icon"
 					}, {
@@ -139,10 +139,10 @@ enyo.kind({
 					}]
 				}, {
 					name:				"playVideoButton",
-					kind:				"onyx.Button",
+					kind:				onyx.Button,
 					ontap:				"playVideoClicked",
 					components:	[{
-						kind:			"onyx.Icon",
+						kind:			onyx.Icon,
 						src:			"assets/player-icon.png",
 						classes:		"button-icon"
 					}, {
@@ -167,11 +167,11 @@ enyo.kind({
 		name:		"mediaControls",
 		showing:	false,
 		components:	[{
-			kind:	"FittableColumns",
+			kind:	enyo.FittableColumns,
 			pack:	"center",
 			components: [{
 				name:		"mediaSlider",
-				kind:		"ProgressSlider",
+				kind:		ProgressSlider,
 				style:		"width: 94%",
 				minimum:	0,
 				maximum:	1000,
@@ -181,7 +181,7 @@ enyo.kind({
 				onChange:	"mediaSeeked"
 			}]
 		}, {
-			kind:		"FittableColumns",
+			kind:		enyo.FittableColumns,
 			style:		"margin: 5px; font-size: 15px; font-weight: bold;",
 			components:	[{
 				name:		"mediaStart",
@@ -198,22 +198,22 @@ enyo.kind({
 		}]
 	}, {
 		name:		"bgContainer",
-		kind:		"FittableColumns",
+		kind:		enyo.FittableColumns,
 		classes:	"nodata-panel",
 		fit:		true
 	}, {
-		kind:			"onyx.Toolbar",
+		kind:			onyx.Toolbar,
 		components:		[{
-			kind:		"BottomSubSceneControl"
+			kind:		BottomSubSceneControl
 		}, {
 			name:		"mediaPlayButton",
-			kind:		"onyx.IconButton",
+			kind:		onyx.IconButton,
 			icon:		"../../assets/player/enyo-icon-play.png",
 			ontap:		"mediaPlayToggled",
 			showing:	false
 		}, {
 			name:		"shareButton",
-			kind:		"onyx.IconButton",
+			kind:		onyx.IconButton,
 			icon:		"../../assets/toolbars/icon-share.png",
 			ontap:		"shareClicked"
 		}]

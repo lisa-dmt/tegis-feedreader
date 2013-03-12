@@ -22,8 +22,8 @@
 
 enyo.kind({
 	name:			"ErrorDialog",
-	kind:			"onyx.Popup",
-	layoutKind:		"FittableRowsLayout",
+	kind:			onyx.Popup,
+	layoutKind:		enyo.FittableRowsLayout,
 	contentHeight:	"95%",
 	style:			"width: 400px; height: 400px;",
     modal:          true,
@@ -40,7 +40,7 @@ enyo.kind({
 		classes:		"text-error warning-icon",
 		fit:			true
 	 }, {
-		kind:			"onyx.Button",
+		kind:			onyx.Button,
 		name:			"dismissButton",
 		ontap:			"dismissClick"
 	}],

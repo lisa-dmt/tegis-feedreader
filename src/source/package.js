@@ -1,5 +1,6 @@
 enyo.depends(
     // Enyo libs
+	"$lib/layout/drawer",
     "$lib/onyx",
 
     "$lib/layout/fittable",
@@ -60,7 +61,6 @@ enyo.depends(
 	"controls/popupmenu.js",
 
     // Scenes
-    "scenes/mainview/mainview.js",
     "scenes/feedlist/feedlist.js",
     "scenes/storylist/storylist.js",
     "scenes/story/story.js",
@@ -69,6 +69,7 @@ enyo.depends(
     "scenes/license/license.js",
     "scenes/help/help.js",
     "scenes/importer/importer.js",
+	"scenes/mainview/mainview.js",
 
 	// CSS
 	"App.css",
