@@ -22,7 +22,7 @@
 
 enyo.kind({
     name:		"Divider",
-    kind:		"Control",
+    kind:		enyo.Control,
 	classes:	"divider",
 
 	published:	{

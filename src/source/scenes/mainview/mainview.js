@@ -39,45 +39,45 @@ enyo.kind({
 			onTransitionFinish:	"mainTransitionFinished",
 
             components:	[{
-                kind:				"FeedList",
-                name:				"feedList",
+				name:				"feedList",
+                kind:				FeedList,
 				onOpenAppMenu:		"openAppMenu",
                 onFeedSelected:		"feedSelected",
                 onAddFeed:			"addFeed",
                 onEditFeed:			"editFeed"
             }, {
-                kind:				"StoryList",
 				name:				"storyList",
+				kind:				StoryList,
                 onStorySelected:	"storySelected",
 				onBackClick:		"backToFeedList"
             }, {
                 name:		        "storyView",
-                kind:		        "StoryView",
+                kind:		        StoryView,
 				onBackClick:		"backToStoryList"
             }]
         }, {
             name:				    "preferences",
-            kind:				    "Preferences",
+            kind:				    Preferences,
             onPrefsSaved:		    "prefsSaved"
         }, {
             name:					"feedImporter",
-            kind:					"FeedImporter",
+            kind:					FeedImporter,
             onBackClick:			"importerClosed"
 		}]
 	}],
 
     tools:  [{
         name:					"errorDialog",
-        kind:					"ErrorDialog"
+        kind:					ErrorDialog
     }, {
         name:					"licenseDialog",
-        kind:					"LicenseDialog"
+        kind:					LicenseDialog
     }, {
         name:					"helpDialog",
-        kind:					"HelpDialog"
+        kind:					HelpDialog
     }, {
         name:					"editFeedDialog",
-        kind:					"EditFeedDialog",
+        kind:					EditFeedDialog,
         onFeedSaved:			"feedSaved"
     }, {
         kind:                   enyo.Signals,

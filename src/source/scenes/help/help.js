@@ -22,7 +22,7 @@
 
 enyo.kind({
 	name:			"HelpDialog",
-    kind:			"ModalDialog",
+    kind:			ModalDialog,
 	autoDismiss:	true,
 	caption:		$L("FeedReader Help"),
 
@@ -33,16 +33,16 @@ enyo.kind({
         name:       "author",
 		style:		"font-weight: bold; font-size: 15px;"
 	}, {
-		kind:		"enyo.Scroller",
+		kind:		enyo.Scroller,
 		horizontal:	"hidden",
 		fit:		true,
 		components:	[{
-			kind:		"onyx.Groupbox",
+			kind:		onyx.Groupbox,
 			components:	[{
-				kind:       "onyx.GroupboxHeader",
+				kind:       onyx.GroupboxHeader,
 				content:	$L("Help")
 			}, {
-				kind:		"FittableColumns",
+				kind:		enyo.FittableColumns,
 				style:		"line-height: 32px; padding: 4px 8px 4px 8px",
 				ontap:		"openFeedReaderHomepage",
 				components:	[{
@@ -55,16 +55,16 @@ enyo.kind({
 				}]
 			}]
 		}, {
-			kind:		"onyx.Groupbox",
+			kind:		onyx.Groupbox,
 			components:	[{
-				kind:       "onyx.GroupboxHeader",
+				kind:       onyx.GroupboxHeader,
 				content:	$L("Support")
 			}, {
-				kind:		"FittableColumns",
+				kind:		enyo.FittableColumns,
 				style:		"line-height: 32px; padding: 4px 8px 4px 8px",
 				ontap:		"openHomepage",
 				components:	[{
-					kind:		"Image",
+					kind:		enyo.Image,
 					src:		"assets/web-icon.png",
 					classes:	"support-icon"
 				}, {
@@ -72,11 +72,11 @@ enyo.kind({
 					content:	$L("Homepage")
 				}]
 			}, {
-				kind:		"FittableColumns",
+				kind:		enyo.FittableColumns,
 				style:		"line-height: 32px; padding: 4px 8px 4px 8px",
 				ontap:		"openEMail",
 				components:	[{
-					kind:		"Image",
+					kind:		enyo.Image,
 					src:		"assets/mail-icon.png",
 					classes:	"support-icon"
 				}, {
@@ -118,13 +118,13 @@ enyo.kind({
 		kind:       enyo.FittableRows,
 		classes:	"center-text",
 		components:	[{
-			kind:		"onyx.Button",
+			kind:		onyx.Button,
 			classes:	"onyx-affirmative",
 			content:	$L("OK"),
 			ontap:		"okClicked"
 		}]
 	}, {
-        kind:               "enyo.Signals",
+        kind:               enyo.Signals,
         onConstantsReady:   "constantsReady"
     }],
 

@@ -22,6 +22,6 @@
 
 enyo.kind({
 	name:		"SilverSeparator",
-	kind:		"Control",
+	kind:		enyo.Control,
 	classes:	"silver-separator"
 });

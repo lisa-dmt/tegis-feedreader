@@ -22,7 +22,7 @@
 
 enyo.kind({
     name:   	"DialogPrompt",
-    kind:   	"ModalDialog",
+    kind:   	ModalDialog,
 
     published:  {
 		message:				"",
@@ -43,13 +43,13 @@ enyo.kind({
 		style:		"padding-top: 8px; padding-bottom: 20px",
 		components:	[{
 			name:		"acceptButton",
-			kind:		"onyx.Button",
+			kind:		onyx.Button,
 			classes:	"onyx-affirmative",
 			ontap:		"accepted"
 		}, {
 		}, {
 			name:		"cancelButton",
-			kind:		"onyx.Button",
+			kind:		onyx.Button,
 			classes:	"onyx-negative",
 			ontap:		"canceled"
 		}]

@@ -36,27 +36,27 @@ enyo.kind({
 	index:			0,
 
 	components:	[{
-		kind:		"onyx.Toolbar",
+		kind:		onyx.Toolbar,
 		classes:	"toolbar-light",
 		components:	[{
-			kind:		"TopSceneControl",
+			kind:		TopSceneControl,
 			ontap:		"doBackClick"
 		}, {
 			content:	$L("Discover feeds"),
 			classes:	"float-left"
 		}]	}, {
-		kind:		"onyx.Groupbox",
-		layoutKind:	"FittableRowsLayout",
+		kind:		onyx.Groupbox,
+		layoutKind:	enyo.FittableRowsLayout,
 		classes:	"additional-scene center-div",
 		style:		additionalSceneWidthStyle(),
 		components:	[{
-			kind:       "onyx.GroupboxHeader",
+			kind:       onyx.GroupboxHeader,
 			content:    $L("Origin")
 		}, {
-			kind:           "onyx.InputDecorator",
+			kind:           onyx.InputDecorator,
 			components:     [{
 				name:			"url",
-				kind:			"Input",
+				kind:			onyx.Input,
 				placeholder:	$L("URL of website...")
 			}]
 		}]
@@ -65,11 +65,11 @@ enyo.kind({
 		style:			additionalSceneWidthStyle(),
 		components:		[{
 			name:		"scanButton",
-			kind:		"ActivityButton",
+			kind:		ActivityButton,
 			content:	$L("Scan for feeds"),
 			ontap:		"scanURL"
 		}, {
-			kind:		"Divider",
+			kind:		Divider,
 			caption:	$L("Feeds found on website")
 		}, {
 			name:		"noScanLabel",
@@ -93,14 +93,14 @@ enyo.kind({
 		onSetupItem:	"setupRow",
 		components:	[{
 			name:		"item",
-			kind:		"onyx.Item",
+			kind:		onyx.Item,
 			classes:	"feedlist-item inline-item",
 			ontap:		"feedClicked",
 			components:	[{
 				name:		"feedInfoBox",
 				classes:	"feed-infobox",
 				components:	[{
-					kind:	"Image",
+					kind:	enyo.Image,
 					name:	"feedIcon",
 					src:	"assets/lists/icon-rss.png",
 					style:	"max-width: 40px; max-height: 40px;"
@@ -117,14 +117,14 @@ enyo.kind({
 			}]
 		}]
 	}, {
-		kind:		"onyx.Toolbar",
+		kind:		onyx.Toolbar,
 		components:	[{
-			kind:		"BottomMainSceneControl",
+			kind:		BottomMainSceneControl,
 			ontap:		"doBackClick"
 		}]
 	}, {
-		kind: 					"DialogPrompt",
 		name:					"subscribeDialog",
+		kind: 					DialogPrompt,
 		caption:				$L("Subscribe to feed"),
 		acceptButtonCaption: 	$L("Yes"),
 		cancelButtonCaption: 	$L("No"),

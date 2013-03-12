@@ -22,40 +22,40 @@
 
 enyo.kind({
 	name:			"Preferences",
-	kind:			"FittableRows",
+	kind:			enyo.FittableRows,
 
 	events:	{
 		onPrefsSaved:	""
 	},
 
 	components:	[{
-		kind:		"onyx.Toolbar",
+		kind:		onyx.Toolbar,
 		classes:	"toolbar-light",
 		components:	[{
-			kind:		"TopSceneControl",
+			kind:		TopSceneControl,
 			ontap:		"savePrefs"
 		}, {
 			content:	$L("Preferences"),
 			classes:	"float-left"
 		}]
 	}, {
-		kind:		"Scroller",
+		kind:		enyo.Scroller,
 		fit:		true,
 		horizontal:	"hidden",
 
 		components:	[{
-			kind:		"FittableRows",
+			kind:		enyo.FittableRows,
 			align:		"center",
 			components:	[{
-				kind:		"onyx.Groupbox",
+				kind:		onyx.Groupbox,
 				classes:	"additional-scene center-div",
 				style:		additionalSceneWidthStyle(),
 				components:	[{
-                    kind:       "onyx.GroupboxHeader",
+                    kind:       onyx.GroupboxHeader,
                     content:    $L("Automatic updating")
                 }, {
 					name:		"updateInterval",
-					kind:		"SelectorItem",
+					kind:		SelectorItem,
 					caption:	$L("Update interval"),
 					onChange:	"updateIntervalChanged",
 					items:	[
@@ -72,16 +72,16 @@ enyo.kind({
 					]
 				}, {
 					name:		"wakingEnabled",
-					kind:		"ToggleItem",
+					kind:		ToggleItem,
 					caption:	$L("Wake device for updating"),
 					showing:	!isFirefox()
 				}, {
 					name:		"updateOnStart",
-					kind:		"ToggleItem",
+					kind:		ToggleItem,
 					caption:	$L("Update on app start")
 				}, {
 					name:		"storyKeepTime",
-					kind:		"SelectorItem",
+					kind:		SelectorItem,
 					caption:	$L("Keep stories for"),
 					items:	[
 						{ 	caption: 	$L("1 Day"),			value: 24 },
@@ -94,44 +94,44 @@ enyo.kind({
 					]
 				}]
 			}, {
-				kind:		"onyx.Groupbox",
+				kind:		onyx.Groupbox,
 				classes:	"additional-scene center-div",
 				style:		additionalSceneWidthStyle(),
 				components:	[{
-                    kind:       "onyx.GroupboxHeader",
+                    kind:       onyx.GroupboxHeader,
                     content:    $L("Notifications")
                 }, {
 					name:		"notificationEnabled",
-					kind:		"ToggleItem",
+					kind:		ToggleItem,
 					caption:	$L("Show notifications on new stories"),
 					onChange:	"notificationEnabledChanged"
 				}, {
 					name:		"unobtrusiveNotifications",
-					kind:		"ToggleItem",
+					kind:		ToggleItem,
 					caption:	$L("Show notifications unobtrusively")
 				}, {
 					name:		"blinkingEnabled",
-					kind:		"ToggleItem",
+					kind:		ToggleItem,
 					caption:	$L("Make LED Throbber blink on new stories")
 				}, {
 					name:		"notifyWhileRunning",
-					kind:		"ToggleItem",
+					kind:		ToggleItem,
 					caption:	$L("Show when running in background")
 				}, {
 					name:		"notifyWithSound",
-					kind:		"ToggleItem",
+					kind:		ToggleItem,
 					caption:	$L("Play sound when new stories arrive")
 				}]
 			}, {
-				kind:		"onyx.Groupbox",
+				kind:		onyx.Groupbox,
 				classes:	"additional-scene center-div",
 				style:		additionalSceneWidthStyle(),
 				components:	[{
-                    kind:       "onyx.GroupboxHeader",
+                    kind:       onyx.GroupboxHeader,
                     content:    $L("Miscellaneous")
                 }, {
 					name:		"titleColor",
-					kind:		"SelectorItem",
+					kind:		SelectorItem,
 					caption:	$L("Title color"),
 					items:	[
 						{	caption:	$L("Black"),   	value: "black" },
@@ -143,11 +143,11 @@ enyo.kind({
 					]
 				}, {
 					name:		"largeFonts",
-					kind:		"ToggleItem",
+					kind:		ToggleItem,
 					caption:	$L("Use large fonts")
 				}, {
 					name:		"summaryLength",
-					kind:		"SelectorItem",
+					kind:		SelectorItem,
 					caption:	$L("Summary length in story list"),
 					items:	[
 						{	caption:	$L("100 characters"),	value: 100 },
@@ -158,7 +158,7 @@ enyo.kind({
 					]
                 }, {
                     name:       "badgeMode",
-                    kind:       "SelectorItem",
+                    kind:       SelectorItem,
                     caption:    $L("Item badges"),
                     items:      [
                         {   caption:    $L("New & unread story count"), value: 0 },
@@ -167,24 +167,24 @@ enyo.kind({
                     ]
 				}]
 			}, {
-				kind:		"onyx.Groupbox",
+				kind:		onyx.Groupbox,
 				classes:	"additional-scene center-div",
 				style:		additionalSceneWidthStyle(),
 				components:	[{
-                    kind:       "onyx.GroupboxHeader",
+                    kind:       onyx.GroupboxHeader,
                     content:    $L("Pocket")
                 }, {
-					kind:   "onyx.InputDecorator",
+					kind:   onyx.InputDecorator,
 					components: [{
 						name:			"rilUsername",
-						kind:			"Input",
+						kind:			onyx.Input,
 						placeholder:	$L("User name")
 					}]
 				}, {
-                    kind:   "onyx.InputDecorator",
+                    kind:   onyx.InputDecorator,
                     components: [{
-                        kind:           "onyx.Input",
-                        name:	        "rilPassword",
+						name:	        "rilPassword",
+                        kind:           onyx.Input,
                         type:           "password",
                         placeholder:    $L("Password")
                     }]
@@ -196,9 +196,9 @@ enyo.kind({
 			}]
 		}]
 	}, {
-		kind:		"onyx.Toolbar",
+		kind:		onyx.Toolbar,
 		components:	[{
-			kind:		"BottomMainSceneControl",
+			kind:		BottomMainSceneControl,
 			ontap:		"savePrefs"
 		}]
 	}],

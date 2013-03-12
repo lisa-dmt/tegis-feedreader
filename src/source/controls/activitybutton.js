@@ -21,7 +21,7 @@
  */
 enyo.kind({
     name:       "ActivityButton",
-    kind:       "onyx.Button",
+    kind:       onyx.Button,
 
     published:  {
         caption:    "",
@@ -30,7 +30,7 @@ enyo.kind({
 
     components: [{
         name:       "spinner",
-        kind:       "onyx.Spinner",
+        kind:       onyx.Spinner,
         classes:    "onyx-light small",
 		style:		"margin-right: 5px; margin-left: -10px;",
         showing:    false

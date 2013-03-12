@@ -34,8 +34,7 @@ enyo.kind({
 	},
 
 	startup: function() {
-        // Customize to OS.
-        applyOSSpecific(this);
+		enyo.application.helper = new AppHelper();
 
 		// Set global constants.
         applyGlobalConstants(enyo.application);
@@ -102,5 +101,21 @@ enyo.kind({
 			return;
 		}
 		throw "Assertion failed: " + msg;
+	},
+
+	openLink: function(url) {
+		enyo.application.helper.openLink(url);
+	},
+
+	openEMail: function(subject, text) {
+		enyo.application.helper.openEMail(subject, text);
+	},
+
+	openMessaging: function(text) {
+		enyo.application.helper.openMessaging(text);
+	},
+
+	openMainView: function(params) {
+		enyo.application.helper.openMainView(params);
 	}
 });

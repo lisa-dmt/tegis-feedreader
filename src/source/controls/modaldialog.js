@@ -31,8 +31,8 @@ function getDialogStyle() {
 
 enyo.kind({
     name:           "ModalDialog",
-    kind:           "onyx.Popup",
-	layoutKind:		"FittableRowsLayout",
+    kind:           onyx.Popup,
+	layoutKind:		enyo.FittableRowsLayout,
 	classes:		"modal-dialog",
     modal:          true,
     centered:       true,

@@ -22,7 +22,7 @@
 
 enyo.kind({
 	name:			"EditFeedDialog",
-	kind:			"ModalDialog",
+	kind:			ModalDialog,
 
 	events:	{
 		onFeedSaved:	"",
@@ -34,63 +34,63 @@ enyo.kind({
 	},
 
 	components:	[{
-		kind:		"Scroller",
+		kind:		enyo.Scroller,
 		horizontal:	"hidden",
 		fit:		true,
 		components:	[{
-			kind:		"onyx.Groupbox",
+			kind:		onyx.Groupbox,
 			components:	[{
-                kind:       "onyx.GroupboxHeader",
+                kind:       onyx.GroupboxHeader,
                 content:	$L("Basic settings")
             }, {
-                kind:               "onyx.InputDecorator",
+                kind:               onyx.InputDecorator,
                 components:         [{
                     name:			"url",
-                    kind:			"onyx.Input",
+                    kind:			onyx.Input,
                     placeholder:	$L("URL of RSS/ATOM Feed...")
                 }]
 			}, {
-                kind:               "onyx.InputDecorator",
+                kind:               onyx.InputDecorator,
                 components:         [{
                     name:		    "name",
-                    kind:		    "onyx.Input",
+                    kind:		    onyx.Input,
                     placeholder:    $L("Feed name...")
                 }]
 			}, {
 				name:		"activateFeed",
-				kind:		"ToggleItem",
+				kind:		ToggleItem,
 				caption:	$L("Activate Feed"),
 				value:		true
 			}]
 		}, {
-			kind:		"onyx.Groupbox",
+			kind:		onyx.Groupbox,
 			components:	[{
-                kind:       "onyx.GroupboxHeader",
+                kind:       onyx.GroupboxHeader,
                 content:	$L("Credentials")
             }, {
-                kind:               "onyx.InputDecorator",
+                kind:               onyx.InputDecorator,
                 components:         [{
                     name:				"username",
-                    kind:				"Input",
+                    kind:				onyx.Input,
                     placeholder:		$L("User name")
                 }]
 			}, {
-                kind:   "onyx.InputDecorator",
+                kind:   onyx.InputDecorator,
                 components: [{
-                    kind:           "onyx.Input",
-                    name:	        "password",
+					name:	        "password",
+                    kind:           onyx.Input,
                     type:           "password",
                     placeholder:    $L("Password")
                 }]
 			}]
 		}, {
-			kind:		"onyx.Groupbox",
+			kind:		onyx.Groupbox,
 			components:	[{
-                kind:       "onyx.GroupboxHeader",
+                kind:       onyx.GroupboxHeader,
                 content:	$L("Story list display")
             }, {
 				name:	"listMode",
-				kind:	"SelectorItem",
+				kind:	SelectorItem,
 				items:	[{
 					caption:	$L("Captions and summaries"),
 					value:		0
@@ -104,7 +104,7 @@ enyo.kind({
 				caption:	$L("Show")
 			}, {
 				name:	"sortMode",
-				kind:	"SelectorItem",
+				kind:	SelectorItem,
 				items:	[{
 					caption:	$L("Show all stories"),
 					value:		0
@@ -118,13 +118,13 @@ enyo.kind({
 				caption:	$L("Filter")
 			}]
 		}, {
-			kind:		"onyx.Groupbox",
+			kind:		onyx.Groupbox,
 			components:	[{
-                kind:       "onyx.GroupboxHeader",
+                kind:       onyx.GroupboxHeader,
                 content:	$L("Story display")
             }, {
 				name:	"detailMode",
-				kind:	"SelectorItem",
+				kind:	SelectorItem,
 				items:	[{
 					caption:	$L("Show story"),
 					value:		true
@@ -136,17 +136,17 @@ enyo.kind({
 				onChange:   "detailModeChanged"
 			}, {
 				name:		"showPicture",
-				kind:		"ToggleItem",
+				kind:		ToggleItem,
 				caption:	$L("Show story picture"),
 				value:		true
 			}, {
 				name:		"showMedia",
-				kind:		"ToggleItem",
+				kind:		ToggleItem,
 				caption:	$L("Show story media"),
 				value:		true
 			}, {
 				name:		"allowHTML",
-				kind:		"ToggleItem",
+				kind:		ToggleItem,
 				caption:	$L("Render HTML"),
 				value:		true
 			}]
@@ -157,14 +157,14 @@ enyo.kind({
 		style:		"padding-top: 8px; padding-bottom: 20px",
 		components:	[{
 			name:		"saveButton",
-			kind:		"ActivityButton",
+			kind:		ActivityButton,
 			classes:	"onyx-affirmative",
 			content:	$L("Save"),
 			ontap:		"saveClicked"
 		}, {
 		}, {
 			name:		"cancelButton",
-			kind:		"onyx.Button",
+			kind:		onyx.Button,
 			classes:	"onyx-negative",
 			content:	$L("Cancel"),
 			ontap:		"cancelClicked"

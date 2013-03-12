@@ -22,5 +22,5 @@
 
 enyo.kind({
     name:		"ProgressSlider",
-    kind:		"onyx.Slider"
+    kind:		onyx.Slider
 });

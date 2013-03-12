@@ -29,7 +29,7 @@ enyo.kind({
         classes:    "caption float-left"
 	}, {
 		name: 		"button",
-		kind: 		"onyx.ToggleButton",
+		kind: 		onyx.ToggleButton,
 		classes:	"float-right",
 		onChange:	"doChange"
 	}, {

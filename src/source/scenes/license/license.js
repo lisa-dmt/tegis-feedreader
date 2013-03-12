@@ -22,17 +22,17 @@
 
 enyo.kind({
 	name:			"LicenseDialog",
-    kind:			"ModalDialog",
+    kind:			ModalDialog,
 	autoDismiss:	true,
 	caption:		"FeedReader License",
 
 	components:	[{
-		kind:		"Scroller",
+		kind:		enyo.Scroller,
 		horizontal:	"hidden",
 		fit:		true,
 		components:	[{
 			name:			"licenseBody",
-			kind:			"HtmlContent",
+			kind:			HtmlContent,
 			style:			"color: black",
 			onLinkClick:	"linkClicked",
 			content:
@@ -596,7 +596,7 @@ enyo.kind({
 		kind:       enyo.FittableRows,
 		classes:	"center-text",
 		components:	[{
-			kind:		"onyx.Button",
+			kind:		onyx.Button,
 			classes:	"onyx-affirmative",
 			content:	$L("OK"),
 			ontap:		"okClicked"
