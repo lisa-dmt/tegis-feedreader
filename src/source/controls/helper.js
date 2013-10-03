@@ -113,7 +113,7 @@ enyo.kind({
 	kind:		useTopBackButton() ? "enyo.Control" : "onyx.Button",
 
 	classes:	useTopBackButton() ? "header-back-button float-left" : "back-button float-left",
-	content:	useTopBackButton() ? "<" : $L("Back"),
+	content:	useTopBackButton() ? "" : $L("Back"),
 
 	published:	{
 		position:		"bottom",

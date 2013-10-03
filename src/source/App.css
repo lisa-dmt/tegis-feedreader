@@ -125,13 +125,22 @@
 }
 
 .header-back-button {
-	margin: -5px 0px 0px -7px !important;
+	margin: -5px 0px 0px -8px !important;
 	height: 46px;
 	line-height: 46px;
 	border-right: 2px groove silver;
-	padding-left: 5px;
-	padding-right: 5px;
-	font-weight: bold;
+	padding: 0;
+	min-width: 20px;
+	background: url(../assets/header-back.png) no-repeat center center rgba(0, 0, 0, 0.2);
+}
+
+.enyo-fittable-columns-layout > .header-back-button {
+	min-width: 22px;
+}
+
+.enyo-fittable-columns-layout.enyo-stretch > .header-back-button {
+	margin: -5px 0px 0px -8px !important;
+	height: 46px !important;
 }
 
 .header-back-button.pressed {
@@ -234,6 +243,11 @@
 
 .nodata-panel {
 	background: url("../assets/nodata-background.png") no-repeat center center;
+}
+
+.star-button {
+	width: 24px;
+	background-position: center center;
 }
 
 /*
