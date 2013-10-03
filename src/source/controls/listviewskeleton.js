@@ -35,20 +35,38 @@ enyo.kind({
 		kind:		SwipeItem
 	}],
 
+	_preventTap: false,
+	_lastSwipeIndex: -1,
+
 	swipe: function() {
 		this.doStartSwiping({ index: this.swipeIndex });
 		this.inherited(arguments);
 	},
 
 	swipeDragStart: function(sender, event) {
+		// Check whether the item is swipeable.
 		if(event.index == null || event.vertical || (this.doIsItemSwipeable(event) === false))
 			return false;
+
+		// If the persistent item of a previous swipe is still
+		// shown, we need to clear it out.
 		if(this.persistentItemVisible)
-			this.finishSwiping();
+			this.finishSwiping(this.swipeIndex);
+
+		// Remember the swiped index.
+		this._lastSwipeIndex = event.index;
+
 		this.inherited(arguments);
 	},
 
+	swipeDragFinish: function() {
+		this._preventTap = true;
+		return this.inherited(arguments);
+	},
+
 	getPersistSwipeableItem: function() {
+		// As we use swiping only for a delete confirmation,
+		// the item needs to persistent in any case.
 		return true;
 	},
 
@@ -61,6 +79,18 @@ enyo.kind({
 	beginPinnedReorder: function(event) {
 		this.pinnedReorderMode = true;
 		this.completeFinishReordering(event);
+	},
+
+	ignoreTap: function(index) {
+		var result = (index == this._lastSwipeIndex) && this._preventTap;
+		this._preventTap = false;
+
+		// In case the tap is not ignored, we need to remove the
+		// persistent item.
+		if(this.persistentItemVisible && !result)
+			this.finishSwiping(this.swipeIndex);
+
+		return result;
 	}
 });
 
@@ -90,6 +120,9 @@ enyo.kind({
 	//
 
 	itemClicked: function(sender, event) {
+		if(this.$.list.ignoreTap(event.index))
+			return false;
+
 		// If the tapped item is already selected, nothing has to be done.
 		// This is indicated by returning false. As a result, this method
 		// needs to be overridden in a derived kind, as the handler must
