@@ -58,8 +58,8 @@ enyo.kind({
 	kind:   			enyo.Component,
 
 	hasHTMLMail:		false,
-	hasEmbeddedVideo:	false,
-	canShareViaIM:		false,
+	hasEmbeddedVideo:	true,
+	canShareViaIM:		true,
 	canExtendLifetime:	false,
 
 	rendered:			false,
@@ -102,7 +102,13 @@ enyo.kind({
 	},
 
 	openMessaging: function(text) {
-		alert("Should open messaging: " + text);
+		this._runActivity({
+			name: "new",
+			data: {
+				type: "websms/sms",
+				body: text
+			}
+		});
 	},
 
 	openMainView: function() {
