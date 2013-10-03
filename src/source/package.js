@@ -1,6 +1,5 @@
 enyo.depends(
     // Enyo libs
-	"$lib/layout/drawer",
     "$lib/onyx",
 
     "$lib/layout/fittable",
