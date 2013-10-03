@@ -1,9 +1,9 @@
 /*
- *		source/utils/os/palm.js - Palm webOS specific kinds
+ *		source/utils/os/palm.js - Firefox OS specific kinds
  */
 
-/* FeedReader - A RSS Feed Aggregator for Palm WebOS
- * Copyright (C) 2009-2012 Timo Tegtmeier
+/* FeedReader - A RSS Feed Aggregator for Firefox OS
+ * Copyright (C) 2009-2013 Timo Tegtmeier
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
