@@ -12,13 +12,12 @@ if command -v node >/dev/null 2>&1; then
 	cp manifest.webapp deploy/src
 	cd deploy/src
 	mkdir -p "$STARTDIR/bin/release"
+	mkdir -p "$STARTDIR/bin/debug"
+	rm -r -f "$STARTDIR/bin/debug/*"
+	cp -r * "$STARTDIR/bin/debug"
 	zip - -r * > "$STARTDIR/bin/release/package.zip"
 	rm manifest.webapp
 	cd "$SRC"
-	cp appinfo.json deploy/src
-	palm-package -o "$STARTDIR/bin/release" deploy/src
-	rm -r build
-	rm -r deploy
 else
 	echo "No node found in path; unable to build release version"
 	exit 1
