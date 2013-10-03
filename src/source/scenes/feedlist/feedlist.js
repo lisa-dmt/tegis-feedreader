@@ -137,10 +137,10 @@ enyo.kind({
 				classes:	"feed-title-box large",
 				components: [{
 					name:		"reorderFeedTitle",
-					classes:	"feed-title"
+					classes:	"feed-title shorten-text"
 				}, {
 					name:		"reorderFeedURL",
-					classes:	"feed-url"
+					classes:	"feed-url shorten-text"
 				}]
 			}]
 		}]
