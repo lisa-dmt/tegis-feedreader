@@ -148,7 +148,9 @@ enyo.kind({
 
 	tools: [{
 		name:			"shareMenu",
-		kind:			PopupMenu,
+		kind:			onyx.Menu,
+		scrolling:		false,
+		floating:		true,
 		components:		[{
 			content:	$L("Send via E-Mail"),
 			ontap:		"shareViaEmail"
@@ -159,7 +161,9 @@ enyo.kind({
 		}]
 	}, {
 		name:			"sortMenu",
-		kind:			PopupMenu,
+		kind:			onyx.Menu,
+		scrolling:		false,
+		floating:		true,
 		components:		[{
 			name:		"visibilityItem",
 			content: 	$L("Visible stories"),
