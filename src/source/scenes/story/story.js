@@ -52,10 +52,15 @@ enyo.kind({
 	components:	[{
 		name:			"header",
 		kind:			onyx.Toolbar,
+		layoutKind:		enyo.FittableColumnsLayout,
 		classes:		"toolbar-light",
 		components:		[{
 			kind:		TopSceneControl,
 			ontap:		"doBackClick"
+		}, {
+			name:		"headerCaption",
+			classes:	"shorten-text",
+			fit:		true
 		}, {
 			name:		"backButton",
             kind:       onyx.IconButton,
@@ -76,7 +81,6 @@ enyo.kind({
 		}, {
 			name:		"starButton",
 			kind:		StarButton,
-            classes:    "float-right",
 			disabled:	true,
 			onChange:	"storyStarred"
 		}]
@@ -272,6 +276,13 @@ enyo.kind({
 		} else {
 			enyo.application.feeds.getStory(this.story.id, this.gotStory);
 		}
+	},
+
+	feedChanged: function() {
+		var title = this.feed
+			? enyo.application.feeds.getFeedTitle(this.feed)
+			: "";
+		this.$.headerCaption.setContent(title);
 	},
 
 	//
