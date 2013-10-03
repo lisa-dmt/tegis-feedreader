@@ -300,7 +300,8 @@ enyo.kind({
 	},
 
 	itemClicked: function(sender, event) {
-		this.inherited(arguments);
+		if(!this.inherited(arguments))
+			return true;
 		this.doStorySelected(this.items[event.index]);
 	},
 
