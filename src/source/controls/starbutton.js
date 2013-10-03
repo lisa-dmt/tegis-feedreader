@@ -54,6 +54,7 @@ enyo.kind({
 enyo.kind({
 	name:		"StarButton",
 	kind:		ListStarButton,
+	classes:	"star-button",
 
 	published:	{
 		checked:	false
