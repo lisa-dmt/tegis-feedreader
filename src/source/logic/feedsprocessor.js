@@ -1,5 +1,5 @@
 /*
- *		commonjs/feeds.js - Common feed processing
+ *		source/logic/feedsprocessor.js - Common feed processing
  */
 
 /* FeedReader - A RSS Feed Aggregator for Firefox OS

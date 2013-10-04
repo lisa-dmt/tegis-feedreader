@@ -1,5 +1,5 @@
 /*
- *		source/models/database.js - Database functions
+ *		source/logic/database.js - Database functions
  *
  * The classes defined here communicate with the FeedReader SQLite
  * database.

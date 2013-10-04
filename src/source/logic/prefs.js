@@ -1,5 +1,5 @@
 /*
- *		source/models/prefs.js - preferences data model
+ *		source/logic/prefs.js - preferences data model
  */
 
 /* FeedReader - A RSS Feed Aggregator for Firefox OS
