@@ -1,5 +1,5 @@
 /*
- *		source/models/feeds.js - Feedlist data model
+ *		source/logic/feeds.js - Feedlist data model
  */
 
 /* FeedReader - A RSS Feed Aggregator for Firefox OS

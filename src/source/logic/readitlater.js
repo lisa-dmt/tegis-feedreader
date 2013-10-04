@@ -1,5 +1,5 @@
 /*
- *		source/models/readitlater.js - Read it Later support
+ *		source/logic/readitlater.js - Read it Later support
  */
 
 /* FeedReader - A RSS Feed Aggregator for Firefox OS
