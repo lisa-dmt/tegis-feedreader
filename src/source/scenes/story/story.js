@@ -91,28 +91,28 @@ enyo.kind({
 		showing:		false,
 		defaultKind:	enyo.Control,
 		components:		[{
-			classes:	"story-body-header",
-			components:	[{
-				name:		"date",
-				kind:		HeaderInfoLabel,
-				caption:	$L("Date")
-			}, {
-				kind:		DottedSeparator
-			}, {
-				name:		"caption",
-				kind:		HeaderInfoLabel,
-				caption:	$L("Caption")
-			}]
-		}, {
-			classes:	    "header-shadow"
-		}, {
 			name:           "contentScroller",
 			kind:			enyo.Scroller,
-			style:			"margin: 10px",
             onScrollStart:  "scrollingStarted",
             onScrollStop:   "scrollingStopped",
 			fit:			true,
 			components:		[{
+				classes:	"story-body-header",
+				components:	[{
+					name:		"date",
+					kind:		HeaderInfoLabel,
+					caption:	$L("Date")
+				}, {
+					kind:		DottedSeparator
+				}, {
+					name:		"caption",
+					kind:		HeaderInfoLabel,
+					caption:	$L("Caption")
+				}]
+			}, {
+				classes:	    "header-shadow",
+				style:			"margin-bottom: 8px"
+			}, {
 				name:		"pictureBox",
 				nodeTag:	"div",
 				style:		"text-align: center;",
@@ -125,6 +125,7 @@ enyo.kind({
 			}, {
 				name:			    "content",
 				kind:			    HtmlContent,
+				style:				"margin-left: 5px; margin-right: 5px;",
 				onLinkClick:	    "innerLinkClicked"
 			}, {
 				kind:				SilverSeparator
