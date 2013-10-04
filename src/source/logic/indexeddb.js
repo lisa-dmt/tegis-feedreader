@@ -432,10 +432,22 @@ enyo.kind({
 		var feed = event.target.result;
 		if(!feed)
 			return;
+		this.doUpdateFeedCount(feeds, deltaUnRead, deltaNew, feed);
+	},
 
+	/**	@protected
+	 *
+	 * Update the counts of a feed.
+	 *
+	 * @param feeds				feed object store
+	 * @param deltaUnRead		count to be added to the current "unread count"
+	 * @param deltaNew			count to be added to the current "new count"
+	 * @param feed				feed to update
+	 */
+	doUpdateFeedCount: function(feeds, deltaUnRead, deltaNew, feed) {
 		feed.numUnRead += deltaUnRead;
 		feed.numNew += deltaNew;
-		feeds.put(feed);
+		feeds.put(new Feed(feed));
 	},
 
 	/**
@@ -908,8 +920,8 @@ enyo.kind({
 			req = req.index("fid").openCursor(this.boundOnly(feed.id));
 		} else {
 			if(feed.feedType == feedTypes.ftStarred) {
-				feed.newCount = feed.numUnRead = 0;
-				feeds.put(feed);
+				feed.numNew = feed.numUnRead = 0;
+				feeds.put(new Feed(feed));
 			}
 			req = req.openCursor();
 		}
@@ -917,10 +929,10 @@ enyo.kind({
 		req.onsuccess = function(event) {
 			var cursor = event.target.result;
 			if(cursor) {
-				var story = cursor.result;
+				var story = cursor.value;
 				if(story.isStarred) {
 					story.isStarred = false;
-					stories.put(story);
+					stories.put(new Story(story));
 				}
 				cursor.continue();
 			}
@@ -971,26 +983,81 @@ enyo.kind({
 		onSuccess = onSuccess || this.nullData;
 		onFail = onFail || this.errorHandler;
 
-		state = state ? 1 : 0;
+		var transaction = this.writeTransaction(["feeds", "stories"], onSuccess, onFail);
+		var feeds = transaction.objectStore("feeds");
+		var stories = transaction.objectStore("stories");
+		var request = null;
 
-		this.writeTransaction(function(transaction) {
-			switch(feed.feedType) {
-				case feedTypes.ftAllItems:
-					transaction.executeSql("UPDATE stories SET isRead = ?, isNew = 0",
-						[state], onSuccess, onFail);
-					break;
+		switch(feed.feedType) {
+			case feedTypes.ftStarred:
+			case feedTypes.ftAllItems:
+				request = stories.openCursor();
+				break;
+			default:
+				request = stories.index("fid").openCursor(this.boundOnly(feed.id));
+				break;
+		}
 
-				case feedTypes.ftStarred:
-					transaction.executeSql("UPDATE stories SET isRead = ?, isNew = 0 WHERE isStarred = 1",
-						[state], onSuccess, onFail);
-					break;
+		state = !!state;
+		var increment = state ? -1 : 1;
+		var deltaUnread = { total: 0, starred: 0 };
+		var deltaNew = { total: 0, starred: 0 };
+		var self = this;
 
-				default:
-					transaction.executeSql("UPDATE stories SET isRead = ?, isNew = 0 WHERE fid = ?",
-						[state, feed.id], onSuccess, onFail);
-					break;
+		function incCount(counter, story, inc) {
+			counter["total"] = counter["total"] + inc;
+			if(story.isStarred)
+				counter["starred"] = counter["starred"] + inc;
+
+			var fid = story.fid;
+			if(!counter[fid]) {
+				counter[fid] = inc;
+			} else {
+				counter[fid] += inc;
 			}
-		});
+		}
+
+		function updateFeeds(event) {
+			var cursor = event.target.result;
+			if(cursor) {
+				var feed = cursor.value;
+				var key = feed.feedType == feedTypes.ftAllItems ? "total"
+					: feed.feedType == feedTypes.ftStarred ? "starred"
+					: feed.id;
+				var deltaNewCount = deltaNew[key];
+				var deltaUnreadCount = deltaUnread[key];
+				if(deltaUnreadCount)
+					self.doUpdateFeedCount(feeds, deltaUnreadCount, deltaNewCount, feed);
+
+				cursor.continue();
+			}
+		}
+
+		request.onsuccess = function(event) {
+			var cursor = event.target.result;
+			if(cursor) {
+				var story = new Story(cursor.value);
+
+				// Skip stories that should not be changed.
+				if((state == (!!story.isRead)) || ((feed.feedType == feedTypes.ftStarred) && !story.isStarred)) {
+					cursor.continue();
+					return;
+				}
+
+				// Set new state and account changes.
+				story.isRead = state;
+				incCount(deltaUnread, story, increment);
+				if(state && story.isNew) {
+					story.isNew = false;
+					incCount(deltaNew, story, increment);
+				}
+
+				stories.put(story);
+				cursor.continue();
+			} else {
+				feeds.openCursor().onsuccess = updateFeeds;
+			}
+		};
 	},
 
 	/**
