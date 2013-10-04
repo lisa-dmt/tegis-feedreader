@@ -664,14 +664,14 @@ enyo.kind({
 				break;
 		}
 
-		request.openCursor().onsuccess = function(event) {
+		request.onsuccess = function(event) {
 			var cursor = event.target.result;
 			if(cursor) {
 				if(feed.feedType != feedTypes.ftStarred || cursor.value.isStarred) {
 					var urls = cursor.value.url;
 					for(var i = 0; i < urls.length; i++) {
 						data.push({
-							title:		urls[i].title,
+							title:		cursor.value.title,
 							url:		urls[i].href,
 							pubdate:	cursor.value.pubdate
 						});
