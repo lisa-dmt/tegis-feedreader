@@ -21,7 +21,6 @@
  */
 
 enyo.kind({
-
 	name:	"Feeds",
 	kind:	"Component",
 
