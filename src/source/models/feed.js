@@ -40,7 +40,6 @@ var feedTypes = {
  * @param	proto		{object}		feed object to clone
  */
 function Feed(proto) {
-	enyo.mixin(this, Feed.prototype);
 	if(proto) {
 		this.title = proto.title || this.title;
 		this.url = proto.url || this.url;
