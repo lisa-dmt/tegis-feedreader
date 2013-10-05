@@ -38,15 +38,40 @@ enyo.kind({
 
 	components:	[{
 		kind:		onyx.Toolbar,
+		layoutKind:	enyo.FittableColumnsLayout,
 		name:		"header",
 		classes:	"toolbar-light",
 		components:	[{
 			kind:		onyx.IconButton,
+			name:		"appMenuButton",
 			src:		"assets/header/app-menu.png",
 			showing:	!appMenuSupported(),
 			ontap:		"openAppMenu"
 		}, {
-			content:	$L("Feed Subscriptions")
+			name:		"headerCaption",
+			classes:	"shorten-text header-caption",
+			content:	$L("Feed Subscriptions"),
+			fit:		true
+		}, {
+			name:		"searchBox",
+			kind: 		onyx.InputDecorator,
+			showing:	false,
+			fit:		true,
+			tag:		"div",
+			layoutKind:	enyo.FittableColumnsLayout,
+			components: [{
+				kind:           onyx.Input,
+				name:			"searchInput",
+				fit:			true,
+				oninput:		"filterChanged"
+			}, {
+				kind: 		enyo.Image,
+				name:		"searchIcon",
+				src: 		"assets/search-input-search.png",
+				ontap:		"filterCanceled"
+			}, {
+				className:	"header-shadow"
+			}]
 		}]
 	}, {
         kind:						SwipeableList,
@@ -164,9 +189,15 @@ enyo.kind({
 		}, {
 			name:		"refreshButton",
 			kind:		"onyx.IconButton",
-            classes:	"float-right",
+			classes:	"float-right",
 			src:		"assets/toolbars/icon-sync.png",
 			ontap:	    "refreshClicked"
+		}, {
+			name:		"searchButton",
+			kind:		ToggleIconButton,
+			classes:    "float-right",
+			src:		"assets/toolbars/icon-search.png",
+			ontap:		"searchClicked"
 		}]
 	}],
 
@@ -374,6 +405,66 @@ enyo.kind({
 
 	addFeedClicked: function(sender, event) {
 		this.doAddFeed();
+	},
+
+	hideSearchBox: function() {
+		if(this.$.searchBox.getShowing()) {
+			if(this.filter != "")
+				this.$.list.scrollToStart();
+			this.$.searchBox.hide();
+			if(!appMenuSupported())
+				this.$.appMenuButton.show();
+			this.$.headerCaption.show();
+			this.resized();
+			this.$.searchInput.setValue("");
+			this.filter = "";
+			this.doUpdateSearchIcon();
+			this.refresh();
+		}
+	},
+
+	showSearchBox: function() {
+		this.$.appMenuButton.hide();
+		this.$.headerCaption.hide();
+		this.$.searchBox.show();
+		this.resized();
+		this.$.searchInput.focus();
+	},
+
+	searchClicked: function() {
+		if(this.$.searchBox.getShowing()) {
+			this.hideSearchBox();
+		} else {
+			this.showSearchBox();
+		}
+	},
+
+	filterCanceled: function() {
+		this.$.searchInput.setValue("");
+		this.doUpdateSearchIcon();
+		this.doFilterChanged();
+	},
+
+	filterChanged: function() {
+		this.doUpdateSearchIcon();
+		if(this.searchTimer)
+			window.clearTimeout(this.searchTimer);
+		this.searchTimer = window.setTimeout(enyo.bind(this, this.doFilterChanged), 500);
+	},
+
+	doUpdateSearchIcon: function() {
+		var newValue = this.$.searchInput.getValue();
+		if((newValue == "") && (this.filter != "")) {
+			this.$.searchIcon.setSrc("assets/search-input-search.png");
+		} else if((newValue != "") && (this.filter == "")) {
+			this.$.searchIcon.setSrc("assets/search-input-cancel.png");
+		}
+		this.filter = newValue;
+	},
+
+	doFilterChanged: function() {
+		this.$.list.scrollToStart();
+		this.refresh();
 	},
 
 	refreshClicked: function(sender, event) {
