@@ -447,7 +447,7 @@ enyo.kind({
 	doUpdateFeedCount: function(feeds, deltaUnRead, deltaNew, feed) {
 		feed.numUnRead += deltaUnRead;
 		feed.numNew += deltaNew;
-		feeds.put(new Feed(feed));
+		feeds.put(feed);
 	},
 
 	/**
@@ -543,6 +543,9 @@ enyo.kind({
 		onFail = onFail || this.errorHandler;
 
 		var result = [];
+		var noFilter = !filter || (filter == "");
+		if(!noFilter)
+			filter = filter.toLowerCase();
 		var feeds = this.readTransaction(["feeds"], function() {
 			onSuccess(result);
 		}, onFail).objectStore("feeds");
@@ -550,7 +553,7 @@ enyo.kind({
 			var cursor = event.target.result;
 			if(cursor) {
 				var feed = cursor.value;
-				if(!filter || (filter == "") || (feed.title.indexOf(filter)))
+				if(noFilter || (feed.title.toLowerCase().indexOf(filter)) >= 0)
 					result.push(new Feed(feed));
 				cursor.continue();
 			}
@@ -612,6 +615,9 @@ enyo.kind({
 
 		var self = this;
 		var data = [];
+		var noFilter = !filter || (filter == "");
+		if(!noFilter)
+			filter = filter.toLowerCase();
 		var request = this.readTransaction(["stories"], function() {
 			data.sort(pubdateSort);
 			if(feed.feedType < feedTypes.ftUnknown) {
@@ -659,7 +665,10 @@ enyo.kind({
 					if((showMode == 0) ||
 						((showMode == 1) && (!cursor.value.isRead)) ||
 						((showMode == 2) && (cursor.value.isNew))) {
-						data.push(new Story(cursor.value));
+						if(noFilter ||
+							(cursor.value.title.toLowerCase().indexOf(filter) >= 0) ||
+							(cursor.value.summary.toLowerCase().indexOf(filter) >= 0))
+							data.push(new Story(cursor.value));
 					}
 				}
 				cursor.continue();
@@ -1036,7 +1045,7 @@ enyo.kind({
 		request.onsuccess = function(event) {
 			var cursor = event.target.result;
 			if(cursor) {
-				var story = new Story(cursor.value);
+				var story = cursor.value;
 
 				// Skip stories that should not be changed.
 				if((state == (!!story.isRead)) || ((feed.feedType == feedTypes.ftStarred) && !story.isStarred)) {
