@@ -46,7 +46,7 @@ enyo.kind({
 			kind:		TopSceneControl,
 			ontap:		"doBackClick"
 		}, {
-			name:		"header",
+			name:		"headerCaption",
 			classes:	"shorten-text",
 			fit:		true
 		}, {
@@ -379,7 +379,7 @@ enyo.kind({
 				this.$.list.scrollToStart();
 			}
 			this.$.searchBox.hide();
-			this.$.header.show();
+			this.$.headerCaption.show();
 			this.resized();
 			this.$.searchInput.setValue("");
 			this.doUpdateSearchIcon();
@@ -390,14 +390,18 @@ enyo.kind({
 		}
 	},
 
+	showSearchBox: function() {
+		this.$.headerCaption.hide();
+		this.$.searchBox.show();
+		this.resized();
+		this.$.searchInput.focus();
+	},
+
 	searchClicked: function() {
 		if(this.$.searchBox.getShowing()) {
 			this.hideSearchBox();
 		} else {
-			this.$.header.hide();
-			this.$.searchBox.show();
-			this.resized();
-			this.$.searchInput.focus();
+			this.showSearchBox();
 		}
 	},
 
@@ -483,9 +487,9 @@ enyo.kind({
 	feedChanged: function() {
 		var feedInvalid = !this.feed;
 		if(feedInvalid) {
-			this.$.header.setContent($L("Story list"));
+			this.$.headerCaption.setContent($L("Story list"));
 		} else {
-			this.$.header.setContent(enyo.application.feeds.getFeedTitle(this.feed));
+			this.$.headerCaption.setContent(enyo.application.feeds.getFeedTitle(this.feed));
 		}
 
 		this.$.list.setShowing(!feedInvalid);
