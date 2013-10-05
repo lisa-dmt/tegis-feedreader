@@ -26,7 +26,6 @@
  * @param	proto		{object}		story object to clone
  */
 function Story(proto) {
-	enyo.mixin(this, Story.prototype);
 	if(proto) {
 		if(proto.id || proto.id === 0)
 			this.id = proto.id;
