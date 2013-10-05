@@ -44,6 +44,18 @@
 	border-right: 0 !important;
 }
 
+.onyx-toolbar div.onyx-input-decorator {
+	padding: 0px 0px 0px 4px;
+}
+
+.onyx-toolbar div.onyx-input-decorator input {
+	margin-top: -2px !important;
+}
+
+.onyx-toolbar div.onyx-input-decorator img {
+	margin: -2px 4px 0px 4px !important;
+}
+
 /*
  * Custom styles
  */
