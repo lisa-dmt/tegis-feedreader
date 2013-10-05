@@ -332,6 +332,8 @@ enyo.kind({
 
 	itemClicked: function(sender, event) {
 		if(this.inherited(arguments)) {
+			if(this.$.searchInput.hasNode())
+				this.$.searchInput.node.blur();
 			this.doFeedSelected(this.items[event.rowIndex]);
 		}
 	},
@@ -428,7 +430,9 @@ enyo.kind({
 		this.$.headerCaption.hide();
 		this.$.searchBox.show();
 		this.resized();
-		this.$.searchInput.focus();
+		window.setTimeout(enyo.bind(this, function() {
+			this.$.searchInput.focus();
+		}), 120);
 	},
 
 	searchClicked: function() {
