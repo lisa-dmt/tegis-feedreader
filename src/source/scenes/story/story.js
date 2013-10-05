@@ -59,7 +59,7 @@ enyo.kind({
 			ontap:		"doBackClick"
 		}, {
 			name:		"headerCaption",
-			classes:	"shorten-text",
+			classes:	"shorten-text header-caption",
 			fit:		true
 		}, {
 			name:		"backButton",

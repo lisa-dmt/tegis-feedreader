@@ -54,6 +54,8 @@
 
 .onyx-toolbar div.onyx-input-decorator img {
 	margin: -2px 4px 0px 4px !important;
+	width: 20px !important;
+	height: 20px !important;
 }
 
 /*
@@ -144,6 +146,10 @@
 	padding: 0;
 	min-width: 20px;
 	background: url(../assets/header-back.png) no-repeat center center rgba(0, 0, 0, 0.2);
+}
+
+.enyo-fittable-columns-layout.onyx-toolbar-inline div.header-caption {
+	margin-top: 4px !important;
 }
 
 .enyo-fittable-columns-layout > .header-back-button {
