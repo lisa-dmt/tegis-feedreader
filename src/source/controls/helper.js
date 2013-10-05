@@ -232,3 +232,33 @@ enyo.kind({
 		this.doCancel();
 	}
 });
+
+enyo.kind({
+	name:	"ToggleIconButton",
+	kind:	onyx.Icon,
+	classes: "onyx-icon-button",
+
+	published:	{
+		pressed:	false
+	},
+
+	create: function() {
+		this.handlers.ondown = "down";
+		this.inherited(arguments);
+	},
+
+	down: function(inSender, inEvent) {
+		this.setPressed(!this.pressed);
+	},
+
+	leave: function(inSender, inEvent) {
+	},
+
+	pressedChanged: function() {
+		if(this.pressed) {
+			this.addClass("pressed");
+		} else {
+			this.removeClass("pressed");
+		}
+	}
+});
