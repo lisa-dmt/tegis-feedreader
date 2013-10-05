@@ -35,6 +35,8 @@ enyo.kind({
 		onBackClick:		""
 	},
 
+	searchTimer: null,
+
 	components:	[{
 		kind:		onyx.Toolbar,
 		layoutKind:	enyo.FittableColumnsLayout,
@@ -47,23 +49,26 @@ enyo.kind({
 			name:		"header",
 			classes:	"shorten-text",
 			fit:		true
-		}]
-	}, {
-		name:		"searchBox",
-		showing:	false,
-		components:	[{
-            kind: onyx.InputDecorator,
-            components: [{
-                kind:           onyx.Input,
-                name:			"searchInput",
-                onchange:		"filterChanged",
-                onCancel:		"filterCanceled"
-            }, {
-                kind: enyo.Image,
-                src: "assets/search-input-search.png"
-            }]
 		}, {
-			className:	"header-shadow"
+			name:		"searchBox",
+			kind: 		onyx.InputDecorator,
+			showing:	false,
+			fit:		true,
+			tag:		"div",
+			layoutKind:	enyo.FittableColumnsLayout,
+			components: [{
+				kind:           onyx.Input,
+				name:			"searchInput",
+				fit:			true,
+				oninput:		"filterChanged"
+			}, {
+				kind: 		enyo.Image,
+				name:		"searchIcon",
+				src: 		"assets/search-input-search.png",
+				ontap:		"filterCanceled"
+			}, {
+				className:	"header-shadow"
+			}]
 		}]
 	}, {
 		kind:				SwipeableList,
@@ -133,7 +138,7 @@ enyo.kind({
 			ontap:		"shareClicked"
 		}, {
 			name:		"searchButton",
-			kind:		onyx.IconButton,
+			kind:		ToggleIconButton,
 			classes:    "float-right tool-button",
 			src:		"assets/toolbars/icon-search.png",
 			ontap:		"searchClicked"
@@ -374,7 +379,10 @@ enyo.kind({
 				this.$.list.scrollToStart();
 			}
 			this.$.searchBox.hide();
+			this.$.header.show();
+			this.resized();
 			this.$.searchInput.setValue("");
+			this.doUpdateSearchIcon();
 			this.filter = "";
 			if(!noRefresh) {
 				this.refresh();
@@ -386,20 +394,37 @@ enyo.kind({
 		if(this.$.searchBox.getShowing()) {
 			this.hideSearchBox();
 		} else {
+			this.$.header.hide();
 			this.$.searchBox.show();
-			this.$.searchInput.forceFocus();
+			this.resized();
+			this.$.searchInput.focus();
 		}
 	},
 
 	filterCanceled: function() {
-		this.filter = "";
-		this.$.searchInput.forceBlur();
-		this.$.list.scrollToStart();
-		this.refresh();
+		this.$.searchInput.setValue("");
+		this.doUpdateSearchIcon();
+		this.doFilterChanged();
 	},
 
 	filterChanged: function() {
-		this.filter = this.$.searchInput.getValue();
+		this.doUpdateSearchIcon();
+		if(this.searchTimer)
+			window.clearTimeout(this.searchTimer);
+		this.searchTimer = window.setTimeout(enyo.bind(this, this.doFilterChanged), 500);
+	},
+
+	doUpdateSearchIcon: function() {
+		var newValue = this.$.searchInput.getValue();
+		if((newValue == "") && (this.filter != "")) {
+			this.$.searchIcon.setSrc("assets/search-input-search.png");
+		} else if((newValue != "") && (this.filter == "")) {
+			this.$.searchIcon.setSrc("assets/search-input-cancel.png");
+		}
+		this.filter = newValue;
+	},
+
+	doFilterChanged: function() {
 		this.$.list.scrollToStart();
 		this.refresh();
 	},
