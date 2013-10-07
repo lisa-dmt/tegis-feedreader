@@ -30,15 +30,14 @@ enyo.kind({
 		name:		"caption",
 		classes:	"caption float-left"
 	}, {
-        kind:       "onyx.PickerDecorator",
+        kind:       onyx.PickerDecorator,
 		name:		"pickerDecorator",
 		classes:	"float-right",
-		onSelect:	"pickerSelected",
 		onChange:	"pickerChanged",
         components: [{
 			name:			"pickerButton"
 		}, {
-            kind:       	"onyx.FlyweightPicker",
+            kind:       	onyx.FlyweightPicker,
             name:			"selector",
 			onSetupItem:	"setupItem",
 			components:		[{
@@ -66,16 +65,11 @@ enyo.kind({
         return true;
 	},
 
-	pickerSelected: function(sender, event) {
-		this.value = this.items[event.index].value;
-		if(!this.updating)
-			this.doChange();
-		return true;
-	},
-
 	pickerChanged: function(sender, event) {
-		if(event.index) {
+		if(event.index !== undefined) {
 			this.value = this.items[event.index].value;
+			if(!this.updating)
+				this.doChange();
 		}
 		return true;
 	},
