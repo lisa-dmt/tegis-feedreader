@@ -51,24 +51,12 @@ enyo.kind({
 			fit:		true
 		}, {
 			name:		"searchBox",
-			kind: 		onyx.InputDecorator,
+			kind: 		"SearchInput",
 			showing:	false,
 			fit:		true,
 			tag:		"div",
-			layoutKind:	enyo.FittableColumnsLayout,
-			components: [{
-				kind:           onyx.Input,
-				name:			"searchInput",
-				fit:			true,
-				oninput:		"filterChanged"
-			}, {
-				kind: 		enyo.Image,
-				name:		"searchIcon",
-				src: 		"assets/search-input-search.png",
-				ontap:		"filterCanceled"
-			}, {
-				className:	"header-shadow"
-			}]
+			onChange:	"filterChanged",
+			onCancel:	"filterCanceled"
 		}]
 	}, {
 		kind:				SwipeableList,
@@ -312,8 +300,7 @@ enyo.kind({
 		if(!this.inherited(arguments))
 			return true;
 
-		if(this.$.searchInput.hasNode())
-			this.$.searchInput.node.blur();
+		this.$.searchBox.blur();
 		this.doStorySelected(this.items[event.index]);
 	},
 
@@ -374,68 +361,6 @@ enyo.kind({
 
 	orderToggled: function() {
 		this.setSortMode(this.feed.sortMode ^ 0x0100);
-	},
-
-	hideSearchBox: function(noRefresh) {
-		if(this.$.searchBox.getShowing()) {
-			if(this.filter != "") {
-				this.$.list.scrollToStart();
-			}
-			this.$.searchBox.hide();
-			this.$.headerCaption.show();
-			this.resized();
-			this.$.searchInput.setValue("");
-			this.doUpdateSearchIcon();
-			this.filter = "";
-			if(!noRefresh) {
-				this.refresh();
-			}
-		}
-	},
-
-	showSearchBox: function() {
-		this.$.headerCaption.hide();
-		this.$.searchBox.show();
-		this.resized();
-		window.setTimeout(enyo.bind(this, function() {
-			this.$.searchInput.focus();
-		}), 120);
-	},
-
-	searchClicked: function() {
-		if(this.$.searchBox.getShowing()) {
-			this.hideSearchBox();
-		} else {
-			this.showSearchBox();
-		}
-	},
-
-	filterCanceled: function() {
-		this.$.searchInput.setValue("");
-		this.doUpdateSearchIcon();
-		this.doFilterChanged();
-	},
-
-	filterChanged: function() {
-		this.doUpdateSearchIcon();
-		if(this.searchTimer)
-			window.clearTimeout(this.searchTimer);
-		this.searchTimer = window.setTimeout(enyo.bind(this, this.doFilterChanged), 500);
-	},
-
-	doUpdateSearchIcon: function() {
-		var newValue = this.$.searchInput.getValue();
-		if((newValue == "") && (this.filter != "")) {
-			this.$.searchIcon.setSrc("assets/search-input-search.png");
-		} else if((newValue != "") && (this.filter == "")) {
-			this.$.searchIcon.setSrc("assets/search-input-cancel.png");
-		}
-		this.filter = newValue;
-	},
-
-	doFilterChanged: function() {
-		this.$.list.scrollToStart();
-		this.refresh();
 	},
 
 	//

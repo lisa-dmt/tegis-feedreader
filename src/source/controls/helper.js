@@ -165,14 +165,14 @@ enyo.kind({
 	name:		"BottomSubSceneControl",
 	classes:	"float-left",
 	components:	[{
-		kind:		showGrabButtons() ? "onyx.Grabber" : "enyo.Control",
+		kind:		showGrabButtons() ? onyx.Grabber : enyo.Control,
 		classes:	"float-left"
 	}]
 });
 
 enyo.kind({
-	kind:	"FittableRows",
 	name:	"DraggableView",
+	kind:	enyo.FittableRows,
 
 	handlers: {
 		ondragstart: "dragstart"
@@ -260,5 +260,94 @@ enyo.kind({
 		} else {
 			this.removeClass("pressed");
 		}
+	}
+});
+
+enyo.kind({
+	name:		"SearchInput",
+	kind: 		onyx.InputDecorator,
+	showing:	false,
+	fit:		true,
+	tag:		"div",
+
+	published: 	{
+		value:			"",
+		placeholder: 	$L("Search...")
+	},
+
+	events:		{
+		onChange: "",
+		onCancel: ""
+	},
+
+	timer:		null,
+
+	layoutKind:	enyo.FittableColumnsLayout,
+	components: [{
+		kind:       onyx.Input,
+		name:		"searchInput",
+		fit:		true,
+		oninput:	"termChanged"
+	}, {
+		kind: 		enyo.Image,
+		name:		"searchIcon",
+		src: 		"assets/search-input-search.png",
+		ontap:		"searchCanceled"
+	}],
+
+	termChanged: function() {
+		this.updateState();
+		if(this.timer)
+			window.clearTimeout(this.timer);
+		this.timer = window.setTimeout(this.emitChange, 350);
+	},
+
+	emitChange: function() {
+		this.timer = null;
+		this.doChange();
+	},
+
+	updateState: function() {
+		var newValue = this.$.searchInput.getValue();
+		if(((newValue == "") && (this.value != "")) || ((newValue != "") && (this.value == "")))
+			this.$.searchIcon.setSrc(this.getIconFor(newValue));
+		this.value = newValue;
+	},
+
+	searchCanceled: function(sender, event) {
+		this.$.searchInput.setValue("");
+		this.updateState();
+		this.doCancel();
+	},
+
+	valueChanged: function() {
+		this.$.searchInput.setValue(this.value);
+		this.$.searchIcon.setSrc(this.getIconFor(this.value));
+	},
+
+	getIconFor: function(term) {
+		return term == ""
+			? "assets/search-input-search.png"
+			: "assets/search-input-cancel.png";
+	},
+
+	placeholderChanged: function() {
+		this.$.searchInput.setPlaceholder(this.placeholder);
+	},
+
+	focus: function() {
+		this.$.searchInput.focus();
+	},
+
+	blur: function() {
+		if(this.$.searchInput.hasNode())
+			this.$.searchInput.node.blur();
+	},
+
+	create: function() {
+		this.inherited(arguments);
+		this.emitChange = enyo.bind(this, this.emitChange);
+		this.valueChanged();
+		this.placeholderChanged();
 	}
 });
