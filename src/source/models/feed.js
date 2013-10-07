@@ -41,9 +41,9 @@ var feedTypes = {
  */
 function Feed(proto) {
 	if(proto) {
-		this.title = proto.title || Feed.prototype.title;
-		this.url = proto.url || Feed.prototype.url;
-		this.feedType = proto.feedType || Feed.prototype.feedType;
+		this.title = proto.title || this.title;
+		this.url = proto.url || this.url;
+		this.feedType = proto.feedType;
 		this.feedOrder = proto.feedOrder || Feed.prototype.feedOrder;
 		this.enabled = proto.enabled || Feed.prototype.enabled;
 		this.showPicture = proto.showPicture || Feed.prototype.showPicture;
