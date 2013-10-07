@@ -164,6 +164,56 @@ enyo.kind({
 	},
 
 	//
+	// Search handling
+	//
+
+	hideSearchBox: function(noRefresh) {
+		if(this.$.searchBox.getShowing()) {
+			if(this.filter != "")
+				this.$.list.scrollToStart();
+
+			this.$.searchButton.setPressed(false);
+			this.$.searchBox.hide();
+			this.$.searchBox.setValue("");
+			this.filter = "";
+			this.$.headerCaption.show();
+			this.resized();
+
+			if(!noRefresh)
+				this.refresh();
+		}
+	},
+
+	showSearchBox: function() {
+		this.$.headerCaption.hide();
+		this.$.searchBox.show();
+		this.resized();
+
+		window.setTimeout(enyo.bind(this, function() {
+			this.$.searchBox.focus();
+		}), 120);
+	},
+
+	searchClicked: function() {
+		if(this.$.searchBox.getShowing()) {
+			this.hideSearchBox();
+		} else {
+			this.showSearchBox();
+		}
+	},
+
+	filterChanged: function() {
+		this.filter = this.$.searchBox.getValue();
+		this.$.list.scrollToStart();
+		this.refresh();
+	},
+
+	filterCanceled: function() {
+		this.hideSearchBox();
+	},
+
+
+	//
 	// Helper functions
 	//
 

@@ -54,24 +54,12 @@ enyo.kind({
 			fit:		true
 		}, {
 			name:		"searchBox",
-			kind: 		onyx.InputDecorator,
+			kind: 		"SearchInput",
 			showing:	false,
 			fit:		true,
 			tag:		"div",
-			layoutKind:	enyo.FittableColumnsLayout,
-			components: [{
-				kind:           onyx.Input,
-				name:			"searchInput",
-				fit:			true,
-				oninput:		"filterChanged"
-			}, {
-				kind: 		enyo.Image,
-				name:		"searchIcon",
-				src: 		"assets/search-input-search.png",
-				ontap:		"filterCanceled"
-			}, {
-				className:	"header-shadow"
-			}]
+			onChange:	"filterChanged",
+			onCancel:	"filterCanceled"
 		}]
 	}, {
         kind:						SwipeableList,
@@ -332,8 +320,7 @@ enyo.kind({
 
 	itemClicked: function(sender, event) {
 		if(this.inherited(arguments)) {
-			if(this.$.searchInput.hasNode())
-				this.$.searchInput.node.blur();
+			this.$.searchBox.blur();
 			this.doFeedSelected(this.items[event.rowIndex]);
 		}
 	},
@@ -409,70 +396,23 @@ enyo.kind({
 		this.doAddFeed();
 	},
 
-	hideSearchBox: function() {
-		if(this.$.searchBox.getShowing()) {
-			if(this.filter != "")
-				this.$.list.scrollToStart();
-			this.$.searchBox.hide();
-			if(!appMenuSupported())
-				this.$.appMenuButton.show();
-			this.$.headerCaption.show();
-			this.resized();
-			this.$.searchInput.setValue("");
-			this.filter = "";
-			this.doUpdateSearchIcon();
-			this.refresh();
-		}
+	refreshClicked: function(sender, event) {
+        enyo.Signals.send("onUpdateAll");
 	},
+
+	//
+	// Search handling
+	//
 
 	showSearchBox: function() {
 		this.$.appMenuButton.hide();
-		this.$.headerCaption.hide();
-		this.$.searchBox.show();
-		this.resized();
-		window.setTimeout(enyo.bind(this, function() {
-			this.$.searchInput.focus();
-		}), 120);
+		this.inherited(arguments);
 	},
 
-	searchClicked: function() {
-		if(this.$.searchBox.getShowing()) {
-			this.hideSearchBox();
-		} else {
-			this.showSearchBox();
-		}
-	},
-
-	filterCanceled: function() {
-		this.$.searchInput.setValue("");
-		this.doUpdateSearchIcon();
-		this.doFilterChanged();
-	},
-
-	filterChanged: function() {
-		this.doUpdateSearchIcon();
-		if(this.searchTimer)
-			window.clearTimeout(this.searchTimer);
-		this.searchTimer = window.setTimeout(enyo.bind(this, this.doFilterChanged), 500);
-	},
-
-	doUpdateSearchIcon: function() {
-		var newValue = this.$.searchInput.getValue();
-		if((newValue == "") && (this.filter != "")) {
-			this.$.searchIcon.setSrc("assets/search-input-search.png");
-		} else if((newValue != "") && (this.filter == "")) {
-			this.$.searchIcon.setSrc("assets/search-input-cancel.png");
-		}
-		this.filter = newValue;
-	},
-
-	doFilterChanged: function() {
-		this.$.list.scrollToStart();
-		this.refresh();
-	},
-
-	refreshClicked: function(sender, event) {
-        enyo.Signals.send("onUpdateAll");
+	hideSearchBox: function() {
+		if(this.$.searchBox.getShowing() && !appMenuSupported())
+			this.$.appMenuButton.show();
+		this.inherited(arguments);
 	},
 
 	//
