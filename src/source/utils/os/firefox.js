@@ -57,10 +57,13 @@ enyo.kind({
 	name:   			"FirefoxAppHelper",
 	kind:   			enyo.Component,
 
-	hasHTMLMail:		false,
-	hasEmbeddedVideo:	true,
-	canShareViaIM:		true,
-	canExtendLifetime:	false,
+	hasHTMLMail:			false,
+	hasEmbeddedVideo:		true,
+	canShareViaIM:			true,
+	canExtendLifetime:		false,
+	canBlink:				false,
+	hasBackgroundNotifications:	false,
+	hasSilentNotifications: 	false,
 
 	rendered:			false,
 	activity:			null,

@@ -108,7 +108,7 @@ enyo.kind({
 				}, {
 					name:		"unobtrusiveNotifications",
 					kind:		ToggleItem,
-					caption:	$L("Show notifications unobtrusively")
+					caption:	$L("Show notifications unobtrusively"),
 				}, {
 					name:		"blinkingEnabled",
 					kind:		ToggleItem,
@@ -245,6 +245,10 @@ enyo.kind({
 	},
 
 	reInitialize: function() {
+		this.$.blinkingEnabled.setShowing(enyo.application.helper.canBlink);
+		this.$.unobtrusiveNotifications.setShowing(enyo.application.helper.hasBackgroundNotifications);
+		this.$.notifyWithSound.setShowing(enyo.application.helper.hasSilentNotifications);
+
 		this.$.updateInterval.setValue(enyo.application.prefs.updateInterval);
 		this.$.storyKeepTime.setValue(enyo.application.prefs.storyKeepTime);
 		this.$.updateOnStart.setValue(enyo.application.prefs.updateOnStart);
