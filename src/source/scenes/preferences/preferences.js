@@ -108,7 +108,7 @@ enyo.kind({
 				}, {
 					name:		"unobtrusiveNotifications",
 					kind:		ToggleItem,
-					caption:	$L("Show notifications unobtrusively"),
+					caption:	$L("Show notifications unobtrusively")
 				}, {
 					name:		"blinkingEnabled",
 					kind:		ToggleItem,
