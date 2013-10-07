@@ -41,40 +41,27 @@ var feedTypes = {
  */
 function Feed(proto) {
 	if(proto) {
-		this.title = proto.title || this.title;
-		this.url = proto.url || this.url;
-		this.feedType = proto.feedType;
-		if(proto.feedOrder !== undefined)
-			this.feedOrder = proto.feedOrder;
-		if(proto.enabled !== undefined)
-			this.enabled = proto.enabled;
-		if(proto.showPicture !== undefined)
-			this.showPicture = proto.showPicture;
-		if(proto.showMedia !== undefined)
-			this.showMedia = proto.showMedia;
-		if(proto.showListSummary !== undefined)
-			this.showListSummary = proto.showListSummary;
-		if(proto.showListCaption !== undefined)
-			this.showListCaption = proto.showListCaption;
-		if(proto.showDetailSummary !== undefined)
-			this.showDetailSummary = proto.showDetailSummary;
-		if(proto.showDetailCaption !== undefined)
-			this.showDetailCaption = proto.showDetailCaption;
-		if(proto.sortMode !== undefined)
-			this.sortMode = proto.sortMode;
-		if(proto.allowHTML !== undefined)
-			this.allowHTML = proto.allowHTML;
-		if(proto.numNew) {
-			this.numNew = proto.numNew;
-		}
-		if(proto.numUnRead) {
-			this.numUnRead = proto.numUnRead;
-		}
+		this.title = proto.title || Feed.prototype.title;
+		this.url = proto.url || Feed.prototype.url;
+		this.feedType = proto.feedType || Feed.prototype.feedType;
+		this.feedOrder = proto.feedOrder || Feed.prototype.feedOrder;
+		this.enabled = proto.enabled || Feed.prototype.enabled;
+		this.showPicture = proto.showPicture || Feed.prototype.showPicture;
+		this.showMedia = proto.showMedia || Feed.prototype.showMedia;
+		this.showListSummary = proto.showListSummary || Feed.prototype.showListSummary;
+		this.showListCaption = proto.showListCaption || Feed.prototype.showListCaption;
+		this.showDetailSummary = proto.showDetailSummary || Feed.prototype.showDetailSummary;
+		this.showDetailCaption = proto.showDetailCaption || Feed.prototype.showDetailCaption;
+		this.sortMode = proto.sortMode || Feed.prototype.sortMode;
+		this.allowHTML = proto.allowHTML || Feed.prototype.allowHTML;
+		this.numNew = proto.numNew || Feed.prototype.numNew;
+		this.numUnRead = proto.numUnRead || Feed.prototype.numUnRead;
+		this.fullStory = proto.fullStory || Feed.prototype.fullStory;
+		this.category = proto.category || Feed.prototype.category;
+		this.categoryName = proto.categoryName || Feed.prototype.categoryName;
+
 		if(proto.id || proto.id === 0) {
 			this.id = proto.id;
-		}
-		if(proto.fullStory !== null) {
-			this.fullStory = proto.fullStory;
 		}
 		if(this.feedType < feedTypes.ftUnknown) {
 			this.preventDelete = true;
@@ -82,12 +69,6 @@ function Feed(proto) {
 		if(proto.username && proto.password) {
 			this.username = proto.username;
 			this.password = proto.password;
-		}
-		if(proto.category !== null) {
-			this.category = proto.category;
-		}
-		if(proto.categoryName !== null) {
-			this.categoryName = proto.categoryName;
 		}
 	}
 }
