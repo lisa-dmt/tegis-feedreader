@@ -170,6 +170,7 @@ enyo.kind({
 				kind:		onyx.Groupbox,
 				classes:	"additional-scene center-div",
 				style:		additionalSceneWidthStyle(),
+				showing:	false,
 				components:	[{
                     kind:       onyx.GroupboxHeader,
                     content:    $L("Pocket")
@@ -192,6 +193,7 @@ enyo.kind({
 			}, {
 				classes:	"center-text",
 				allowHtml:	true,
+				showing:	false,
 				content:	$L("If you provide <i>Pocket</i> credentials, FeedReader will sync starred items to <i>Pocket</i>.")
 			}]
 		}]
