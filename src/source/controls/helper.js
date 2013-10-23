@@ -351,3 +351,16 @@ enyo.kind({
 		this.placeholderChanged();
 	}
 });
+
+enyo.kind({
+	name:	"EnhancedSlider",
+	kind:	onyx.Slider,
+
+	dragfinish: function(inSender, inEvent) {
+		this.dragging = false;
+		if(inEvent.ignoreTap)
+			inEvent.ignoreTap();
+		this.doChange({value: this.value});
+		return true;
+	}
+});
