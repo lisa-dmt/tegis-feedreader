@@ -170,13 +170,13 @@ enyo.kind({
 		kind:		onyx.Toolbar,
 		pack:		"justify",
 		components:	[{
-			kind:		"onyx.IconButton",
+			kind:		onyx.IconButton,
 			classes:	"float-left",
 			src:		"assets/toolbars/icon-new.png",
 			ontap:	    "addFeedClicked"
 		}, {
 			name:		"refreshButton",
-			kind:		"onyx.IconButton",
+			kind:		onyx.IconButton,
 			classes:	"float-right",
 			src:		"assets/toolbars/icon-sync.png",
 			ontap:	    "refreshClicked"
