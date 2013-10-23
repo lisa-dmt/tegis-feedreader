@@ -56,7 +56,6 @@ function Feed(proto) {
 		this.allowHTML = proto.allowHTML || Feed.prototype.allowHTML;
 		this.numNew = proto.numNew || Feed.prototype.numNew;
 		this.numUnRead = proto.numUnRead || Feed.prototype.numUnRead;
-		this.fullStory = proto.fullStory || Feed.prototype.fullStory;
 		this.category = proto.category || Feed.prototype.category;
 		this.categoryName = proto.categoryName || Feed.prototype.categoryName;
 
@@ -91,6 +90,5 @@ Feed.prototype.numUnRead =			0;
 Feed.prototype.preventDelete =		false;
 Feed.prototype.username =			"";
 Feed.prototype.password =			"";
-Feed.prototype.fullStory =			true;
 Feed.prototype.category =			0;
 Feed.prototype.categoryName =		"Uncategorized";
