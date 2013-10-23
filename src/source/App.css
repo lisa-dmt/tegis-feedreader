@@ -58,6 +58,10 @@
 	height: 20px !important;
 }
 
+.onyx-progress-bar {
+	height: 8px !important;
+}
+
 /*
  * Custom styles
  */
