@@ -31,15 +31,12 @@ var mediaStates = {
 };
 
 enyo.kind({
-	name:		"EnhancedAudio",
+	name:		"EnhancedMedia",
 	kind:		enyo.Control,
-
-	nodeTag:	"audio",
 
 	_connected:				false,
 	_mediaState:			mediaStates.stopped,
 	_seeking:				false,
-	_domEventDispatcher: 	null,
 
 	events:	{
 		onCanPlay:			"",
@@ -54,9 +51,20 @@ enyo.kind({
 		onStateChanged:		""
 	},
 
+	handlers:	{
+		oncanplay: 			"_canplay",
+		onprogress: 		"_progress",
+		oncanplaythough:	"_canplaythrough",
+		onseeking:			"_seeking",
+		onseeked:			"_seeked",
+		onabort:			"_aborted",
+		onended:			"_ended",
+		onerror:			"_error",
+		onstalled:			"_stalled"
+	},
+
 	published: {
 		src:		"",
-		audioClass:	"media",
 		preload:	true
 	},
 
@@ -76,15 +84,7 @@ enyo.kind({
 
 	preloadChanged: function() {
 		this.setAttribute("autobuffer", this.preload ? "autobuffer" : null);
-		this.setAttribute("preload", this.preload ? "preload" : null);
-	},
-
-	audioClassChanged: function() {
-		if(this.audioClass) {
-			this.setAttribute("x-palm-media-audio-class", this.audioClass);
-		} else {
-			this.removeAttribute("x-palm-media-audio-class");
-		}
+		this.setAttribute("preload", this.preload ? "auto" : "none");
 	},
 
 	//
@@ -187,7 +187,7 @@ enyo.kind({
 	// DOM event handlers
 	//
 
-	canplayHandler: function(sender) {
+	_canplay: function(sender) {
 		if(this._mediaState == mediaStates.buffering) {
 			this._mediaState = mediaStates.stopped;
 		}
@@ -196,54 +196,52 @@ enyo.kind({
 		return true;
 	},
 
-	canplaythroughHandler: function(sender) {
+	_canplaythrough: function(sender) {
 		this.doCanPlayThrough();
 		this.doStateChanged();
 		return true;
 	},
 
-	progressHandler: function(sender) {
-		if(this.hasNode()) {
-			this.doProgress(this.node.currentTime);
-			this.doStateChanged();
-		}
+	_progress: function(sender) {
+		this.doProgress({ time: this.node.currentTime });
+		this.doStateChanged();
 		return true;
 	},
 
-	stalledHandler: function(sender) {
+	_stalled: function(sender) {
 		this.doStalled();
 		return true;
 	},
 
-	seekingHandler: function(sender) {
+	_seeking: function(sender) {
 		this._seeking = true;
 		this.doSeeking();
 		this.doStateChanged();
 		return true;
 	},
 
-	seekedHandler: function(sender) {
+	_seeked: function(sender) {
 		this._seeking = false;
 		this.doSeeked();
 		this.doStateChanged();
 		return true;
 	},
 
-	abortHandler: function(sender) {
+	_aborted: function(sender) {
 		this._mediaState = mediaStates.aborted;
 		this.doAborted();
 		this.doStateChanged();
 		return true;
 	},
 
-	endedHandler: function(sender) {
+	_ended: function(sender) {
 		this._mediaState = mediaStates.ended;
 		this.doEnded();
 		this.doStateChanged();
 		return true;
 	},
 
-	errorHandler: function(sender) {
+	_error: function(sender) {
 		this._mediaState = mediaStates.error;
 		this.doError();
 		this.doStateChanged();
@@ -254,29 +252,46 @@ enyo.kind({
 	// Initialization
 	//
 
+	rendered: function() {
+		this.inherited(arguments);
+		enyo.makeBubble(this, "abort");
+		enyo.makeBubble(this, "canplay");
+		enyo.makeBubble(this, "canplaythrough");
+		enyo.makeBubble(this, "durationchange");
+		enyo.makeBubble(this, "emptied");
+		enyo.makeBubble(this, "ended");
+		enyo.makeBubble(this, "error");
+		enyo.makeBubble(this, "loadeddata");
+		enyo.makeBubble(this, "loadedmetadata");
+		enyo.makeBubble(this, "loadstart");
+		enyo.makeBubble(this, "pause");
+		enyo.makeBubble(this, "play");
+		enyo.makeBubble(this, "playing");
+		enyo.makeBubble(this, "progress");
+		enyo.makeBubble(this, "ratechange");
+		enyo.makeBubble(this, "seeked");
+		enyo.makeBubble(this, "seeking");
+		enyo.makeBubble(this, "stalled");
+		enyo.makeBubble(this, "timeupdate");
+		enyo.makeBubble(this, "volumechange");
+		enyo.makeBubble(this, "waiting");
+	},
+
 	create: function() {
 		this.inherited(arguments);
 		this.srcChanged();
 		this.preloadChanged();
-
-		//this._domEventDispatcher = enyo.bind(this, this.dispatchDomEvent);
-	},
-
-	rendered: function() {
-		this.inherited(arguments);
-		if(this.hasNode()) {
-			if(!this._connected) {
-				this._connected = true;
-				this.node.addEventListener('canplay', this._domEventDispatcher);
-				this.node.addEventListener('progress', this._domEventDispatcher);
-				this.node.addEventListener('canplaythough', this._domEventDispatcher);
-				this.node.addEventListener('seeking', this._domEventDispatcher);
-				this.node.addEventListener('seeked', this._domEventDispatcher);
-				this.node.addEventListener('abort', this._domEventDispatcher);
-				this.node.addEventListener('ended', this._domEventDispatcher);
-				this.node.addEventListener('error', this._domEventDispatcher);
-				this.node.addEventListener('stalled', this._domEventDispatcher);
-			}
-		}
 	}
+});
+
+enyo.kind({
+	name:		"EnhancedAudio",
+	kind:		"EnhancedMedia",
+	tag:		"audio"
+});
+
+enyo.kind({
+	name:		"EnhancedVideo",
+	kind:		"EnhancedMedia",
+	tag:		"video"
 });

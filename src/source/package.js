@@ -47,16 +47,13 @@ enyo.depends(
     "controls/errordialog.js",
 	"controls/helper.js",
     "controls/listviewskeleton.js",
-    "controls/dottedseparator.js",
-    "controls/silverseparator.js",
     "controls/starbutton.js",
-    "controls/enhancedaudio.js",
+    "controls/media.js",
     "controls/activitybutton.js",
     "controls/htmlcontent.js",
 	"controls/modaldialog.js",
     "controls/dialogprompt.js",
     "controls/divider.js",
-    "controls/progressslider.js",
 	"controls/popupmenu.js",
 
     // Scenes
