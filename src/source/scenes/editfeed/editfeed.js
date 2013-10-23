@@ -122,18 +122,6 @@ enyo.kind({
 			components:	[{
                 kind:       onyx.GroupboxHeader,
                 content:	$L("Story display")
-            }, {
-				name:	"detailMode",
-				kind:	SelectorItem,
-				items:	[{
-					caption:	$L("Show story"),
-					value:		true
-				}, {
-					caption:	$L("Show webpage"),
-					value:		false
-				}],
-				caption:	$L("Show"),
-				onChange:   "detailModeChanged"
 			}, {
 				name:		"showPicture",
 				kind:		ToggleItem,
@@ -203,7 +191,6 @@ enyo.kind({
 
 		this.feed.showDetailCaption = true;
 		this.feed.showDetailSummary = true;
-		this.feed.fullStory = this.$.detailMode.getValue();
 
 		this.feed.showPicture = this.$.showPicture.getValue();
 		this.feed.showMedia = this.$.showMedia.getValue();
@@ -222,12 +209,6 @@ enyo.kind({
 		enyo.application.feeds.addOrEditFeed(this.feed, this.updateSuccess, this.updateFailed);
 	},
 
-	detailModeChanged: function() {
-		var state = this.$.detailMode.getValue();
-		this.$.showPicture.setDisabled(!state);
-		this.$.showMedia.setDisabled(!state);
-		this.$.allowHTML.setDisabled(!state);
-	},
 
 	resetButtons: function() {
 		this.$.saveButton.setActive(false);
@@ -262,7 +243,6 @@ enyo.kind({
 		}
 
 		var listMode = 0;
-		var detailMode = 0;
 
 		if(this.feed.showListSummary && this.feed.showListCaption) {
 			listMode = 0;
@@ -280,14 +260,11 @@ enyo.kind({
 		this.$.password.setValue(this.feed.password);
 
 		this.$.listMode.setValue(listMode);
-		this.$.detailMode.setValue(this.feed.fullStory);
 		this.$.sortMode.setValue(this.feed.sortMode);
 
 		this.$.showPicture.setValue(this.feed.showPicture);
 		this.$.showMedia.setValue(this.feed.showMedia);
 		this.$.allowHTML.setValue(this.feed.allowHTML);
-
-		this.detailModeChanged();
 	},
 
 	show: function(feed) {
