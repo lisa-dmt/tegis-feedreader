@@ -103,7 +103,7 @@ enyo.kind({
 					kind:		HeaderInfoLabel,
 					caption:	$L("Date")
 				}, {
-					kind:		DottedSeparator
+					classes:	"dotted-separator"
 				}, {
 					name:		"caption",
 					kind:		HeaderInfoLabel,
@@ -128,7 +128,7 @@ enyo.kind({
 				style:				"margin-left: 5px; margin-right: 5px;",
 				onLinkClick:	    "innerLinkClicked"
 			}, {
-				kind:				SilverSeparator
+				classes:			"silver-separator"
 			}, {
 				classes:			"center-text",
 				components:			[{
@@ -142,48 +142,35 @@ enyo.kind({
 					}, {
 						content:		$L("Open Weblink")
 					}]
-				}, {
-					name:				"playVideoButton",
-					kind:				onyx.Button,
-					ontap:				"playVideoClicked",
-					components:	[{
-						kind:			onyx.Icon,
-						src:			"assets/player-icon.png",
-						classes:		"button-icon"
-					}, {
-						content:		$L("Play Video")
-					}]
 				}]
 			}]
 		}]
 	}, {
-		name:				"webView",
-		//kind:				"WebView",
-		fit:				true,
-		showing:			false,
-		ignoreMetaTags:		true,
-		blockPopups:		true,
-		enableJavascript: 	true,
-		onLoadStarted:		"loadStarted",
-		onLoadStopped:		"loadFinished",
-		onLoadComplete:		"loadFinished",
-		onPageTitleChanged: "pageTitleChanged"
-	}, {
 		name:		"mediaControls",
 		showing:	false,
 		components:	[{
+			name:			"audio",
+			kind:			"EnhancedAudio",
+			onStateChanged:	"mediaStateChanged",
+			onProgress:		"mediaProgress",
+			onCanPlay:		"mediaCanPlay"
+		}, {
+			name: 			"video",
+			kind: 			"EnhancedVideo",
+			onStateChanged:	"mediaStateChanged",
+			onProgress:		"mediaProgress",
+			onCanPlay:		"mediaCanPlay"
+		}, {
 			kind:	enyo.FittableColumns,
-			pack:	"center",
 			components: [{
 				name:		"mediaSlider",
-				kind:		ProgressSlider,
-				style:		"width: 94%",
-				minimum:	0,
-				maximum:	1000,
-				barMinimum:	0,
-				barMaximum:	1000,
+				kind:		EnhancedSlider,
+				fit:		true,
+				min:		0,
+				max:		1000,
 				onChanging:	"mediaSeeking",
-				onChange:	"mediaSeeked"
+				onChange:	"mediaSeeked",
+				lockBar:	false
 			}]
 		}, {
 			kind:		enyo.FittableColumns,
@@ -213,13 +200,13 @@ enyo.kind({
 		}, {
 			name:		"mediaPlayButton",
 			kind:		onyx.IconButton,
-			icon:		"../../assets/player/enyo-icon-play.png",
+			src:		"assets/player/enyo-icon-play.png",
 			ontap:		"mediaPlayToggled",
 			showing:	false
 		}, {
 			name:		"shareButton",
 			kind:		onyx.IconButton,
-			icon:		"../../assets/toolbars/icon-share.png",
+			src:		"assets/toolbars/icon-share.png",
 			ontap:		"shareClicked"
 		}]
 /*	}, {
@@ -235,17 +222,6 @@ enyo.kind({
 			caption:	$L("Send via SMS/IM"),
 			ontap:		"shareViaIM"
 		}]*/
-/*	}, {
-		name:			"audio",
-		kind:			"EnhancedAudio",
-		onStateChanged:	"mediaStateChanged",
-		onProgress:		"mediaProgress",
-		onCanPlay:		"mediaCanPlay"
-	}, {
-		name: 			"videoPlayer",
-		kind: 			"PalmService",
-		service:		"palm://com.palm.applicationManager/",
-		method:			"launch"*/
 	}],
 
 	//
@@ -264,11 +240,10 @@ enyo.kind({
 			this.$.shareButton.setDisabled(true);
 			this.$.bgContainer.show();
 			this.$.storyContainer.hide();
-			this.$.webView.hide();
 			this.$.mediaControls.hide();
 
 			this.setMediaTimer(false);
-//			this.$.audio.setSrc("");
+			this.$.audio.setSrc("");
 
 			this._mediaKind = mediaKinds.none;
 			this.updateOnly = false;
@@ -308,39 +283,27 @@ enyo.kind({
 		this.$.starButton.setDisabled(false);
 		this.$.shareButton.setDisabled(false);
 
-		if(this.originFeed.fullStory) {
-            this.$.contentScroller.scrollTo(0, 0);
-			this.$.content.setContent(this.story.summary);
-            PrependHyperLinks(this.$.content.node, this, this.handleClick);
-			if(!this.story.picture || (this.story.picture.length <= 0)) {
-				this.$.picture.hide();
-				this.$.loadSpinner.hide();
-			} else {
-				this.log("STORY> retrieving picture from", this.story.picture);
-				this.$.picture.setSrc("");
-				this.$.picture.show();
-				if(!this.updateOnly) {
-					this.$.loadSpinner.show();
-				}
-				this.$.picture.setSrc(this.story.picture);
-				enyo.application.connChecker.checkConnection(
-					enyo.application.nop,
-					this.noConnection);
-			}
-			this.$.backButton.hide();
-			this.$.forwardButton.hide();
+		this.$.contentScroller.scrollTo(0, 0);
+		this.$.content.setContent(this.story.summary);
+		PrependHyperLinks(this.$.content.node, this, this.handleClick);
+		if(!this.story.picture || (this.story.picture.length <= 0)) {
+			this.$.picture.hide();
 			this.$.loadSpinner.hide();
 		} else {
-			if(this.urls.length > 0) {
-				if(!this.updateOnly) {
-					this.$.webView.clearHistory();
-					this.$.webView.setUrl(this.urls[0].href);
-					this.$.loadSpinner.show();
-				}
-				this.$.backButton.show();
-				this.$.forwardButton.show();
+			this.log("STORY> retrieving picture from", this.story.picture);
+			this.$.picture.setSrc("");
+			this.$.picture.show();
+			if(!this.updateOnly) {
+				this.$.loadSpinner.show();
 			}
+			this.$.picture.setSrc(this.story.picture);
+			enyo.application.connChecker.checkConnection(
+				enyo.application.nop,
+				this.noConnection);
 		}
+		this.$.backButton.hide();
+		this.$.forwardButton.hide();
+		this.$.loadSpinner.hide();
 
 		// Mark the story as being read.
 		if(!this.updateOnly && !this.story.isRead) {
@@ -349,16 +312,10 @@ enyo.kind({
 
 		// Setup the visible elements.
 		this.$.bgContainer.hide();
-		if(this.originFeed.fullStory) {
-			this.$.webView.hide();
-			this.$.storyContainer.show();
-			this.$.linkButton.setDisabled(this.urls.length <= 0);
-		} else {
-			this.$.storyContainer.hide();
-			this.$.webView.show();
-		}
+		this.$.storyContainer.show();
+		this.$.linkButton.setDisabled(this.urls.length <= 0);
 
-//		this.setupMediaControls();
+		this.setupMediaControls();
 
 		this.resized();
 		this.updateOnly = false;
@@ -371,33 +328,6 @@ enyo.kind({
 
 	pictureLoaded: function() {
 		this.$.loadSpinner.hide();
-	},
-
-	loadStarted: function() {
-		this.$.loadSpinner.show();
-	},
-
-	loadFinished: function() {
-		this.$.loadSpinner.hide();
-	},
-
-	pageTitleChanged: function(sender, title, url, canGoBack, canGoForward) {
-		if(this.$.loadSpinner.getShowing()) {
-			this.$.backButton.setDisabled(!canGoBack);
-			this.$.forwardButton.setDisabled(!canGoForward);
-		}
-	},
-
-	backClicked: function(sender, event) {
-		this.$.webView.goBack();
-	},
-
-	forwardClicked: function(sender, event) {
-		this.$.webView.goForward();
-	},
-
-	innerLinkClicked: function(sender, url) {
-		enyo.application.openLink(url);
 	},
 
 	linkClicked: function(sender, event) {
@@ -420,14 +350,16 @@ enyo.kind({
 
 	setupMediaControls: function() {
 		try {
-			if(this.originFeed.fullStory && (this.story.audio.length > 0)) {
+			var hasAudio = this.story.audio.length > 0;
+			var hasVideo = this.story.video.length > 0;
+			if(hasVideo || hasAudio) {
 				this.$.mediaEnd.setContent("99:99");
 				this.$.mediaControls.show();
 				this.$.mediaPlayButton.show();
 				this.$.mediaPlayButton.setDisabled(true);
-				this.$.mediaSlider.setPosition(0);
+				this.$.mediaSlider.setValue(0);
 
-				this._mediaKind = mediaKinds.audio;
+				this._mediaKind = hasAudio ? mediaKinds.audio : mediaKinds.video;
 				this.$.audio.setSrc(this.story.audio);
 				this.setMediaTimer(true);
 			} else {
@@ -436,18 +368,6 @@ enyo.kind({
 				this._mediaKind = mediaKinds.none;
 				this.$.audio.setSrc("");
 				this.setMediaTimer(false);
-			}
-
-			// Once webOS 3.x is able to play the video inside the app,
-			// this should be changed to provide the player inside
-			// the app. In this case the storyContainer should be hidden
-			// and a videoContainer should be shown.
-			// This kind is programmed to be easily changeable once this
-			// is possible.
-			if(this.story.video.length > 0) {
-				this.$.playVideoButton.show();
-			} else {
-				this.$.playVideoButton.hide();
 			}
 		} catch(e) {
 			this.error("SETUP MEDIA EX>", e);
@@ -459,8 +379,7 @@ enyo.kind({
 			case mediaKinds.audio:
 				return this.$.audio;
 			case mediaKinds.video:
-				return null;
-				// return this.$.video; /* Uncomment this once available */
+				return this.$.video;
 			default:
 				return null;
 		}
@@ -469,7 +388,7 @@ enyo.kind({
 	mediaSeeking: function() {
 		this._mediaSeeking = true;
 		var mediaControl = this.getMediaControl();
-		var position = mediaControl.getDuration() * this.$.mediaSlider.getPosition() / 1000;
+		var position = mediaControl.getDuration() * this.$.mediaSlider.getValue() / 1000;
 		mediaControl.seek(position);
 	},
 
@@ -483,24 +402,27 @@ enyo.kind({
 			var mediaControl = this.getMediaControl();
 			if(mediaControl.getPlaying()) {
 				mediaControl.pause();
-				sender.setIcon("../../assets/player/enyo-icon-play.png");
+				sender.setSrc("assets/player/enyo-icon-play.png");
 				this.setMediaTimer(false);
 			} else {
 				mediaControl.play();
-				sender.setIcon("../../assets/player/enyo-icon-pause.png");
+				sender.setSrc("assets/player/enyo-icon-pause.png");
 				this.setMediaTimer(true);
 			}
 		});
 	},
 
 	mediaStateChanged: function(sender) {
+		if(!this.story)
+			return;
+
 		try {
 			this.$.mediaState.setContent(sender.getReadableState());
 			var duration = enyo.application.feeds.getDateFormatter().formatTimeString(Math.min(sender.getDuration(), 480 * 60 + 59));
 			this.$.mediaEnd.setContent(duration);
 			var mediaControl = this.getMediaControl();
 			if(mediaControl && !mediaControl.getPlaying()) {
-				this.$.mediaPlayButton.setIcon("../../assets/player/enyo-icon-play.png");
+				this.$.mediaPlayButton.setSrc("assets/player/enyo-icon-play.png");
 			}
 		} catch(e) {
 			this.log("STATE CHANGED EX>", e);
@@ -508,26 +430,35 @@ enyo.kind({
 	},
 
 	mediaCanPlay: function(sender) {
+		if(!this.story)
+			return;
+
 		this.$.mediaPlayButton.setDisabled(false);
 	},
 
 	mediaProgress: function(sender) {
+		if(!this.story)
+			return;
+
 		var buffered = sender.getBuffered();
 		var duration = sender.getDuration();
 
-		if(!this.seeking && buffered && duration) {
-			this.$.mediaSlider.setBarPosition(buffered.end(0) * 1000 / duration);
+		if(!this._mediaSeeking && buffered && duration) {
+			this.$.mediaSlider.animateProgressTo(Math.round(buffered.end(0) * 1000 / duration));
 		}
 	},
 
 	mediaUpdate: function(sender) {
+		if(!this.story)
+			return;
+
 		if(!this._mediaSeeking) {
 			var duration = sender.getDuration();
 			var time = sender.getCurrentTime();
 
 			if(time && duration) {
 				var position = time * 1000 / duration;
-				this.$.mediaSlider.setPosition(position);
+				this.$.mediaSlider.animateTo(position);
 			}
 		}
 		this.setMediaTimer(true);
@@ -543,15 +474,6 @@ enyo.kind({
 			window.clearInterval(this._timer);
 			this._timer = null;
 		}
-	},
-
-	playVideoClicked: function() {
-		this.$.videoPlayer.call({
-            id:	"com.palm.app.videoplayer",
-            params: {
-                target: this.story.video
-            }
-        }, {});
 	},
 
     //
