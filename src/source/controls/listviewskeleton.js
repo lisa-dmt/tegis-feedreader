@@ -229,6 +229,7 @@ enyo.kind({
 		for (var i = 0; i < this.items.length; i++) {
 			if (this.items[i] && (this.items[i].id == selectedId)) {
 				this.$.list.select(i);
+				this.selectedIndex = i;
 				break;
 			}
 		}
@@ -291,6 +292,29 @@ enyo.kind({
 		return index;
 	},
 
+	/** @protected
+	 * Called to deselect the current selection.
+	 * @return	int		last value of selectedIndex
+	 */
+	deselect: function() {
+		var oldValue = this.selectedIndex;
+		this.selectedIndex = -1;
+		this.$.list.deselect(oldValue);
+		this.$.list.renderRow(oldValue);
+		return oldValue;
+	},
+
+	/** @protected
+	 * Called to select a row.
+	 * @param index
+	 */
+	select: function(index) {
+		this.selectedIndex = index;
+		this.$.list.select(index);
+		this.$.list.scrollToRow(index);
+		this.$.list.renderRow(index);
+	},
+
 	//
 	// Public functions
 	//
@@ -315,6 +339,24 @@ enyo.kind({
 		this.$.list.getSelection().clear();
 		this.$.list.setCount(0);
 		this.$.list.refresh();
+	},
+
+	selectNext: function() {
+		if(this.selectedIndex < 0)
+			return;
+
+		var newIndex = this.deselect() + 1;
+		this.itemClicked(this.$.list, { index: newIndex });
+		this.select(newIndex);
+	},
+
+	selectPrev: function() {
+		if(this.selectedIndex < 0)
+			return;
+
+		var newIndex = this.deselect() - 1;
+		this.itemClicked(this.$.list, { index: newIndex });
+		this.select(newIndex);
 	},
 
 	//

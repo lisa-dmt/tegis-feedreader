@@ -32,13 +32,17 @@ enyo.kind({
 	classes:	"story-body",
 
 	published:	{
-		feed:		null,
-		story:		null,
-		updateOnly:	false
+		feed:			null,
+		story:			null,
+		updateOnly:		false,
+		isLastStory:	null,
+		isFirstStory:	null
 	},
 
 	events:		{
-		onBackClick:	""
+		onBackClick:	"",
+		onNextStory:	"",
+		onPrevStory:	""
 	},
 
 	urls:			[],
@@ -61,20 +65,6 @@ enyo.kind({
 			name:		"headerCaption",
 			classes:	"shorten-text header-caption",
 			fit:		true
-		}, {
-			name:		"backButton",
-            kind:       onyx.IconButton,
-			icon:		"assets/header/icon-back.png",
-			enabled:	false,
-			showing:	false,
-			ontap:		"backClicked"
-		}, {
-			name:		"forwardButton",
-            kind:       onyx.IconButton,
-			icon:		"assets/header/icon-forward.png",
-			enabled:	false,
-			showing:	false,
-			ontap:		"forwardClicked"
 		}, {
 			name:		"loadSpinner",
 			kind:		onyx.Spinner
@@ -201,6 +191,18 @@ enyo.kind({
 		components:		[{
 			kind:		BottomSubSceneControl
 		}, {
+			name:		"prevStoryButton",
+			kind:       onyx.IconButton,
+			src:		"assets/header/icon-back.png",
+			disabled:	true,
+			ontap:		"doPrevStory"
+		}, {
+			name:		"nextStoryButton",
+			kind:       onyx.IconButton,
+			src:		"assets/header/icon-forward.png",
+			disabled:	true,
+			ontap:		"doNextStory"
+		}, {
 			name:		"shareButton",
 			kind:		onyx.IconButton,
 			classes:    "float-right",
@@ -241,8 +243,6 @@ enyo.kind({
 	storyChanged: function() {
 		if(!this.updateOnly) {
 			this.$.loadSpinner.hide();
-			this.$.backButton.setDisabled(true);
-			this.$.forwardButton.setDisabled(true);
 		}
 		if(!this.story) {
 			this.$.starButton.setChecked(false);
@@ -251,6 +251,10 @@ enyo.kind({
 			this.$.bgContainer.show();
 			this.$.storyContainer.hide();
 			this.$.mediaControls.hide();
+
+			this.isLastStory = this.isFirstStory = null;
+			this.$.prevStoryButton.setDisabled(true);
+			this.$.nextStoryButton.setDisabled(true);
 
 			this.setMediaTimer(false);
 			this.$.audio.setSrc("");
@@ -270,6 +274,14 @@ enyo.kind({
 			? enyo.application.feeds.getFeedTitle(this.feed)
 			: "";
 		this.$.headerCaption.setContent(title);
+	},
+
+	isLastStoryChanged: function() {
+		this.$.nextStoryButton.setDisabled(this.isLastStory);
+	},
+
+	isFirstStoryChanged: function() {
+		this.$.prevStoryButton.setDisabled(this.isFirstStory);
 	},
 
 	//
@@ -312,8 +324,6 @@ enyo.kind({
 				enyo.application.nop,
 				this.noConnection);
 		}
-		this.$.backButton.hide();
-		this.$.forwardButton.hide();
 		this.$.loadSpinner.hide();
 
 		// Mark the story as being read.
