@@ -270,9 +270,6 @@ enyo.kind({
 	},
 
 	isItemSwipeable: function(sender, event) {
-		return true;
-
-
 		var index;
 		if((index = this.indexFromEvent(event)) === false)
 			return false;
