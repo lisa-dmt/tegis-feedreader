@@ -35,9 +35,7 @@ function appMenuSupported() {
 }
 
 function applyOSSpecific() {
-    if(enyo.platform.webos) {
-		applyPalmSpecifics();
-	} else if(isFirefox()) {
+	if(isFirefox()) {
 		applyFirefoxSpecifics();
     } else {
         applyGenericHandlers();
