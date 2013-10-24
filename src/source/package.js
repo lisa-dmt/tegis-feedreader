@@ -10,8 +10,6 @@ enyo.depends(
 
 	// OS specific stuff
 	"utils/os/generic.js",
-	"utils/os/webOSExt.js",
-	"utils/os/palm.js",
 	"utils/os/firefox.js",
 
 	// Utility functions
@@ -20,7 +18,6 @@ enyo.depends(
 	"utils/simplehtmlparser.js",
 	"utils/codepages.js",
     "utils/helper.js",
-    "utils/transactionmgr.js",
 
     // Utilities
     "utils/spooler.js",
@@ -36,7 +33,6 @@ enyo.depends(
 	// Business logic
 	"logic/feedsprocessor.js",
 	"logic/prefs.js",
-	"logic/database.js",
 	"logic/indexeddb.js",
 	"logic/feeds.js",
 	"logic/readitlater.js",
