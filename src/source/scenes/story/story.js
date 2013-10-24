@@ -113,6 +113,14 @@ enyo.kind({
 				classes:	    "header-shadow",
 				style:			"margin-bottom: 8px"
 			}, {
+				name: 			"video",
+				kind: 			"EnhancedVideo",
+				style:			"width: 100%",
+				showing:		false,
+				onStateChanged:	"mediaStateChanged",
+				onProgress:		"mediaProgress",
+				onCanPlay:		"mediaCanPlay"
+			}, {
 				name:		"pictureBox",
 				nodeTag:	"div",
 				style:		"text-align: center;",
@@ -155,12 +163,7 @@ enyo.kind({
 			onProgress:		"mediaProgress",
 			onCanPlay:		"mediaCanPlay"
 		}, {
-			name: 			"video",
-			kind: 			"EnhancedVideo",
-			onStateChanged:	"mediaStateChanged",
-			onProgress:		"mediaProgress",
-			onCanPlay:		"mediaCanPlay"
-		}, {
+			style:		"margin-top: 10px;",
 			kind:	enyo.FittableColumns,
 			components: [{
 				name:		"mediaSlider",
@@ -174,7 +177,7 @@ enyo.kind({
 			}]
 		}, {
 			kind:		enyo.FittableColumns,
-			style:		"margin: 5px; font-size: 15px; font-weight: bold;",
+			style:		"margin: -3px 5px 3px 5px; font-size: 15px; font-weight: bold;",
 			components:	[{
 				name:		"mediaStart",
 				content:	"00:00"
@@ -198,30 +201,37 @@ enyo.kind({
 		components:		[{
 			kind:		BottomSubSceneControl
 		}, {
+			name:		"shareButton",
+			kind:		onyx.IconButton,
+			classes:    "float-right",
+			src:		"assets/toolbars/icon-share.png",
+			ontap:		"shareClicked"
+		}, {
 			name:		"mediaPlayButton",
 			kind:		onyx.IconButton,
+			classes:    "float-right",
 			src:		"assets/player/enyo-icon-play.png",
 			ontap:		"mediaPlayToggled",
 			showing:	false
-		}, {
-			name:		"shareButton",
-			kind:		onyx.IconButton,
-			src:		"assets/toolbars/icon-share.png",
-			ontap:		"shareClicked"
 		}]
-/*	}, {
+	}],
+
+	tools:	[{
 		name:			"linkMenu",
-		kind:			"EnhancedMenu"
+		kind:			onyx.Menu
 	}, {
 		name:			"shareMenu",
-		kind:			"EnhancedMenu",
+		kind:			onyx.Menu,
+		scrolling:		false,
+		floating:		true,
 		components:		[{
-			caption:	$L("Send via E-Mail"),
+			content:	$L("Send via E-Mail"),
 			ontap:		"shareViaEmail"
 		}, {
-			caption:	$L("Send via SMS/IM"),
+			name:		"shareViaIMItem",
+			content:	$L("Send via SMS/IM"),
 			ontap:		"shareViaIM"
-		}]*/
+		}]
 	}],
 
 	//
@@ -244,6 +254,7 @@ enyo.kind({
 
 			this.setMediaTimer(false);
 			this.$.audio.setSrc("");
+			this.$.video.setSrc("");
 
 			this._mediaKind = mediaKinds.none;
 			this.updateOnly = false;
@@ -285,7 +296,7 @@ enyo.kind({
 
 		this.$.contentScroller.scrollTo(0, 0);
 		this.$.content.setContent(this.story.summary);
-		PrependHyperLinks(this.$.content.node, this, this.handleClick);
+
 		if(!this.story.picture || (this.story.picture.length <= 0)) {
 			this.$.picture.hide();
 			this.$.loadSpinner.hide();
@@ -359,14 +370,25 @@ enyo.kind({
 				this.$.mediaPlayButton.setDisabled(true);
 				this.$.mediaSlider.setValue(0);
 
-				this._mediaKind = hasAudio ? mediaKinds.audio : mediaKinds.video;
-				this.$.audio.setSrc(this.story.audio);
+				this._mediaKind = hasVideo ? mediaKinds.video : mediaKinds.audio;
+
+				if(hasVideo) {
+					this.$.video.show();
+					this.$.video.setSrc(this.story.video);
+					this.$.audio.setSrc("");
+				} else {
+					this.$.video.hide();
+					this.$.video.setSrc("");
+					this.$.audio.setSrc(this.story.audio);
+				}
 				this.setMediaTimer(true);
 			} else {
+				this.$.video.hide();
 				this.$.mediaControls.hide();
 				this.$.mediaPlayButton.hide();
 				this._mediaKind = mediaKinds.none;
 				this.$.audio.setSrc("");
+				this.$.video.setSrc("");
 				this.setMediaTimer(false);
 			}
 		} catch(e) {
@@ -498,7 +520,8 @@ enyo.kind({
 	},
 
 	shareClicked: function(sender, event) {
-		this.$.shareMenu.openAtEvent(event);
+		this.$.shareViaIMItem.setShowing(enyo.application.helper.canShareViaIM);
+		enyo.openMenuAtEvent(this.$.shareMenu, sender, event);
 	},
 
 	//
@@ -535,6 +558,11 @@ enyo.kind({
 	//
 	// Initialization
 	//
+
+	initComponents: function() {
+		this.createChrome(this.tools);
+		this.inherited(arguments);
+	},
 
 	create: function() {
 		this.inherited(arguments);
