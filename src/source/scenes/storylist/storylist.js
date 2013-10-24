@@ -119,12 +119,14 @@ enyo.kind({
 		}, {
 			name:		"prevFeedButton",
 			kind:       onyx.IconButton,
+			classes:	"float-left",
 			src:		"assets/header/icon-back.png",
 			disabled:	true,
 			ontap:		"doPrevFeed"
 		}, {
 			name:		"nextFeedButton",
 			kind:       onyx.IconButton,
+			classes:	"float-left",
 			src:		"assets/header/icon-forward.png",
 			disabled:	true,
 			ontap:		"doNextFeed"
