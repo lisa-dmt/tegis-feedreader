@@ -21,8 +21,9 @@
  */
 
 enyo.kind({
-    name:   "HtmlContent",
-    kind:   enyo.Control,
+    name:   	"HtmlContent",
+    kind:   	enyo.Control,
+	classes:	"html-content",
 
     allowHtml: true,
 
@@ -51,5 +52,35 @@ enyo.kind({
         } else {
             return this.doClick();
         }
-    }
+		event.preventDefault();
+		return true;
+    },
+
+	rendered: function() {
+		this.inherited(arguments);
+
+		this.hasNode();
+		this.applyClickHandler();
+	},
+
+	applyClickHandler: function(node) {
+		node = node || this.node;
+		if(node.tagName == 'A' || node.tagName == 'a') {
+			node.onclick = this.clickHandler;
+			return;
+		}
+		for(var i = 0; i < node.childNodes.length; i++)
+			this.applyClickHandler(node.childNodes[i]);
+	},
+
+	setContent: function(data) {
+		this.inherited(arguments);
+		if(this.hasNode())
+			this.applyClickHandler();
+	},
+
+	create: function() {
+		this.inherited(arguments);
+		this.clickHandler = enyo.bind(this, this.clickHandler);
+	}
 });
