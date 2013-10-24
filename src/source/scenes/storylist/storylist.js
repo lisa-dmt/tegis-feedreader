@@ -25,14 +25,18 @@ enyo.kind({
 	kind:			ListViewSkeleton,
 
 	published:	{
-		feed:		undefined,
-		updateOnly:	false
+		feed:			undefined,
+		updateOnly:		false,
+		isLastFeed:		null,
+		isFirstFeed:	null
 	},
 
 	events:	{
 		onStorySelected:	"",
 		onStoryDeleted:		"",
-		onBackClick:		""
+		onBackClick:		"",
+		onNextFeed:			"",
+		onPrevFeed:			""
 	},
 
 	searchTimer: null,
@@ -112,6 +116,18 @@ enyo.kind({
 		kind:		onyx.Toolbar,
 		components:	[{
 			kind:		BottomSubSceneControl
+		}, {
+			name:		"prevFeedButton",
+			kind:       onyx.IconButton,
+			src:		"assets/header/icon-back.png",
+			disabled:	true,
+			ontap:		"doPrevFeed"
+		}, {
+			name:		"nextFeedButton",
+			kind:       onyx.IconButton,
+			src:		"assets/header/icon-forward.png",
+			disabled:	true,
+			ontap:		"doNextFeed"
 		}, {
 			name:		"sortButton",
 			kind:		onyx.IconButton,
@@ -283,13 +299,21 @@ enyo.kind({
 		this.log("STORYVIEW> Finished refresh");
 		this.inherited(arguments);
 		if(this.selectedIndex >= 0) {
-			this.doStorySelected(this.items[this.selectedIndex]);
+			this.doStorySelected({
+				item:		this.items[this.selectedIndex],
+				isFirst:	this.selectedIndex == 0,
+				isLast:		this.selectedIndex == (this.items.length - 1)
+			});
 		}
 	},
 
 	itemDeleted: function(sender, index) {
 		if(this.inherited(arguments)) {
-			this.doStorySelected(null);
+			this.doStorySelected({
+				item:		null,
+				isFirst:	true,
+				isLast: 	true
+			});
 		}
 		this.doStoryDeleted(this.deletedItem);
 		enyo.application.feeds.deleteStory(this.deletedItem);
@@ -301,7 +325,11 @@ enyo.kind({
 			return true;
 
 		this.$.searchBox.blur();
-		this.doStorySelected(this.items[event.index]);
+		this.doStorySelected({
+			item:		this.items[event.index],
+			isFirst:	event.index == 0,
+			isLast:		event.index == (this.items.length - 1)
+		});
 	},
 
 	storyStarred: function(sender, event) {
@@ -312,7 +340,11 @@ enyo.kind({
 
 		if(this.selectedIndex == event.rowIndex) {
 			// Refresh the story view.
-			this.doStorySelected(story);
+			this.doStorySelected({
+				item:		this.items[this.selectedIndex],
+				isFirst:	this.selectedIndex == 0,
+				isLast:		this.selectedIndex == (this.items.length - 1)
+			});
 		}
 	},
 
@@ -438,6 +470,15 @@ enyo.kind({
 		this.resized();
 		this.updateOnly = false;
 	},
+
+	isLastFeedChanged: function() {
+		this.$.nextFeedButton.setDisabled(this.isLastFeed);
+	},
+
+	isFirstFeedChanged: function() {
+		this.$.prevFeedButton.setDisabled(this.isFirstFeed);
+	},
+
 
 	//
 	// Public functions

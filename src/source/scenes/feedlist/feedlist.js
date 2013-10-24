@@ -311,14 +311,22 @@ enyo.kind({
 
 		this.inherited(arguments);
 		if(this.selectedIndex >= 0) {
-			this.doFeedSelected(this.items[this.selectedIndex]);
+			this.doFeedSelected({
+				item:		this.items[this.selectedIndex],
+				isFirst:	this.selectedIndex == 0,
+				isLast:		this.selectedIndex == (this.items.length - 1)
+			});
 		}
 	},
 
 	itemClicked: function(sender, event) {
 		if(this.inherited(arguments)) {
 			this.$.searchBox.blur();
-			this.doFeedSelected(this.items[event.rowIndex]);
+			this.doFeedSelected({
+				item:		this.items[event.index],
+				isFirst:	event.index == 0,
+				isLast:		event.index == (this.items.length - 1)
+			});
 		}
 	},
 
@@ -337,7 +345,11 @@ enyo.kind({
 			throw "Missed dragstart event!";
 
 		if(this.inherited(arguments)) {
-			this.doFeedSelected(null);
+			this.doFeedSelected({
+				item:		null,
+				isFirst:	true,
+				isLast: 	true
+			});
 		}
 		this.doFeedDeleted(this.deletedItem);
 		enyo.application.feeds.deleteFeed(this.deletedItem);

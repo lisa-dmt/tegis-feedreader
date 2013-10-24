@@ -49,11 +49,15 @@ enyo.kind({
 				name:				"storyList",
 				kind:				StoryList,
                 onStorySelected:	"storySelected",
-				onBackClick:		"backToFeedList"
+				onBackClick:		"backToFeedList",
+				onNextFeed:			"selectNextFeed",
+				onPrevFeed:			"selectPrevFeed"
             }, {
                 name:		        "storyView",
                 kind:		        StoryView,
-				onBackClick:		"backToStoryList"
+				onBackClick:		"backToStoryList",
+				onNextStory:		"selectNextStory",
+				onPrevStory:		"selectPrevStory"
             }]
         }, {
             name:				    "preferences",
@@ -127,8 +131,9 @@ enyo.kind({
 		enyo.openMenuAtEvent(this.$.mainMenu, this, event);
 	},
 
-	feedSelected: function(sender, feed) {
+	feedSelected: function(sender, event) {
 		enyo.asyncMethod(this, function() {
+			var feed = event.item;
 			var selectedFeed = this.$.storyList.getFeed();
 			if(selectedFeed && feed && (selectedFeed.id == feed.id)) {
 				this.$.storyList.setUpdateOnly(true);
@@ -136,6 +141,8 @@ enyo.kind({
 				this.$.storyView.setStory(null);
 			}
 
+			this.$.storyList.setIsLastFeed(event.isLast);
+			this.$.storyList.setIsFirstFeed(event.isFirst);
 			this.$.storyList.setFeed(feed);
 			this.$.storyView.setFeed(feed);
 
@@ -163,13 +170,16 @@ enyo.kind({
 	// StoryList events
 	//
 
-	storySelected: function(sender, story) {
+	storySelected: function(sender, event) {
 		enyo.asyncMethod(this, function() {
+			var story = event.item;
 			var selectedStory = this.$.storyView.getStory();
 			if(selectedStory && story && (selectedStory.id == story.id)) {
 				this.$.storyView.setUpdateOnly(true);
 			}
 
+			this.$.storyView.setIsLastStory(event.isLast);
+			this.$.storyView.setIsFirstStory(event.isFirst);
 			this.$.storyView.setStory(story);
 
 			if(enyo.Panels.isScreenNarrow()) {
@@ -194,6 +204,27 @@ enyo.kind({
 		enyo.asyncMethod(this, function() {
 			this.$.mainPane.setIndex(1);
 		});
+	},
+
+	//
+	// Previous & next story|feed handing
+	//
+
+	selectNextFeed: function() {
+		this.$.feedList.selectNext();
+	},
+
+	selectPrevFeed: function() {
+		this.$.feedList.selectPrev();
+	},
+
+	selectNextStory: function() {
+		this.$.storyList.selectNext();
+
+	},
+
+	selectPrevStory: function() {
+		this.$.storyList.selectPrev();
 	},
 
 	//
