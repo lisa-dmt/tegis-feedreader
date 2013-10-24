@@ -122,6 +122,12 @@ enyo.kind({
 		}));
 	},
 
+	cloneWhenNeeded: function(obj, constructor) {
+		if(!obj.originator)
+			return obj;
+		return new constructor(obj);
+	},
+
 	boundBetween: function(a, b) {
 		var lower = Math.min(a, b);
 		var upper = Math.max(a, b);
@@ -261,7 +267,7 @@ enyo.kind({
 			var cursor = event.target.result;
 			if(cursor) {
 				var cat = cursor.value;
-				result.push(new Category(cat));
+				result.push(cat);
 				cursor.continue();
 			}
 		}
@@ -325,7 +331,7 @@ enyo.kind({
 			self.reorderList(cats, "catOrder", oldOrder, newOrder);
 			var catStore = this.writeTransaction(["categories"], onSuccess, onFail).objectStore("categories");
 			for(var i = 0; i < cats.length; i++) {
-				catStore.put(new Category(cats[i]));
+				catStore.put(self.cloneWhenNeeded(cats[i], Category));
 			}
 		}, onFail);
 	},
@@ -343,7 +349,7 @@ enyo.kind({
 		onFail = onFail || this.errorHandler;
 
 		var feeds = this.writeTransaction(["feeds"], null, onFail).objectStore("feeds");
-		feeds.put(new Feed(feed)).onsuccess = function(event) {
+		feeds.put(this.cloneWhenNeeded(feed, Feed)).onsuccess = function(event) {
 			feed.id = event.target.result;
 			onSuccess(feed);
 		};
@@ -362,7 +368,7 @@ enyo.kind({
 
 		var feeds = this.writeTransaction(["feeds"], null, onFail).objectStore("feeds");
 		if(id !== null) {
-			feed = new Feed(feed);
+			feed = this.cloneWhenNeeded(feed, Feed);
 			feeds.put(feed).onsuccess = function() { onSuccess(feed); };
 		} else {
 			feeds.index("feedOrder").openCursor().onsuccess = function(event) {
@@ -506,7 +512,7 @@ enyo.kind({
 			self.reorderList(feeds, "feedOrder", oldOrder, newOrder);
 			var feedsStore = self.writeTransaction(["feeds"], onSuccess, onFail).objectStore("feeds");
 			for(var i = 0; i < feeds.length; i++) {
-				feedsStore.put(new Feed(feeds[i]));
+				feedsStore.put(self.cloneWhenNeeded(feeds[i], Feed));
 			}
 		}, onFail);
 	},
@@ -544,6 +550,7 @@ enyo.kind({
 
 		var result = [];
 		var noFilter = !filter || (filter == "");
+		var self = this;
 		if(!noFilter)
 			filter = filter.toLowerCase();
 		var feeds = this.readTransaction(["feeds"], function() {
@@ -554,7 +561,7 @@ enyo.kind({
 			if(cursor) {
 				var feed = cursor.value;
 				if(noFilter || (feed.title.toLowerCase().indexOf(filter)) >= 0)
-					result.push(new Feed(feed));
+					result.push(self.cloneWhenNeeded(feed, Feed));
 				cursor.continue();
 			}
 		}
@@ -668,7 +675,7 @@ enyo.kind({
 						if(noFilter ||
 							(cursor.value.title.toLowerCase().indexOf(filter) >= 0) ||
 							(cursor.value.summary.toLowerCase().indexOf(filter) >= 0))
-							data.push(new Story(cursor.value));
+							data.push(self.cloneWhenNeeded(cursor.value, Story));
 					}
 				}
 				cursor.continue();
@@ -923,6 +930,7 @@ enyo.kind({
 		var transaction = this.writeTransaction(["feeds", "stories"], onSuccess, onFail);
 		var feeds = transaction.objectStore("feeds");
 		var stories = transaction.objectStore("stories");
+		var self = this;
 
 		var req = stories;
 		if(feed.feedType >= feedTypes.ftUnknown) {
@@ -930,7 +938,7 @@ enyo.kind({
 		} else {
 			if(feed.feedType == feedTypes.ftStarred) {
 				feed.numNew = feed.numUnRead = 0;
-				feeds.put(new Feed(feed));
+				feeds.put(self.cloneWhenNeeded(feed, Feed));
 			}
 			req = req.openCursor();
 		}
@@ -941,7 +949,7 @@ enyo.kind({
 				var story = cursor.value;
 				if(story.isStarred) {
 					story.isStarred = false;
-					stories.put(new Story(story));
+					stories.put(self.cloneWhenNeeded(story, Story));
 				}
 				cursor.continue();
 			}
