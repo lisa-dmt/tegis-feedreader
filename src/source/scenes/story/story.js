@@ -284,9 +284,9 @@ enyo.kind({
         this._scrolling = false;
 
 		// Handle the largeFont setting.
-		this.$.date.applyStyle("font-size", enyo.application.prefs.largeFont ? "120%" : "100%");
-		this.$.caption.applyStyle("font-size", enyo.application.prefs.largeFont ? "120%" : "100%");
-		this.$.content.applyStyle("font-size", enyo.application.prefs.largeFont ? "120%" : "100%");
+		this.$.date.applyStyle("font-size", enyo.application.prefs.largeFont ? "14px" : "12px");
+		this.$.caption.applyStyle("font-size", enyo.application.prefs.largeFont ? "14px" : "12px");
+		this.$.content.applyStyle("font-size", enyo.application.prefs.largeFont ? "18px" : "16px");
 
 		this.$.date.setLabel(enyo.application.feeds.getDateFormatter().formatDateTime(this.story.pubdate));
 		this.$.caption.setLabel(this.story.title);
