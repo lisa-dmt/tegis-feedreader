@@ -357,6 +357,7 @@ enyo.kind({
 			this.$.list.prepareRow(index);
 			this.$.feedSpinner.setShowing(state);
 			this.spinningIndex = state ? index : -1;
+			this.$.list.lockRow(index);
 		}
 	},
 
