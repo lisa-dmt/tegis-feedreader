@@ -272,6 +272,12 @@
 	background-position: center center;
 }
 
+.html-content img {
+	float: left;
+	clear: none;
+	margin: 5px 5px 5px 0px;
+}
+
 /*
  * Custom styles
  */
@@ -507,8 +513,6 @@ span.underline {
 span.italic {
 	font-style: italic;
 }
-
-/***********/
 
 .header-shadow,
 .footer-shadow,
