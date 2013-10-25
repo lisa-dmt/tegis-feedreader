@@ -440,7 +440,7 @@ enyo.kind({
 		if(feed.title === "") {
 			feed.title = "RSS Feed";
 		}
-		enyo.application.db.addOrEditFeed(feed, enyo.bind(this, this.onAddOrEditFeedSuccess, onSuccess), onFail);
+		enyo.application.db.addOrEditFeed(new Feed(feed), enyo.bind(this, this.onAddOrEditFeedSuccess, onSuccess), onFail);
 	},
 
 	/**
