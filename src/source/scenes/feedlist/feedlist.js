@@ -28,6 +28,10 @@ enyo.kind({
 	spinningIndex:	-1,
 	waitingForData:	true,
 
+	published:	{
+		updateOnly:			false
+	},
+
 	events:		{
 		onOpenAppMenu:		"",
 		onFeedSelected:		"",
@@ -239,7 +243,10 @@ enyo.kind({
 
 		var feed = this.items[index];
 
-		this.$.item.addRemoveClass(this.selectionClass, sender.isSelected(index));
+		// Only show selection state, if not running on a phone.
+		if(!enyo.Panels.isScreenNarrow()) {
+			this.$.item.addRemoveClass(this.selectionClass, sender.isSelected(index));
+		}
 
 		this.$.feedTitle.applyStyle("color", enyo.application.prefs.getCSSTitleColor());
 		this.$.feedTitle.applyStyle("font-size", enyo.application.prefs.largeFont ? "20px" : "18px");
@@ -310,13 +317,17 @@ enyo.kind({
 		}
 
 		this.inherited(arguments);
-		if(this.selectedIndex >= 0) {
-			this.doFeedSelected({
-				item:		this.items[this.selectedIndex],
-				isFirst:	this.selectedIndex == 0,
-				isLast:		this.selectedIndex == (this.items.length - 1)
-			});
+
+		if(!this.updateOnly) {
+			if(this.selectedIndex >= 0) {
+				this.doFeedSelected({
+					item:		this.items[this.selectedIndex],
+					isFirst:	this.selectedIndex == 0,
+					isLast:		this.selectedIndex == (this.items.length - 1)
+				});
+			}
 		}
+		this.updateOnly = false;
 	},
 
 	itemClicked: function(sender, event) {

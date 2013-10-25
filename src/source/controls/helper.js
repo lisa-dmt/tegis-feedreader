@@ -47,8 +47,10 @@ enyo.kind({
 	},
 
 	tapped: function(sender, event) {
-		this.doBeforeShowMenu(event);
-		this.dispatchToMenu("onRequestShowMenu", {activator: new FakeActivator(event.target)});
+		enyo.asyncMethod(this, function() {
+			this.doBeforeShowMenu(event);
+			this.dispatchToMenu("onRequestShowMenu", {activator: new FakeActivator(event.target)});
+		});
 		return true;
 	},
 
@@ -82,6 +84,7 @@ enyo.kind({
 		classes:		"story-header-label"
 	}, {
 		name:			"label",
+		classes:		"story-header-label-text",
 		fit:            true
 	}],
 
