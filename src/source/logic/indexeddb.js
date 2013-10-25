@@ -800,7 +800,7 @@ enyo.kind({
 					// delete it from the database.
 					if(newStoryIndex !== undefined) {
 						story.deleted = 1;
-						stories.put(story);
+						storyStore.put(story);
 					} else {
 						storiesToDelete.push(story);
 					}
