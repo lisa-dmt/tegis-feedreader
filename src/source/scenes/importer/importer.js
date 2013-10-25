@@ -57,6 +57,7 @@ enyo.kind({
 			components:     [{
 				name:			"url",
 				kind:			onyx.Input,
+				type:			"url",
 				placeholder:	$L("URL of website...")
 			}]
 		}]

@@ -1,4 +1,12 @@
 /* Onyx style adjustments */
+body, .onyx {
+	font-family: 'Fira Sans', 'Helvetica Neue', 'Nimbus Sans L', Arial, sans-serif;
+}
+
+.onyx-button {
+	font-family: 'Fira Sans Medium', 'Helvetica Neue', 'Nimbus Sans L', Arial, sans-serif;
+}
+
 .onyx-popup {
     background-color: #F0F0F0 !important;
 }
@@ -291,6 +299,7 @@
 }
 
 .feed-url {
+	font-family: 'Fira Sans Light', 'Helvetica Neue', 'Nimbus Sans L', Arial, sans-serif;
 	font-weight: lighter;
 	margin-top: -2px;
 	padding-left: 4px;
@@ -397,14 +406,14 @@
 
 .feed-title-box {
 	position: absolute;
-	left: 70px;
-	right: 56px;
+	left: 65px;
+	right: 60px;
 	top: 12px;
 }
 
 .feed-title-box.large {
 	position: absolute;
-	left: 70px;
+	left: 65px;
 	right: 8px;
 	top: 12px;
 }
@@ -479,6 +488,10 @@
 	margin-left: 10px;
 	font-weight: bold;
 	color: #0091f2;
+}
+
+.story-header-label, .story-header-label-text {
+	font-family: 'Fira Sans Medium', 'Helvetica Neue', 'Nimbus Sans L', Arial, sans-serif;
 }
 
 .button-icon {

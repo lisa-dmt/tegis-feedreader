@@ -93,17 +93,17 @@ enyo.kind({
 				}, {
 					name:		"storyDate",
 					nodeTag:	"div",
-					className:	"story-date"
+					classes:	"story-date"
 				}]
 			}, {
 				name:		"storyTitle",
 				nodeTag:	"div",
-				className:	"story-title",
+				classes:	"story-title",
 				allowHtml:	true
 			}, {
 				name:		"storyText",
 				nodeTag:	"div",
-				className:	"story-content",
+				classes:	"story-content",
 				allowHtml:	true
 			}]
 		}]
@@ -232,7 +232,10 @@ enyo.kind({
 			}
 		}
 
-		this.$.item.addRemoveClass(this.selectionClass, sender.isSelected(index));
+		// Only show selection state, if not running on a phone.
+		if(!enyo.Panels.isScreenNarrow()) {
+			this.$.item.addRemoveClass(this.selectionClass, sender.isSelected(index));
+		}
 
 		// Set the contents.
 		this.$.storyTitle.setContent(this.feed.showListCaption ? story.title : "");
@@ -300,13 +303,17 @@ enyo.kind({
 	refreshFinished: function() {
 		this.log("STORYVIEW> Finished refresh");
 		this.inherited(arguments);
-		if(this.selectedIndex >= 0) {
-			this.doStorySelected({
-				item:		this.items[this.selectedIndex],
-				isFirst:	this.selectedIndex == 0,
-				isLast:		this.selectedIndex == (this.items.length - 1)
-			});
+
+		if(!this.updateOnly) {
+			if(this.selectedIndex >= 0) {
+				this.doStorySelected({
+					item:		this.items[this.selectedIndex],
+					isFirst:	this.selectedIndex == 0,
+					isLast:		this.selectedIndex == (this.items.length - 1)
+				});
+			}
 		}
+		this.updateOnly = false;
 	},
 
 	itemDeleted: function(sender, index) {
@@ -470,7 +477,6 @@ enyo.kind({
 		}
 		this.refresh();
 		this.resized();
-		this.updateOnly = false;
 	},
 
 	isLastFeedChanged: function() {

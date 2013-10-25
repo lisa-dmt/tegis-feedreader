@@ -146,7 +146,7 @@ enyo.kind({
 			this.$.storyList.setFeed(feed);
 			this.$.storyView.setFeed(feed);
 
-			if(enyo.Panels.isScreenNarrow()) {
+			if(enyo.Panels.isScreenNarrow() && (this.$.mainPane.getIndex() < 1)) {
 				enyo.asyncMethod(this, function() {
 					this.$.mainPane.setIndex(1);
 				});
@@ -182,7 +182,7 @@ enyo.kind({
 			this.$.storyView.setIsFirstStory(event.isFirst);
 			this.$.storyView.setStory(story);
 
-			if(enyo.Panels.isScreenNarrow()) {
+			if(enyo.Panels.isScreenNarrow() && (this.$.mainPane.getIndex() < 2)) {
 				enyo.asyncMethod(this, function() {
 					this.$.mainPane.setIndex(2);
 				});
@@ -271,9 +271,18 @@ enyo.kind({
 
 	prefsSaved: function() {
 		enyo.asyncMethod(this, function() {
+			this.$.feedList.setUpdateOnly(true);
 			this.$.feedList.refresh();
+
+			this.$.storyList.setUpdateOnly(true);
 			this.$.storyList.refresh();
+
+			this.$.storyView.setUpdateOnly(true);
 			this.$.storyView.refresh();
+
+			if(enyo.Panels.isScreenNarrow() && (this.$.mainPane.getIndex() > 0)) {
+				this.$.mainPane.setIndex(0);
+			}
 			this.$.outerPane.setIndex(0);
 		});
 	},
@@ -284,9 +293,18 @@ enyo.kind({
 
 	importerClosed: function() {
 		enyo.asyncMethod(this, function() {
+			this.$.feedList.setUpdateOnly(true);
 			this.$.feedList.refresh();
+
+			this.$.storyList.setUpdateOnly(true);
 			this.$.storyList.refresh();
+
+			this.$.storyView.setUpdateOnly(true);
 			this.$.storyView.refresh();
+
+			if(enyo.Panels.isScreenNarrow() && (this.$.mainPane.getIndex() > 0)) {
+				this.$.mainPane.setIndex(0);
+			}
 			this.$.outerPane.setIndex(0);
 		});
 	},
@@ -296,22 +314,21 @@ enyo.kind({
 	//
 
 	windowActivated: function() {
-		this.log("WINDOW ACTIVATED");
+		var firstActivation = enyo.application.mainView === undefined;
+
 		enyo.application.mainView = this;
 		enyo.application.isActive = true;
 
-		if(enyo.application.db.isReady) {
+		if(firstActivation && enyo.application.db.isReady) {
 			this.dbReady();
 		}
 	},
 
 	windowDeActivated: function() {
-		this.log("WINDOW DE-ACTIVATED");
 		enyo.application.isActive = false;
 	},
 
 	unloaded: function() {
-		this.log("CLOSING");
 		enyo.application.spooler.aboutToClose();
 		enyo.application.mainView = undefined;
 	},
