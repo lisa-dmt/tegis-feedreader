@@ -81,8 +81,7 @@ enyo.kind({
         kind:					HelpDialog
     }, {
         name:					"editFeedDialog",
-        kind:					EditFeedDialog,
-        onFeedSaved:			"feedSaved"
+        kind:					EditFeedDialog
     }, {
         kind:                   enyo.Signals,
         onDbReady:              "dbReady"
@@ -258,33 +257,11 @@ enyo.kind({
 	},
 
 	//
-	// Edit feed events
-	//
-
-	feedSaved: function() {
-		this.$.storyView.refresh();
-	},
-
-	//
 	// Prefs events
 	//
 
 	prefsSaved: function() {
-		enyo.asyncMethod(this, function() {
-			this.$.feedList.setUpdateOnly(true);
-			this.$.feedList.refresh();
-
-			this.$.storyList.setUpdateOnly(true);
-			this.$.storyList.refresh();
-
-			this.$.storyView.setUpdateOnly(true);
-			this.$.storyView.refresh();
-
-			if(enyo.Panels.isScreenNarrow() && (this.$.mainPane.getIndex() > 0)) {
-				this.$.mainPane.setIndex(0);
-			}
-			this.$.outerPane.setIndex(0);
-		});
+		this.fullRefresh();
 	},
 
 	//
@@ -292,21 +269,7 @@ enyo.kind({
 	//
 
 	importerClosed: function() {
-		enyo.asyncMethod(this, function() {
-			this.$.feedList.setUpdateOnly(true);
-			this.$.feedList.refresh();
-
-			this.$.storyList.setUpdateOnly(true);
-			this.$.storyList.refresh();
-
-			this.$.storyView.setUpdateOnly(true);
-			this.$.storyView.refresh();
-
-			if(enyo.Panels.isScreenNarrow() && (this.$.mainPane.getIndex() > 0)) {
-				this.$.mainPane.setIndex(0);
-			}
-			this.$.outerPane.setIndex(0);
-		});
+		this.fullRefresh();
 	},
 
 	//
@@ -349,6 +312,28 @@ enyo.kind({
 
 		enyo.asyncMethod(this, function() {
 			this.$.errorDialog.show(msg);
+		});
+	},
+
+	//
+	// Helper functions
+	//
+
+	fullRefresh: function() {
+		enyo.asyncMethod(this, function() {
+			this.$.feedList.setUpdateOnly(true);
+			this.$.feedList.refresh();
+
+			this.$.storyList.setUpdateOnly(true);
+			this.$.storyList.refresh();
+
+			this.$.storyView.setUpdateOnly(true);
+			this.$.storyView.refresh();
+
+			if(enyo.Panels.isScreenNarrow() && (this.$.mainPane.getIndex() > 0)) {
+				this.$.mainPane.setIndex(0);
+			}
+			this.$.outerPane.setIndex(0);
 		});
 	},
 
