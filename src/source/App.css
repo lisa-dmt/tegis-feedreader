@@ -286,6 +286,13 @@ body, .onyx {
 	margin: 5px 5px 5px 0px;
 }
 
+.toolbar-separator {
+	background: url(../assets/toolbars/separator.png) no-repeat 0 0;
+	width: 2px;
+	height: 48px;
+	margin: -7px 2px 0px 2px;
+}
+
 /*
  * Custom styles
  */

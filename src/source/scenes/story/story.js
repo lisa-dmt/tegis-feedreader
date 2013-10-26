@@ -189,14 +189,15 @@ enyo.kind({
 	}, {
 		kind:			onyx.Toolbar,
 		components:		[{
-			kind:		BottomSubSceneControl
-		}, {
 			name:		"prevStoryButton",
 			kind:       onyx.IconButton,
 			classes:	"float-left",
 			src:		"assets/header/icon-back.png",
 			disabled:	true,
 			ontap:		"doPrevStory"
+		}, {
+			kind:		enyo.Control,
+			classes:	"float-left toolbar-separator"
 		}, {
 			name:		"nextStoryButton",
 			kind:       onyx.IconButton,
@@ -210,6 +211,10 @@ enyo.kind({
 			classes:    "float-right",
 			src:		"assets/toolbars/icon-share.png",
 			ontap:		"shareClicked"
+		}, {
+			kind:		enyo.Control,
+			name:		"mediaPlaySeparator",
+			classes:	"float-right toolbar-separator"
 		}, {
 			name:		"mediaPlayButton",
 			kind:		onyx.IconButton,
@@ -379,6 +384,7 @@ enyo.kind({
 				this.$.mediaEnd.setContent("99:99");
 				this.$.mediaControls.show();
 				this.$.mediaPlayButton.show();
+				this.$.mediaPlaySeparator.show();
 				this.$.mediaPlayButton.setDisabled(true);
 				this.$.mediaSlider.setValue(0);
 
@@ -398,6 +404,7 @@ enyo.kind({
 				this.$.video.hide();
 				this.$.mediaControls.hide();
 				this.$.mediaPlayButton.hide();
+				this.$.mediaPlaySeparator.hide();
 				this._mediaKind = mediaKinds.none;
 				this.$.audio.setSrc("");
 				this.$.video.setSrc("");
