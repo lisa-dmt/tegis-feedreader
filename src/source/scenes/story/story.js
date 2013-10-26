@@ -214,7 +214,8 @@ enyo.kind({
 		}, {
 			kind:		enyo.Control,
 			name:		"mediaPlaySeparator",
-			classes:	"float-right toolbar-separator"
+			classes:	"float-right toolbar-separator",
+			showing:	false
 		}, {
 			name:		"mediaPlayButton",
 			kind:		onyx.IconButton,
