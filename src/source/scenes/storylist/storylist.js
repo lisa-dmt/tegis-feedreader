@@ -301,18 +301,7 @@ enyo.kind({
 	},
 
 	refreshFinished: function() {
-		this.log("STORYVIEW> Finished refresh");
 		this.inherited(arguments);
-
-		if(!this.updateOnly) {
-			if(this.selectedIndex >= 0) {
-				this.doStorySelected({
-					item:		this.items[this.selectedIndex],
-					isFirst:	this.selectedIndex == 0,
-					isLast:		this.selectedIndex == (this.items.length - 1)
-				});
-			}
-		}
 		this.updateOnly = false;
 	},
 
