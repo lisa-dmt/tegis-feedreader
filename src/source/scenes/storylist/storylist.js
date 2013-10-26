@@ -115,14 +115,15 @@ enyo.kind({
 	}, {
 		kind:		onyx.Toolbar,
 		components:	[{
-			kind:		BottomSubSceneControl
-		}, {
 			name:		"prevFeedButton",
 			kind:       onyx.IconButton,
 			classes:	"float-left",
 			src:		"assets/header/icon-back.png",
 			disabled:	true,
 			ontap:		"doPrevFeed"
+		}, {
+			kind:		enyo.Control,
+			classes:	"float-left toolbar-separator"
 		}, {
 			name:		"nextFeedButton",
 			kind:       onyx.IconButton,
@@ -137,17 +138,26 @@ enyo.kind({
 			src:		"assets/toolbars/icon-settings.png",
 			ontap:		"sortClicked"
 		}, {
+			kind:		enyo.Control,
+			classes:	"float-right toolbar-separator"
+		}, {
 			name:		"shareButton",
 			kind:		onyx.IconButton,
 			classes:    "float-right tool-button",
 			src:		"assets/toolbars/icon-share.png",
 			ontap:		"shareClicked"
 		}, {
+			kind:		enyo.Control,
+			classes:	"float-right toolbar-separator"
+		}, {
 			name:		"searchButton",
 			kind:		ToggleIconButton,
 			classes:    "float-right tool-button",
 			src:		"assets/toolbars/icon-search.png",
 			ontap:		"searchClicked"
+		}, {
+			kind:		enyo.Control,
+			classes:	"float-right toolbar-separator"
 		}, {
 			name:		"refreshButton",
 			kind:		onyx.IconButton,

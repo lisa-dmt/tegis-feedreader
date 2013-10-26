@@ -185,6 +185,9 @@ enyo.kind({
 			src:		"assets/toolbars/icon-sync.png",
 			ontap:	    "refreshClicked"
 		}, {
+			kind:		enyo.Control,
+			classes:	"float-right toolbar-separator"
+		}, {
 			name:		"searchButton",
 			kind:		ToggleIconButton,
 			classes:    "float-right",
