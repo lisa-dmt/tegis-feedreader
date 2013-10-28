@@ -26,21 +26,21 @@ enyo.kind({
 
 	events:		{
 		onStartSwiping:			"",
-		onItemDeleted:			"",
-		onItemDeleteCanceled:	"",
 		onIsItemSwipeable:		""
+	},
+
+	handlers:	{
+		onup:					"handleUp"
 	},
 
 	swipeableComponents:	[{
 		kind:		SwipeItem
 	}],
 
-	_preventTap: false,
-	_lastSwipeIndex: -1,
-
 	swipe: function() {
 		this.doStartSwiping({ index: this.swipeIndex });
 		this.inherited(arguments);
+		return true;
 	},
 
 	swipeDragStart: function(sender, event) {
@@ -53,15 +53,7 @@ enyo.kind({
 		if(this.persistentItemVisible)
 			this.finishSwiping(this.swipeIndex);
 
-		// Remember the swiped index.
-		this._lastSwipeIndex = event.index;
-
 		this.inherited(arguments);
-	},
-
-	swipeDragFinish: function() {
-		this._preventTap = true;
-		return this.inherited(arguments);
 	},
 
 	getPersistSwipeableItem: function() {
@@ -81,16 +73,11 @@ enyo.kind({
 		this.completeFinishReordering(event);
 	},
 
-	ignoreTap: function(index) {
-		var result = (index == this._lastSwipeIndex) && this._preventTap;
-		this._preventTap = false;
-
-		// In case the tap is not ignored, we need to remove the
-		// persistent item.
-		if(this.persistentItemVisible && !result)
-			this.finishSwiping(this.swipeIndex);
-
-		return result;
+	handleUp: function(sender, event) {
+		if(this.swipeIndex !== null) {
+			event.preventTap();
+			return true;
+		}
 	}
 });
 
@@ -120,16 +107,14 @@ enyo.kind({
 	//
 
 	itemClicked: function(sender, event) {
-		if(this.$.list.ignoreTap(event.index))
-			return false;
-
 		// If the tapped item is already selected, nothing has to be done.
 		// This is indicated by returning false. As a result, this method
 		// needs to be overridden in a derived kind, as the handler must
 		// not return a value to the caller.
-		if(event.index == this.selectedIndex && !enyo.Panels.isScreenNarrow()) {
+		if(event.index == this.selectedIndex && !enyo.Panels.isScreenNarrow())
 			return false;
-		}
+		if(this.$.list.isSwiping())
+			return false;
 
 		this.selectedIndex = event.index;
 		return true;
@@ -161,6 +146,7 @@ enyo.kind({
 			this.$.list.finishSwiping(this.swipedIndex);
 		}
 		this.swipedIndex = -1;
+		return true;
 	},
 
 	//
