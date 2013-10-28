@@ -2,6 +2,6 @@ glob:*.ipk
 syntax: glob
 screenshots/*
 .idea/*
-build/*
+bin/debug/*
 src/build/*
 src/deploy/*
