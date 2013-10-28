@@ -145,7 +145,7 @@ enyo.kind({
 			this.$.storyList.setFeed(feed);
 			this.$.storyView.setFeed(feed);
 
-			if(enyo.Panels.isScreenNarrow() && (this.$.mainPane.getIndex() < 1)) {
+			if(enyo.Panels.isScreenNarrow() && (this.$.mainPane.getIndex() < 1) && feed) {
 				enyo.asyncMethod(this, function() {
 					this.$.mainPane.setIndex(1);
 				});
@@ -181,7 +181,7 @@ enyo.kind({
 			this.$.storyView.setIsFirstStory(event.isFirst);
 			this.$.storyView.setStory(story);
 
-			if(enyo.Panels.isScreenNarrow() && (this.$.mainPane.getIndex() < 2)) {
+			if(enyo.Panels.isScreenNarrow() && (this.$.mainPane.getIndex() < 2) && story) {
 				enyo.asyncMethod(this, function() {
 					this.$.mainPane.setIndex(2);
 				});
