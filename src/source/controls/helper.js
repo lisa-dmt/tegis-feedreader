@@ -229,10 +229,12 @@ enyo.kind({
 
 	deleteTap: function() {
 		this.doDelete();
+		return true;
 	},
 
 	cancelTap: function() {
 		this.doCancel();
+		return true;
 	}
 });
 
