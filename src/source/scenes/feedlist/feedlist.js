@@ -358,6 +358,8 @@ enyo.kind({
 		this.doFeedDeleted(this.deletedItem);
 		enyo.application.feeds.deleteFeed(this.deletedItem);
 		this.deletedItem = null;
+
+		return true;
 	},
 
 	setFeedSpinner: function(index, state) {
