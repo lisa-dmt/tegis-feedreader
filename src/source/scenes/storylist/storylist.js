@@ -82,7 +82,6 @@ enyo.kind({
 			name:		"item",
 			kind:		onyx.Item,
 			layoutKind:	"FittableRowsLayout",
-			onConfirm:	"itemDeleted",
 			ontap:		"itemClicked",
 			components:	[{
 				components: [{
@@ -326,6 +325,8 @@ enyo.kind({
 		this.doStoryDeleted(this.deletedItem);
 		enyo.application.feeds.deleteStory(this.deletedItem);
 		this.deletedItem = null;
+
+		return true;
 	},
 
 	itemClicked: function(sender, event) {
