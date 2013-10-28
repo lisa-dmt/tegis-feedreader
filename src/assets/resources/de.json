@@ -42,7 +42,7 @@
 	"Delete": "Löschen",
 	"Delete feed": "Feed löschen",
 	"Discover feeds": "Feeds entdecken",
-	'Do you want to subscribe to "{$feed}"?': 'Wollen Sie den Feed "{$feed}" abonnieren?',
+	"Do you want to subscribe to \"{$feed}\"?": "Wollen Sie den Feed \"{$feed}\" abonnieren?",
 	"Edit feed": "Feed bearbeiten",
 	"Edit feed settings": "Einstellungen des Feeds bearbeiten",
 	"Ended": "Wiedergabe abgeschlossen",
