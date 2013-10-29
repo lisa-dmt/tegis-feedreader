@@ -1,10 +1,10 @@
 /* Onyx style adjustments */
 body, .onyx {
-	font-family: 'Fira Sans', 'Helvetica Neue', 'Nimbus Sans L', Arial, sans-serif;
+	font-family: 'Fira Sans', 'MozTT', 'Helvetica Neue', 'Nimbus Sans L', Arial, sans-serif;
 }
 
 .onyx-button {
-	font-family: 'Fira Sans Medium', 'Helvetica Neue', 'Nimbus Sans L', Arial, sans-serif;
+	font-family: 'Fira Sans Medium', 'MozTT Medium', 'Helvetica Neue', 'Nimbus Sans L', Arial, sans-serif;
 }
 
 .onyx-popup {
@@ -306,7 +306,7 @@ body, .onyx {
 }
 
 .feed-url {
-	font-family: 'Fira Sans Light', 'Helvetica Neue', 'Nimbus Sans L', Arial, sans-serif;
+	font-family: 'Fira Sans Light', 'MozTT Light', 'Helvetica Neue', 'Nimbus Sans L', Arial, sans-serif;
 	font-weight: lighter;
 	margin-top: -2px;
 	padding-left: 4px;
@@ -498,7 +498,7 @@ body, .onyx {
 }
 
 .story-header-label, .story-header-label-text {
-	font-family: 'Fira Sans Medium', 'Helvetica Neue', 'Nimbus Sans L', Arial, sans-serif;
+	font-family: 'Fira Sans Medium', 'MozTT Medium', 'Helvetica Neue', 'Nimbus Sans L', Arial, sans-serif;
 }
 
 .button-icon {
