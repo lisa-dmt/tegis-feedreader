@@ -50,6 +50,7 @@ body, .onyx {
 .onyx-toolbar {
 	border-left: 0 !important;
 	border-right: 0 !important;
+    z-index: 10000;
 }
 
 .onyx-toolbar div.onyx-input-decorator {
@@ -198,14 +199,17 @@ body, .onyx {
 }
 
 .onyx-toolbar {
-	height: 57px;
+	height: 48px;
+    padding-top: 5px;
+    line-height: 31px;
+    background: #000000 !important;
 }
 
 .onyx-toolbar.toolbar-light {
-    background-color: #a9a9a9 !important;
-	height: 48px;
+    background: url(../assets/header/gradient.png) repeat-x 0 bottom !important;
 	padding-top: 5px;
 	line-height: 31px;
+    box-shadow: 0px 2px 2px #666666;
 }
 
 .modal-dialog > .onyx-button {
