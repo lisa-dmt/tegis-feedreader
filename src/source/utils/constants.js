@@ -24,7 +24,7 @@
 function applyGlobalConstants(to) {
     to.appName              = "FeedReader";
     to.appAuthor            = "Timo Tegtmeier";
-    to.versionString        = "4.0.0";
-    to.versionInt           = 22;
+    to.versionString        = "$VERSION$";
+    to.versionInt           = $VERSIONINT$;
     to.copyrightYears       = "2009-2013";
 }
