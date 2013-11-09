@@ -1,0 +1,45 @@
+<project name="FeedReader">
+    <property name="version" value="4.0.0" />
+    <property name="version.int" value="22" />
+
+    <property name="src.dir" value="src" />
+    <property name="bin.dir" value="bin" />
+
+    <property name="release.dir" value="${bin.dir}/release" />
+    <property name="debug.dir" value="${bin.dir}/debug" />
+    <property name="deploy.dir" value="${src.dir}/deploy" />
+
+    <target name="Firefox OS package" depends="clean">
+        <exec executable="node" dir="${src.dir}">
+            <arg value="enyo/tools/deploy.js" />
+        </exec>
+        <copy file="${src.dir}/manifest.webapp" todir="${deploy.dir}/src" />
+        <copy todir="${deploy.dir}/src">
+            <fileset dir="${src.dir}" includes="icon*.png" />
+        </copy>
+
+        <replace file="${deploy.dir}/src/manifest.webapp" token="$VERSION$" value="${version}" />
+        <replace file="${deploy.dir}/src/build/app.js" token="$VERSION$" value="${version}" />
+        <replace file="${deploy.dir}/src/build/app.js" token="$VERSIONINT$" value="${version.int}" />
+
+        <copy todir="${debug.dir}">
+            <fileset dir="${deploy.dir}/src" includes="*" />
+        </copy>
+
+        <delete file="${release.dir}/package-${version}.zip" />
+        <zip basedir="${deploy.dir}/src" zipfile="${release.dir}/package-${version}.zip" />
+        <delete dir="${deploy.dir}" />
+    </target>
+
+    <target name="clean" depends="prepare">
+        <delete includeemptydirs="true">
+            <fileset dir="${debug.dir}" includes="*" />
+        </delete>
+    </target>
+
+    <target name="prepare">
+        <mkdir dir="${bin.dir}" />
+        <mkdir dir="${debug.dir}" />
+        <mkdir dir="${release.dir}" />
+    </target>
+</project>

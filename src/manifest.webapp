@@ -1,6 +1,6 @@
 {
     "name": "FeedReader",
-    "version": "4.0.0",
+    "version": "$VERSION$",
     "developer": {
         "name": "Timo Tegtmeier",
         "url": "http://www.tegi-stuff.de"
