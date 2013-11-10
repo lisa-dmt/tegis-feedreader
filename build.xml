@@ -21,6 +21,8 @@
         <replace file="${deploy.dir}/src/manifest.webapp" token="$VERSION$" value="${version}" />
         <replace file="${deploy.dir}/src/build/app.js" token="$VERSION$" value="${version}" />
         <replace file="${deploy.dir}/src/build/app.js" token="$VERSIONINT$" value="${version.int}" />
+        <replace file="${src.dir}/build/app.js" token="$VERSION$" value="${version}" />
+        <replace file="${src.dir}/build/app.js" token="$VERSIONINT$" value="${version.int}" />
 
         <copy todir="${debug.dir}">
             <fileset dir="${deploy.dir}/src" />
