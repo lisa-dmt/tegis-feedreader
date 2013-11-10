@@ -197,12 +197,6 @@ enyo.kind({
 				content:	$L("If you provide <i>Pocket</i> credentials, FeedReader will sync starred items to <i>Pocket</i>.")
 			}]
 		}]
-	}, {
-		kind:		onyx.Toolbar,
-		components:	[{
-			kind:		BottomMainSceneControl,
-			ontap:		"savePrefs"
-		}]
 	}],
 
 	updateIntervalChanged: function() {
