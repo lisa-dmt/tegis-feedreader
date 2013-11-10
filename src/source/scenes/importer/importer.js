@@ -39,8 +39,9 @@ enyo.kind({
 		kind:		onyx.Toolbar,
 		classes:	"toolbar-light",
 		components:	[{
-			kind:		TopSceneControl,
-			ontap:		"doBackClick"
+			kind:		    BackButton,
+            isOnMainScene:  false,
+            ontap:		    "doBackClick"
 		}, {
 			content:	$L("Discover feeds"),
 			classes:	"float-left"
