@@ -59,7 +59,7 @@ enyo.kind({
 		layoutKind:		enyo.FittableColumnsLayout,
 		classes:		"toolbar-light",
 		components:		[{
-			kind:		TopSceneControl,
+			kind:		BackButton,
 			ontap:		"doBackClick"
 		}, {
 			name:		"headerCaption",

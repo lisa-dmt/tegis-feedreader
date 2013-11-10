@@ -47,7 +47,7 @@ enyo.kind({
 		classes:	"toolbar-light",
 		noStretch:	true,
 		components:	[{
-			kind:		TopSceneControl,
+			kind:		BackButton,
 			ontap:		"doBackClick"
 		}, {
 			name:		"headerCaption",

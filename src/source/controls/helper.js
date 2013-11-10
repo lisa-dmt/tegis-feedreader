@@ -103,23 +103,17 @@ enyo.kind({
 	}
 });
 
-function useTopBackButton() {
-	return isFirefox() && !showGrabButtons();
-}
-
 function showGrabButtons() {
 	return !enyo.Panels.isScreenNarrow();
 }
 
 enyo.kind({
 	name:		"BackButton",
-	kind:		useTopBackButton() ? "enyo.Control" : "onyx.Button",
+	kind:		"enyo.Control",
 
-	classes:	useTopBackButton() ? "header-back-button float-left" : "back-button float-left",
-	content:	useTopBackButton() ? "" : $L("Back"),
+	classes:    "header-back-button float-left",
 
 	published:	{
-		position:		"bottom",
 		isOnMainScene:	true
 	},
 
@@ -128,17 +122,9 @@ enyo.kind({
 		onleave:	"leave"
 	},
 
-	positionChanged: function() {
-		if((this.position == "top") == useTopBackButton()) {
-			this.show();
-		} else {
-			this.hide();
-		}
-	},
-
 	create: function() {
 		this.inherited(arguments);
-		this.positionChanged();
+		this.isOnMainSceneChanged();
 	},
 
 	down: function(inSender, inEvent) {
@@ -149,28 +135,17 @@ enyo.kind({
 	leave: function(inSender, inEvent) {
 		if(this.position == "top")
 			this.removeClass("pressed");
-	}
-});
+	},
 
-enyo.kind({
-	name:		"TopSceneControl",
-	kind:		"BackButton",
-	position:	"top"
-});
-
-enyo.kind({
-	name:		"BottomMainSceneControl",
-	kind:		"BackButton",
-	position:	"bottom"
-});
-
-enyo.kind({
-	name:		"BottomSubSceneControl",
-	classes:	"float-left",
-	components:	[{
-		kind:		showGrabButtons() ? onyx.Grabber : enyo.Control,
-		classes:	"float-left"
-	}]
+    isOnMainSceneChanged: function() {
+        if(this.isOnMainScene) {
+            if(showGrabButtons()) {
+                this.hide();
+            } else {
+                this.show();
+            }
+        }
+    }
 });
 
 enyo.kind({

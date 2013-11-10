@@ -32,8 +32,9 @@ enyo.kind({
 		kind:		onyx.Toolbar,
 		classes:	"toolbar-light",
 		components:	[{
-			kind:		TopSceneControl,
-			ontap:		"savePrefs"
+			kind:		    BackButton,
+            isOnMainScene:  false,
+			ontap:		    "savePrefs"
 		}, {
 			content:	$L("Preferences"),
 			classes:	"float-left"

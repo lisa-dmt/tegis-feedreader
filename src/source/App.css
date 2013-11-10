@@ -155,10 +155,10 @@ body, .onyx {
 	margin: -5px 0px 0px -8px !important;
 	height: 46px;
 	line-height: 46px;
-	border-right: 2px groove silver;
+	border-right: 1px solid rgba(255, 255, 255, 0.3);
 	padding: 0;
 	min-width: 20px;
-	background: url(../assets/header-back.png) no-repeat center center rgba(0, 0, 0, 0.2);
+	background: url(../assets/header-back.png) no-repeat center center rgba(0, 0, 0, 0.1);
 }
 
 .enyo-fittable-columns-layout.onyx-toolbar-inline div.header-caption {
