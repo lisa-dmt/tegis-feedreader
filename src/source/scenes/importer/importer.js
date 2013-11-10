@@ -118,12 +118,6 @@ enyo.kind({
 			}]
 		}]
 	}, {
-		kind:		onyx.Toolbar,
-		components:	[{
-			kind:		BottomMainSceneControl,
-			ontap:		"doBackClick"
-		}]
-	}, {
 		name:					"subscribeDialog",
 		kind: 					DialogPrompt,
 		caption:				$L("Subscribe to feed"),
