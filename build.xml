@@ -23,7 +23,7 @@
         <replace file="${deploy.dir}/src/build/app.js" token="$VERSIONINT$" value="${version.int}" />
 
         <copy todir="${debug.dir}">
-            <fileset dir="${deploy.dir}/src" includes="*" />
+            <fileset dir="${deploy.dir}/src" />
         </copy>
 
         <delete file="${release.dir}/package-${version}.zip" />
