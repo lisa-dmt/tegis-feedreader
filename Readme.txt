@@ -1,9 +1,8 @@
-FeedReader - A RSS Feed Aggregator for Palm WebOS
+FeedReader - A RSS Feed Aggregator for Firefox OS
 Copyright (C) 2009-2013 Timo Tegtmeier
 
 The icons icon-play.png, icon-pause.png, web-icon.png,
 email-icon.png, player-icon are Copyright Palm, Inc.
-The script Math.uuid.js is Copyright 2009 Robert Kieffer.
 The script simplehtmlparser.js is Copyright 2004 Erik Arvidsson.
 
 License
@@ -24,19 +23,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 Contributors
 ============
- * Milan Roubal <roubal@keyserver.cz>
+ * Maël Lavault <mael.lavault@mailz.org>
  * Stephan PAUL <stephan.w.paul@googlemail.com>
- * Francisco Rivas <franciscojrivash@gmail.com>
- * Vladimir Voronov <voronov@pisem.net>
- * Yannick LE NY
 
 Changelog
 =========
 
 Version 4.0.0 (feature release)
 -------------------------------
+ * ported to Firefox OS
+ * removed webOS support
  * ported to Enyo 2
  * dropped Mojo code
+ * now using Ant as build system
 
 Version 3.0.2 (not released)
 ----------------------------
