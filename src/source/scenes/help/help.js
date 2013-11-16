@@ -95,20 +95,12 @@ enyo.kind({
 			style:		"font-size: 15px;",
 			allowHtml:	true,
 			content:	"<li>" +
-						'	<a href="mailto:roubal@keyserver.cz"><b>Milan Roubal</b></a><br>' +
-						"	Tester and author of the czech locale" +
-						"</li>" +
-						"<li>" +
 						'	<a href="mailto:stephan.w.paul@googlemail.com"><b>Stephan PAUL</b></a><br>' +
 						"	Author of the french locale" +
 						"</li>" +
 						"<li>" +
 						'	<a href="mailto:mael.lavault@mailz.org"><b>Maël Lavault</b></a><br>' +
 						"	Co-author of the french locale" +
-						"</li>" +
-						"<li>" +
-						'	<a href="mailto:franciscojrivash@gmail.com"><b>Francisco Rivas</b></a><br>' +
-						"	Author of the spanish locale" +
 						"</li>"
 		}]
 	}, {
