@@ -17,7 +17,6 @@ enyo.depends(
 	"utils/formatting.js",
 	"utils/simplehtmlparser.js",
 	"utils/codepages.js",
-    "utils/helper.js",
 
     // Utilities
     "utils/spooler.js",

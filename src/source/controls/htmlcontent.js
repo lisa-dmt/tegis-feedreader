@@ -25,7 +25,7 @@ enyo.kind({
     kind:   	enyo.Control,
 	classes:	"html-content",
 
-    allowHtml: true,
+    allowHtml:  true,
 
     events: {
         onLinkClick:    ""
@@ -34,25 +34,23 @@ enyo.kind({
     findLink: function(node, ancestor) {
         var run = node;
         while (run && run != ancestor) {
-            if (run.href) {
-                return run.href;
+            if(run.tagName == 'A' || run.tagName == 'a') {
+                return run["data-href"];
             }
             run = run.parentNode;
         }
+        return null;
     },
 
-    clickHandler: function(sender, event) {
-        var url = this.findLink(event.target, this.hasNode());
+    clickHandler: function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        var url = this.findLink(event.target, this.node);
         if (url) {
-            this.doLinkClick(url, event);
-            event.preventDefault();
-            return true;
-        } else if (event.didDrag) {
-            return true;
-        } else {
-            return this.doClick();
+            this.doLinkClick({ url: url });
         }
-		event.preventDefault();
+
 		return true;
     },
 
@@ -67,6 +65,8 @@ enyo.kind({
 		node = node || this.node;
 		if(node.tagName == 'A' || node.tagName == 'a') {
 			node.onclick = this.clickHandler;
+            node["data-href"] = node.href;
+            node.href = "javascript:void(0)";
 			return;
 		}
 		for(var i = 0; i < node.childNodes.length; i++)
@@ -75,6 +75,7 @@ enyo.kind({
 
 	setContent: function(data) {
 		this.inherited(arguments);
+        this._links = [];
 		if(this.hasNode())
 			this.applyClickHandler();
 	},
