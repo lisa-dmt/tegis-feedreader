@@ -9,6 +9,7 @@
     "icons": {
     	"60": "/icon60.png",
     	"90": "/icon90.png",
+        "128": "/icon128.png"
         "256": "/icon256.png"
     },
     "launch_path": "/index.html",
