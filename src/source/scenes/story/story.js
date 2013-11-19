@@ -372,9 +372,9 @@ enyo.kind({
         return true;
 	},
 
-    handleClick: function(href) {
+    innerLinkClicked: function(sender, event) {
         if(!this._scrolling) {
-            enyo.application.openLink(href);
+            enyo.application.openLink(event.url);
         }
         return true;
     },
