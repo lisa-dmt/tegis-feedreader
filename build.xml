@@ -10,11 +10,10 @@
 
     <!-- Create a Firefox OS package -->
     <target name="Firefox OS" depends="build">
-        <copy file="${src.dir}/manifest.webapp" todir="${deploy.dir}/src" />
+        <copy file="${src.dir}/targets/firefoxos/manifest.webapp" todir="${deploy.dir}/src" />
         <copy todir="${deploy.dir}/src">
-            <fileset dir="${src.dir}" includes="icon*.png" />
+            <fileset dir="${src.dir}/icons" includes="icon60.png icon90.png icon256.png" />
         </copy>
-
         <replace file="${deploy.dir}/src/manifest.webapp" token="$VERSION$" value="${version}" />
 
         <copy todir="${debug.dir}">
@@ -27,6 +26,7 @@
         <antcall target="finish" />
     </target>
 
+    <!-- Create an Android APK -->
     <target name="Android" depends="build">
 
     </target>
@@ -36,6 +36,7 @@
         <exec executable="node" dir="${src.dir}">
             <arg value="enyo/tools/deploy.js" />
         </exec>
+        <delete file="${deploy.dir}/src/icon.png" />
         <replace file="${deploy.dir}/src/build/app.js" token="$VERSION$" value="${version}" />
         <replace file="${deploy.dir}/src/build/app.js" token="$VERSIONINT$" value="${version.int}" />
         <replace file="${src.dir}/build/app.js" token="$VERSION$" value="${version}" />
