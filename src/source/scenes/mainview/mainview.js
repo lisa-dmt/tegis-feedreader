@@ -120,6 +120,7 @@ enyo.kind({
 			case 1: this.$.storyList.resized(); break;
 			case 2:	this.$.storyView.resized(); break;
 		}
+        return true;
 	},
 
 	//
@@ -128,6 +129,7 @@ enyo.kind({
 
 	openAppMenu: function(sender, event) {
 		enyo.openMenuAtEvent(this.$.mainMenu, this, event);
+        return true;
 	},
 
 	feedSelected: function(sender, event) {
@@ -151,18 +153,21 @@ enyo.kind({
 				});
 			}
 		});
+        return true;
 	},
 
 	addFeed: function(sender) {
 		enyo.asyncMethod(this, function() {
 			this.$.editFeedDialog.show(null);
 		});
+        return true;
 	},
 
 	editFeed: function(sender, feed) {
 		enyo.asyncMethod(this, function() {
 			this.$.editFeedDialog.show(feed);
 		});
+        return true;
 	},
 
 	//
@@ -187,6 +192,7 @@ enyo.kind({
 				});
 			}
 		});
+        return true;
 	},
 
 	//
@@ -197,12 +203,14 @@ enyo.kind({
 		enyo.asyncMethod(this, function() {
 			this.$.mainPane.setIndex(0);
 		});
+        return true;
 	},
 
 	backToStoryList: function() {
 		enyo.asyncMethod(this, function() {
 			this.$.mainPane.setIndex(1);
 		});
+        return true;
 	},
 
 	//
@@ -211,19 +219,22 @@ enyo.kind({
 
 	selectNextFeed: function() {
 		this.$.feedList.selectNext();
+        return true;
 	},
 
 	selectPrevFeed: function() {
 		this.$.feedList.selectPrev();
+        return true;
 	},
 
 	selectNextStory: function() {
 		this.$.storyList.selectNext();
-
+        return true;
 	},
 
 	selectPrevStory: function() {
 		this.$.storyList.selectPrev();
+        return true;
 	},
 
 	//
@@ -235,6 +246,7 @@ enyo.kind({
 			this.$.preferences.reInitialize();
 			this.$.outerPane.setIndex(1);
 		});
+        return true;
 	},
 
 	openImporter: function() {
@@ -242,18 +254,21 @@ enyo.kind({
 			this.$.feedImporter.reInitialize();
 			this.$.outerPane.setIndex(2);
 		});
+        return true;
 	},
 
 	openHelp: function() {
 		enyo.asyncMethod(this, function() {
 			this.$.helpDialog.show();
 		});
+        return true;
 	},
 
 	openLicense: function() {
 		enyo.asyncMethod(this, function() {
 			this.$.licenseDialog.show();
 		});
+        return true;
 	},
 
 	//
@@ -262,6 +277,7 @@ enyo.kind({
 
 	prefsSaved: function() {
 		this.fullRefresh();
+        return true;
 	},
 
 	//
@@ -270,6 +286,7 @@ enyo.kind({
 
 	importerClosed: function() {
 		this.fullRefresh();
+        return true;
 	},
 
 	//
@@ -285,15 +302,19 @@ enyo.kind({
 		if(firstActivation && enyo.application.db.isReady) {
 			this.dbReady();
 		}
+
+        return true;
 	},
 
 	windowDeActivated: function() {
 		enyo.application.isActive = false;
+        return true;
 	},
 
 	unloaded: function() {
 		enyo.application.spooler.aboutToClose();
 		enyo.application.mainView = undefined;
+        return true;
 	},
 
 	//
@@ -313,6 +334,7 @@ enyo.kind({
 		enyo.asyncMethod(this, function() {
 			this.$.errorDialog.show(msg);
 		});
+        return true;
 	},
 
 	//
@@ -343,7 +365,7 @@ enyo.kind({
 
 	rendered: function() {
 		this.resized();
-		this.inherited(arguments);
+		return this.inherited(arguments);
 	},
 
     initComponents: function() {

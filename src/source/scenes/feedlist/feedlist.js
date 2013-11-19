@@ -232,7 +232,8 @@ enyo.kind({
 
 	openAppMenu: function(sender, event) {
 		this.doOpenAppMenu(event);
-	},
+        return true;
+    },
 
 	//
 	// List handling
@@ -276,7 +277,8 @@ enyo.kind({
 		this.$.reorderFeedURL.applyStyle("font-size", enyo.application.prefs.largeFont ? "16px" : "14px");
 		this.$.reorderFeedURL.setContent(enyo.application.feeds.getFeedURL(feed));
 		this.$.reorderFeedIcon.setSrc(enyo.application.feeds.getFeedIcon(feed));
-	},
+        return true;
+    },
 
 	isItemSwipeable: function(sender, event) {
 		var index;
@@ -288,7 +290,8 @@ enyo.kind({
 
 	listPulled: function() {
 		enyo.Signals.send("onUpdateAll");
-	},
+        return true;
+    },
 
 	acquireData: function(filter, inserter) {
 		enyo.application.feeds.getFeeds(filter, inserter);
@@ -331,7 +334,7 @@ enyo.kind({
 				isLast:		event.index == (this.items.length - 1)
 			});
 		}
-	},
+    },
 
 	beforeShowFeedMenu: function(sender, event) {
 		// Store the menu index.
@@ -341,7 +344,9 @@ enyo.kind({
 		var isEditable = (feed.feedType != feedTypes.ftStarred) && (feed.feedType != feedTypes.ftAllItems);
 		this.$.itemEditFeed.setShowing(isEditable);
 		this.$.itemDeleteFeed.setShowing(isEditable);
-	},
+
+        return true;
+    },
 
 	itemDeleted: function(sender, index) {
 		if(this.swipedIndex === undefined)
@@ -373,7 +378,7 @@ enyo.kind({
 			this.spinningIndex = state ? index : -1;
 			this.$.list.lockRow(index);
 		}
-	},
+    },
 
 	//
 	// Menu handling
@@ -381,26 +386,32 @@ enyo.kind({
 
 	menuMarkAllRead: function(sender, event) {
 		enyo.application.feeds.markAllRead(this.items[this.menuIndex]);
+        return true;
 	},
 
 	menuMarkAllUnRead: function(sender, event) {
 		enyo.application.feeds.markAllUnRead(this.items[this.menuIndex]);
+        return true;
 	},
 
 	menuMarkAllUnStarred: function(sender, event) {
 		enyo.application.feeds.markAllUnStarred(this.items[this.menuIndex]);
+        return true;
 	},
 
 	menuEditFeed: function(sender, event) {
 		this.doEditFeed(this.items[this.menuIndex]);
+        return true;
 	},
 
 	menuUpdateFeed: function(sender, event) {
 		enyo.application.feeds.enqueueUpdate(this.items[this.menuIndex]);
+        return true;
 	},
 
 	menuDeleteFeed: function(sender, event) {
 		this.itemDeleted(sender, this.menuIndex);
+        return true;
 	},
 
 	//
@@ -409,10 +420,12 @@ enyo.kind({
 
 	addFeedClicked: function(sender, event) {
 		this.doAddFeed();
+        return true;
 	},
 
 	refreshClicked: function(sender, event) {
         enyo.Signals.send("onUpdateAll");
+        return true;
 	},
 
 	//
@@ -422,12 +435,14 @@ enyo.kind({
 	showSearchBox: function() {
 		this.$.appMenuButton.hide();
 		this.inherited(arguments);
+        return true;
 	},
 
 	hideSearchBox: function() {
 		if(this.$.searchBox.getShowing())
 			this.$.appMenuButton.show();
 		this.inherited(arguments);
+        return true;
 	},
 
 	//
