@@ -89,22 +89,6 @@ enyo.kind({
 		}
 	},
 
-	/** @private
-	 *
-	 * Tell the system, that we enter a phase of activity.
-	 */
-	enterActivity: function(duration) {
-		enyo.Signals.send("onSpoolerBeginActivity")
-	},
-
-	/** @private
-	 *
-	 * Tell the system, that we left our activity phase.
-	 */
-	leaveActivity: function() {
-		enyo.Signals.send("onSpoolerEndActivity");
-	},
-
 	/**
 	 * Called to indicate a spooled action has finished. The next spooled
 	 * activity will be started if any.
@@ -112,22 +96,24 @@ enyo.kind({
 	nextAction: function() {
 		try {
 			if(this.list.length >= 1) {
-				if(!this.actionRunning) {
-					enyo.Signals.send("onSpoolerRunningChanged", { state: true });
-				}
+                if(!this.actionRunning) {
+                    enyo.Signals.send("onSpoolerRunningChanged", { state: true });
+                }
 				var action = this.list.shift();
 				this.actionRunning = true;
 				this.actionIdent = action.ident;
-				this.enterActivity();
+                enyo.Signals.send("onSpoolerBeginActivity");
                 action.execute();
 			} else {
-				if(this.actionRunning) {
-					enyo.Signals.send("onSpoolerRunningChanged", { state: false });
-				}
+                if(this.actionRunning) {
+                    enyo.asyncMethod(this, function() {
+                        enyo.Signals.send("onSpoolerRunningChanged", { state: false });
+                    });
+                }
 				this.actionRunning = false;
 				this.actionIdent = "";
 				enyo.application.feeds.interactiveUpdate = false;
-				this.leaveActivity();
+                enyo.Signals.send("onSpoolerEndActivity");
 			}
 		} catch(e) {
 			this.error(e);
