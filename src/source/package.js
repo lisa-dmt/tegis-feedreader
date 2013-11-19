@@ -30,7 +30,6 @@ enyo.depends(
 	"models/story.js",
 
 	// Business logic
-	"logic/feedsprocessor.js",
 	"logic/prefs.js",
 	"logic/indexeddb.js",
 	"logic/feeds.js",
