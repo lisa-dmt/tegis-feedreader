@@ -62,33 +62,30 @@ function Feed(proto) {
 		if(proto.id || proto.id === 0) {
 			this.id = proto.id;
 		}
-		if(this.feedType < feedTypes.ftUnknown) {
-			this.preventDelete = true;
-		}
-		if(proto.username && proto.password) {
-			this.username = proto.username;
-			this.password = proto.password;
-		}
+
+        this.username = proto.username || this.username;
+        this.password = proto.password || this.password;
 	}
 }
 
-Feed.prototype.title =				"";
-Feed.prototype.url =				"";
-Feed.prototype.feedType =			feedTypes.ftRSS;
-Feed.prototype.feedOrder =			0;
-Feed.prototype.enabled =			1;
-Feed.prototype.showPicture =		1;
-Feed.prototype.showMedia =			1;
-Feed.prototype.showListSummary =	1;
-Feed.prototype.showDetailSummary =	1;
-Feed.prototype.showListCaption =	1;
-Feed.prototype.showDetailCaption =	1;
-Feed.prototype.sortMode =			0;
-Feed.prototype.allowHTML =			1;
-Feed.prototype.numNew =				0;
-Feed.prototype.numUnRead =			0;
-Feed.prototype.preventDelete =		false;
-Feed.prototype.username =			"";
-Feed.prototype.password =			"";
-Feed.prototype.category =			0;
-Feed.prototype.categoryName =		"Uncategorized";
+Feed.prototype = {
+    title:              "",
+    url:				"",
+    feedType:			feedTypes.ftRSS,
+    feedOrder:			0,
+    enabled:			1,
+    showPicture:		1,
+    showMedia:			1,
+    showListSummary:	1,
+    showDetailSummary:	1,
+    showListCaption:	1,
+    showDetailCaption:	1,
+    sortMode:			0,
+    allowHTML:			1,
+    numNew:				0,
+    numUnRead:			0,
+    username:			"",
+    password:			"",
+    category:			0,
+    categoryName:		"Uncategorized"
+};
