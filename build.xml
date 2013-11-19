@@ -12,7 +12,7 @@
     <target name="Firefox OS" depends="build">
         <copy file="${src.dir}/targets/firefoxos/manifest.webapp" todir="${deploy.dir}/src" />
         <copy todir="${deploy.dir}/src">
-            <fileset dir="${src.dir}/icons" includes="icon60.png icon90.png icon128.png icon256.png" />
+            <fileset dir="${src.dir}/icons" includes="icon32.png icon60.png icon90.png icon120.png icon128.png icon256.png" />
         </copy>
         <replace file="${deploy.dir}/src/manifest.webapp" token="$VERSION$" value="${version}" />
 
