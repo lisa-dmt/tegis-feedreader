@@ -30,10 +30,6 @@ function addBrowerClass(classes) {
 	}
 }
 
-function appMenuSupported() {
-	return enyo.platform.webos || enyo.platform.android;
-}
-
 function applyOSSpecific() {
 	if(isFirefox()) {
 		applyFirefoxSpecifics();
