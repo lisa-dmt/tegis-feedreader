@@ -37,7 +37,7 @@ enyo.kind({
 		var request = navigator.mozApps.getSelf();
 		request.onsuccess = function() {
 			var app = request.result;
-			var iconPath = app.installOrigin + "/icon.png";
+			var iconPath = app.installOrigin + "/icon60.png";
 
 			self.current = navigator.mozNotification.createNotification(
 				enyo.application.appName, body,	iconPath);
