@@ -49,7 +49,6 @@ enyo.kind({
 			kind:		onyx.IconButton,
 			name:		"appMenuButton",
 			src:		"assets/header/app-menu.png",
-			showing:	!appMenuSupported(),
 			ontap:		"openAppMenu"
 		}, {
 			name:		"headerCaption",
@@ -426,7 +425,7 @@ enyo.kind({
 	},
 
 	hideSearchBox: function() {
-		if(this.$.searchBox.getShowing() && !appMenuSupported())
+		if(this.$.searchBox.getShowing())
 			this.$.appMenuButton.show();
 		this.inherited(arguments);
 	},
