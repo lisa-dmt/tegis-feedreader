@@ -55,7 +55,7 @@ enyo.kind({
 		}
 
 		// Initialize database.
-		var request = this.indexedDb.open("FeedReader Database", 1); //enyo.application.versionInt);
+		var request = this.indexedDb.open("FeedReader Database", enyo.application.versionInt);
 		request.onerror = enyo.bind(this, this.dbSetupFailed);
 		request.onsuccess = enyo.bind(this, this.dbReady, request);
 		request.onupgradeneeded = enyo.bind(this, this.upgradeDb);
@@ -83,56 +83,50 @@ enyo.kind({
 
 	upgradeDb: function(event) {
 		var db = event.currentTarget.result;
+        var lastVersion = event.oldVersion;
 
-		// Setup object storages.
-		var categories = db.createObjectStore("categories", { keyPath: "id", autoIncrement: true });
-		var feeds = db.createObjectStore("feeds", { keyPath: "id", autoIncrement: true });
-		var stories = db.createObjectStore("stories", { keyPath: "id", autoIncrement: true });
+		if(lastVersion < 1) {
+            // Setup object storages.
+            var categories = db.createObjectStore("categories", { keyPath: "id", autoIncrement: true });
+            var feeds = db.createObjectStore("feeds", { keyPath: "id", autoIncrement: true });
+            var stories = db.createObjectStore("stories", { keyPath: "id", autoIncrement: true });
 
-		// Create indexes.
-		categories.createIndex("title", "title", { unique: true });
-		categories.createIndex("catOrder", "catOrder", { unique: false });
+            // Create indexes.
+            categories.createIndex("catOrder", "catOrder", { unique: false });
 
-		feeds.createIndex("title", "title", { unique: false });
-		feeds.createIndex("feedType", "feedType", { unique: false });
-		feeds.createIndex("category", "category", { unique: false });
-		feeds.createIndex("feedOrder", "feedOrder", { unique: false });
+            feeds.createIndex("feedType", "feedType", { unique: false });
+            feeds.createIndex("category", "category", { unique: false });
+            feeds.createIndex("feedOrder", "feedOrder", { unique: false });
 
-		stories.createIndex("fid", "fid", { unique: false });
+            stories.createIndex("fid", "fid", { unique: false });
 
-		// Create default objects.
-		categories.add(new Category({ title: "Uncategorized", catOrder: 0 }));
-		categories.add(new Category({ title: "Aggregations", catOrder: 1 }));
+            // Create default objects.
+            categories.add(new Category({ title: "Uncategorized", catOrder: 0 }));
+            categories.add(new Category({ title: "Aggregations", catOrder: 1 }));
 
-		feeds.add(new Feed({
-			title: "Starred Items",
-			url: "starred",
-			feedType: feedTypes.ftStarred,
-			category: 2,
-			feedOrder: 0,
-			enabled: 1
-		}));
-		feeds.add(new Feed({
-			title: "All Items",
-			url:"allItems",
-			feedType: feedTypes.ftAllItems,
-			category: 2,
-			feedOrder: 1,
-			enabled: 1
-		}));
+            feeds.add(new Feed({
+                title: "Starred Items",
+                url: "starred",
+                feedType: feedTypes.ftStarred,
+                category: 2,
+                feedOrder: 0,
+                enabled: 1
+            }));
+            feeds.add(new Feed({
+                title: "All Items",
+                url:"allItems",
+                feedType: feedTypes.ftAllItems,
+                category: 2,
+                feedOrder: 1,
+                enabled: 1
+            }));
+        }
 	},
 
 	cloneWhenNeeded: function(obj, constructor) {
 		if(!obj.originator)
 			return obj;
 		return new constructor(obj);
-	},
-
-	boundBetween: function(a, b) {
-		var lower = Math.min(a, b);
-		var upper = Math.max(a, b);
-
-		return IDBKeyRange.bound(lower, upper);
 	},
 
 	boundOnly: function(a) {
