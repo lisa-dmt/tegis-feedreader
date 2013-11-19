@@ -169,9 +169,7 @@ enyo.kind({
 
 	saveClicked: function() {
 		if(!this.$.url.getValue || (this.$.url.getValue().length <= 0)) {	// In case no url is entered, simply exit the scene.
-			this.doCanceled();
-			this.hide();
-			return;
+			return this.cancelClicked();
 		}
 
 		// Update the UI.
@@ -208,6 +206,7 @@ enyo.kind({
 
 		// Save the feed.
 		enyo.application.feeds.addOrEditFeed(this.feed, this.updateSuccess, this.updateFailed);
+        return true;
 	},
 
 
@@ -221,16 +220,20 @@ enyo.kind({
 		this.doFeedSaved();
 		this.resetButtons();
 		this.hide();
+
+        return true;
 	},
 
 	updateFailed: function() {
 		this.resetButtons();
+        return true;
 	},
 
 	cancelClicked: function() {
 		this.doCanceled();
 		this.hide();
 		this.resetButtons();
+        return true;
 	},
 
 	feedChanged: function() {
@@ -257,8 +260,8 @@ enyo.kind({
 		this.$.url.setValue(this.feed.url);
 		this.$.activateFeed.setValue(this.feed.enabled);
 
-		this.$.username.setValue(this.feed.username);
-		this.$.password.setValue(this.feed.password);
+		this.$.username.setValue(this.feed.username || "");
+		this.$.password.setValue(this.feed.password || "");
 
 		this.$.listMode.setValue(listMode);
 		this.$.sortMode.setValue(this.feed.sortMode);
@@ -266,6 +269,8 @@ enyo.kind({
 		this.$.showPicture.setValue(this.feed.showPicture);
 		this.$.showMedia.setValue(this.feed.showMedia);
 		this.$.allowHTML.setValue(this.feed.allowHTML);
+
+        return true;
 	},
 
 	show: function(feed) {
