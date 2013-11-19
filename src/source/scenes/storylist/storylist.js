@@ -339,7 +339,7 @@ enyo.kind({
 			isFirst:	event.index == 0,
 			isLast:		event.index == (this.items.length - 1)
 		});
-	},
+    },
 
 	storyStarred: function(sender, event) {
 		var story = this.items[event.rowIndex];
@@ -355,7 +355,8 @@ enyo.kind({
 				isLast:		this.selectedIndex == (this.items.length - 1)
 			});
 		}
-	},
+        return true;
+    },
 
 	//
 	// Ordering and filtering
@@ -381,7 +382,8 @@ enyo.kind({
 		}
 
 		enyo.openMenuAtEvent(this.$.sortMenu, sender, event);
-	},
+        return true;
+    },
 
 	setSortMode: function(value) {
 		this.feed.sortMode = value;
@@ -390,19 +392,23 @@ enyo.kind({
 
 	showAll: function() {
 		this.setSortMode((this.feed.sortMode & 0xFF00) | 0);
-	},
+        return true;
+    },
 
 	showUnRead: function() {
 		this.setSortMode((this.feed.sortMode & 0xFF00) | 1);
-	},
+        return true;
+    },
 
 	showNew: function() {
 		this.setSortMode((this.feed.sortMode & 0xFF00) | 2);
-	},
+        return true;
+    },
 
 	orderToggled: function() {
 		this.setSortMode(this.feed.sortMode ^ 0x0100);
-	},
+        return true;
+    },
 
 	//
 	// Toolbar handling
@@ -412,12 +418,14 @@ enyo.kind({
 		if(this.feed) {
 			enyo.application.feeds.enqueueUpdate(this.feed);
 		}
-	},
+        return true;
+    },
 
 	shareClicked: function(sender, event) {
 		this.$.shareViaIMItem.setShowing(enyo.application.helper.canShareViaIM);
 		enyo.openMenuAtEvent(this.$.shareMenu, sender, event);
-	},
+        return true;
+    },
 
 	//
 	// Sharing
@@ -477,11 +485,11 @@ enyo.kind({
 		}
 		this.refresh();
 		this.resized();
-	},
+    },
 
 	isLastFeedChanged: function() {
 		this.$.nextFeedButton.setDisabled(this.isLastFeed);
-	},
+    },
 
 	isFirstFeedChanged: function() {
 		this.$.prevFeedButton.setDisabled(this.isFirstFeed);

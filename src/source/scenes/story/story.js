@@ -348,15 +348,19 @@ enyo.kind({
 
 		this.resized();
 		this.updateOnly = false;
+
+        return true;
 	},
 
 	noConnection: function() {
 		this.$.picture.hide();
 		this.$.loadSpinner.hide();
+        return true;
 	},
 
 	pictureLoaded: function() {
 		this.$.loadSpinner.hide();
+        return true;
 	},
 
 	linkClicked: function(sender, event) {
@@ -365,12 +369,14 @@ enyo.kind({
 		} else if(this.urls.length > 1) {
 			// show a menu
 		}
+        return true;
 	},
 
     handleClick: function(href) {
         if(!this._scrolling) {
             enyo.application.openLink(href);
         }
+        return true;
     },
 
 	//
@@ -432,11 +438,13 @@ enyo.kind({
 		var mediaControl = this.getMediaControl();
 		var position = mediaControl.getDuration() * this.$.mediaSlider.getValue() / 1000;
 		mediaControl.seek(position);
+        return true;
 	},
 
 	mediaSeeked: function() {
 		this.mediaSeeking();
 		this._mediaSeeking = false;
+        return true;
 	},
 
 	mediaPlayToggled: function(sender) {
@@ -452,11 +460,12 @@ enyo.kind({
 				this.setMediaTimer(true);
 			}
 		});
+        return true;
 	},
 
 	mediaStateChanged: function(sender) {
 		if(!this.story)
-			return;
+			return true;
 
 		try {
 			this.$.mediaState.setContent(sender.getReadableState());
@@ -469,18 +478,20 @@ enyo.kind({
 		} catch(e) {
 			this.log("STATE CHANGED EX>", e);
 		}
+        return true;
 	},
 
 	mediaCanPlay: function(sender) {
 		if(!this.story)
-			return;
+			return true;
 
 		this.$.mediaPlayButton.setDisabled(false);
+        return true;
 	},
 
 	mediaProgress: function(sender) {
 		if(!this.story)
-			return;
+			return true;
 
 		var buffered = sender.getBuffered();
 		var duration = sender.getDuration();
@@ -488,6 +499,7 @@ enyo.kind({
 		if(!this._mediaSeeking && buffered && duration) {
 			this.$.mediaSlider.animateProgressTo(Math.round(buffered.end(0) * 1000 / duration));
 		}
+        return true;
 	},
 
 	mediaUpdate: function(sender) {
@@ -504,6 +516,7 @@ enyo.kind({
 			}
 		}
 		this.setMediaTimer(true);
+        return true;
 	},
 
 	setMediaTimer: function(active) {
@@ -537,11 +550,13 @@ enyo.kind({
 	storyStarred: function() {
 		this.story.isStarred = this.$.starButton.getChecked();
 		enyo.application.feeds.markStarred(this.story);
+        return true;
 	},
 
 	shareClicked: function(sender, event) {
 		this.$.shareViaIMItem.setShowing(enyo.application.helper.canShareViaIM);
 		enyo.openMenuAtEvent(this.$.shareMenu, sender, event);
+        return true;
 	},
 
 	//
@@ -556,6 +571,7 @@ enyo.kind({
 					this.urls[i].title + '</a>';
 		}
 		enyo.application.openEMail($L("Check out this story"), text);
+        return true;
 	},
 
 	shareViaIM: function(sender, email) {
@@ -564,6 +580,7 @@ enyo.kind({
 			text += (i > 0 ? ", " : "") + this.urls[i].href;
 		}
 		enyo.application.openMessaging(text);
+        return true;
 	},
 
 	//
