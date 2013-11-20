@@ -50,7 +50,7 @@ enyo.kind({
 		// Obtain database API.
 		this.indexedDb = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.msIndexedDB;
 		if(!this.indexedDb) {
-			this.error("DB> no indexedDB support, dying");
+			enyo.error("DB> no indexedDB support, dying");
 			return;
 		}
 
@@ -62,13 +62,13 @@ enyo.kind({
 	},
 
 	dbSetupFailed: function(event) {
-		this.error("DB> error setting up database, code:", event.target.errorCode);
+		enyo.error("DB> error setting up database, code:", event.target.errorCode);
 	},
 
 	dbReady: function(event, request) {
 		this.db = event.result;
 
-		this.log("DB> Database schema ready");
+		enyo.log("DB> Database schema ready");
 
 		enyo.asyncMethod(function() {
 			if(enyo.application.prefs.updateOnStart || enyo.application.feeds.updateWhenReady) {
@@ -194,7 +194,7 @@ enyo.kind({
 	 * @param event
 	 */
 	transactionFailed: function(event) {
-		this.error("DB> transaction failed, code:", event.target.errorCode);
+		enyo.error("DB> transaction failed, code:", event.target.errorCode);
 	},
 
 	/** @private
@@ -211,7 +211,7 @@ enyo.kind({
 	 *
 	 */
 	errorHandler: function(event) {
-		this.error("DB> query failed");
+		enyo.error("DB> query failed");
 	},
 
 	/** @private
@@ -278,7 +278,7 @@ enyo.kind({
 		onSuccess = onSuccess || this.nullData;
 		onFail = onFail || this.errorHandler;
 
-		this.log("DB> deleting category", category.id);
+		enyo.log("DB> deleting category", category.id);
 
 		// Open transaction.
 		var transaction = this.writeTransaction(["categories", "feeds", "stories"], onSuccess, onFail);
@@ -445,8 +445,16 @@ enyo.kind({
 	 * @param feed				feed to update
 	 */
 	doUpdateFeedCount: function(feeds, deltaUnRead, deltaNew, feed) {
-		feed.numUnRead += deltaUnRead;
+        feed.numUnRead += deltaUnRead;
 		feed.numNew += deltaNew;
+
+        enyo.log("DB> Updating feed", feed.title, ": deltaUnread:", deltaUnRead, "deltaNew:", deltaNew, "counts:",
+            feed.numNew, feed.numUnRead);
+        if((feed.numNew < 0) || (feed.numUnRead < 0)) {
+            enyo.warn("DB> LOGIC ERROR FOUND! Feed", feed.title, "to be updated in improper way, counts:",
+                feed.numNew, feed.numUnRead);
+        }
+
 		feeds.put(feed);
 	},
 
@@ -466,22 +474,37 @@ enyo.kind({
 		var stories = transaction.objectStore("stories");
 		var feeds = transaction.objectStore("feeds");
 
+        var starredNew = 0;
+        var starredUnread = 0;
+
 		function updateFeed(event) {
 			var oldFeed = event.target.result;
 
 			// Update feed aggregations.
-			var feedupdater = enyo.bind(self, self.updateFeedCount, feeds, -oldFeed.numUnRead, -oldFeed.numNew);
-			feeds.index("feedType").get(feedTypes.ftAllItems).onsuccess = feedupdater;
-			feeds.index("feedType").get(feedTypes.ftStarred).onsuccess = feedupdater;
+			feeds.index("feedType")
+                .get(feedTypes.ftAllItems)
+                .onsuccess = enyo.bind(self, self.updateFeedCount, feeds, -oldFeed.numUnRead, -oldFeed.numNew);
+            if((starredNew > 0) || (starredUnread > 0)) {
+                feeds.index("feedType")
+                    .get(feedTypes.ftStarred)
+                    .onsuccess = enyo.bind(self, self.updateFeedCount, feeds, -starredUnread, -starredNew);
+            }
 
-			// Delete feed.
+            // Delete feed.
 			feeds.delete(feed.id);
 		}
 
 		stories.index("fid").openCursor(this.boundOnly(feed.id)).onsuccess = function(event) {
 			var cursor = event.target.result;
 			if(cursor) {
-				stories.delete(cursor.value.id);
+                var story = cursor.value;
+                if(story.isStarred) {
+                    if(story.isNew)
+                        starredNew++;
+                    if(!story.isRead)
+                        starredUnread++;
+                }
+				stories.delete(story.id);
 				cursor.continue();
 			} else {
 				feeds.get(feed.id).onsuccess = updateFeed;
