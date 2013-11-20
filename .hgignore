@@ -1,7 +1,8 @@
 glob:*.ipk
+glob:*.zip
 syntax: glob
-screenshots/*
 .idea/*
-bin/debug/*
-src/build/*
-src/deploy/*
+screenshots/*
+build/*
+deploy/*
+bin/*
