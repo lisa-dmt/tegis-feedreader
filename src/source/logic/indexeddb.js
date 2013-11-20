@@ -947,16 +947,13 @@ enyo.kind({
 		var transaction = this.writeTransaction(["feeds", "stories"], onSuccess, onFail);
 		var feeds = transaction.objectStore("feeds");
 		var stories = transaction.objectStore("stories");
+        var deltaNew = 0, deltaUnread = 0;
 		var self = this;
 
 		var req = stories;
 		if(feed.feedType >= feedTypes.ftUnknown) {
 			req = req.index("fid").openCursor(this.boundOnly(feed.id));
 		} else {
-			if(feed.feedType == feedTypes.ftStarred) {
-				feed.numNew = feed.numUnRead = 0;
-				feeds.put(self.cloneWhenNeeded(feed, Feed));
-			}
 			req = req.openCursor();
 		}
 
@@ -965,11 +962,18 @@ enyo.kind({
 			if(cursor) {
 				var story = cursor.value;
 				if(story.isStarred) {
+                    if(story.isNew)
+                        deltaNew++;
+                    if(!story.isRead)
+                        deltaUnread++;
 					story.isStarred = false;
 					stories.put(self.cloneWhenNeeded(story, Story));
 				}
 				cursor.continue();
-			}
+			} else {
+                var feedupdater = enyo.bind(self, self.updateFeedCount, feeds, -deltaUnread, -deltaNew);
+                feeds.index("feedType").get(feedTypes.ftStarred).onsuccess = feedupdater;
+            }
 		};
 	},
 
