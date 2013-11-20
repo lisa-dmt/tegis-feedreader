@@ -1,27 +1,26 @@
 <project name="FeedReader">
     <property file="VERSION.properties" />
 
-    <property name="src.dir" value="src" />
     <property name="bin.dir" value="bin" />
+    <property name="staging.dir" value="${bin.dir}/staging" />
 
     <property name="release.dir" value="${bin.dir}/release" />
     <property name="debug.dir" value="${bin.dir}/debug" />
-    <property name="deploy.dir" value="${src.dir}/deploy" />
 
     <!-- Create a Firefox OS package -->
     <target name="Firefox OS" depends="build">
-        <copy file="${src.dir}/targets/firefoxos/manifest.webapp" todir="${deploy.dir}/src" />
-        <copy todir="${deploy.dir}/src">
-            <fileset dir="${src.dir}/icons" includes="icon32.png icon60.png icon90.png icon120.png icon128.png icon256.png" />
+        <copy file="targets/firefoxos/manifest.webapp" todir="${staging.dir}" />
+        <copy todir="${staging.dir}">
+            <fileset dir="icons" includes="icon32.png icon60.png icon90.png icon120.png icon128.png icon256.png" />
         </copy>
-        <replace file="${deploy.dir}/src/manifest.webapp" token="$VERSION$" value="${version}" />
+        <replace file="${staging.dir}/manifest.webapp" token="$VERSION$" value="${version}" />
 
         <copy todir="${debug.dir}">
-            <fileset dir="${deploy.dir}/src" />
+            <fileset dir="${staging.dir}" />
         </copy>
 
-        <delete file="${release.dir}/package-${version}.zip" />
-        <zip basedir="${deploy.dir}/src" zipfile="${release.dir}/package-${version}.zip" />
+        <delete file="${release.dir}/feedreader-fxos-${version}.zip" />
+        <zip basedir="${staging.dir}" zipfile="${release.dir}/feedreader-fxos-${version}.zip" />
 
         <antcall target="finish" />
     </target>
@@ -33,14 +32,16 @@
 
     <!-- Run the enyo build process and insert correct version number -->
     <target name="build" depends="clean">
-        <exec executable="node" dir="${src.dir}">
+        <exec executable="node">
             <arg value="enyo/tools/deploy.js" />
+            <arg value="-o" />
+            <arg value="${staging.dir}" />
         </exec>
-        <delete file="${deploy.dir}/src/icon.png" />
-        <replace file="${deploy.dir}/src/build/app.js" token="$VERSION$" value="${version}" />
-        <replace file="${deploy.dir}/src/build/app.js" token="$VERSIONINT$" value="${version.int}" />
-        <replace file="${src.dir}/build/app.js" token="$VERSION$" value="${version}" />
-        <replace file="${src.dir}/build/app.js" token="$VERSIONINT$" value="${version.int}" />
+        <delete file="${staging.dir}/icon.png" />
+        <replace file="${staging.dir}/build/app.js" token="$VERSION$" value="${version}" />
+        <replace file="${staging.dir}/build/app.js" token="$VERSIONINT$" value="${version.int}" />
+        <replace file="build/app.js" token="$VERSION$" value="${version}" />
+        <replace file="build/app.js" token="$VERSIONINT$" value="${version.int}" />
     </target>
 
     <!-- Clean the debug dir -->
@@ -52,13 +53,12 @@
 
     <!-- Prepare the source tree -->
     <target name="prepare">
-        <mkdir dir="${bin.dir}" />
         <mkdir dir="${debug.dir}" />
         <mkdir dir="${release.dir}" />
     </target>
 
     <!-- Do some cleanup after the build has been finished -->
     <target name="finish">
-        <delete dir="${deploy.dir}" />
+        <delete dir="${staging.dir}" />
     </target>
 </project>
