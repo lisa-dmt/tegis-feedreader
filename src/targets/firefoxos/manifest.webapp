@@ -22,6 +22,17 @@
     	"storage": { "description": "Needed to store feed data" },
     	"desktop-notification": { "description": "Needed show notification about new stories" }
     },
+    "default_locale": "en",
+    "locales": {
+        "de": {
+            "name": "FeedReader",
+            "description": "Ein schneller und vielseitiger RSS/ATOM Reader"
+        },
+        "fr": {
+            "name": "FeedReader",
+            "description": "Un puissant agrégateur de flux RSS/ATOM"
+        }
+    },
 	"orientation": "portrait-primary",
 	"messages": [{
 		"alarm": "/index.html"
