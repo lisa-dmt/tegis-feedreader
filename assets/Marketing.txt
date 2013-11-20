@@ -1,0 +1,37 @@
+http://www.tegi-stuff.de/
+http://www.tegi-stuff.de/doku.php?id=feedreader
+general@tegi-stuff.de
+
+<b>FeedReader</b> is a fast and powerful RSS reader supporting <b>RSS, RDF</b> und <b>ATOM</b> feeds.
+With <b>FeedReader</b> you can:
+<ul>
+<li>Update your feeds in the background</li>
+<li>Read your feeds offline</li>
+<li>Listen to your favourite podcasts</li>
+<li>...  and much more!</li>
+</ul>
+
+FeedReader does not request any personal information. In case you enter credentials to retrieve a feed, those credentials are only used to authentificate with the feed. The credentials are stored in a database on your device and are not transmitted anywhere else.
+
+<b>FeedReader</b> ist ein schneller und vielseitiger RSS Reader. Er untersützt <b>RSS, RDF</b> und <b>ATOM</b> Feeds.
+Mit <b>FeedReader</b> können Sie:
+<ul>
+<li>Ihre Feeds im Hintergrund abrufen</li>
+<li>Ihre Feeds offline lesen</li>
+<li>Ihre Lieblingspodcasts hören</li>
+<li>... und noch vieles mehr!</li>
+</ul>
+
+FeedReader fragt keine persönlichen Informationen gleich welcher Art ab. Wenn Sie Anmeldedaten für einen Feed eingeben, werden diese nur zum Abrufen des Feeds verwendet. Diese Informationen werden in einer lokalen Datenbank auf ihrem Gerät gespeichert und nicht an den Author oder Dritte gesendet.
+
+
+<b>FeedReader</b> est un lecteur de flux RSS rapide et puissant qui supporte les flux <b>RSS, RDF</b> ainsi que <b>ATOM</b>.
+Avec <b>FeedReader</b> vous pouvez:
+<ul>
+<li>Mettre à jour vos flux en arrière-plan</li>
+<li>Lire vos flux hors-ligne</li>
+<li>Écouter vos podcasts favoris</li> 
+<li>... et bien plus encore!</li>
+</ul>
+
+FeedReader ne requiert aucune information personnelle. Dans le cas ou vous vous authentifiez pour récupérer un flux, vos identifiants sont utilisés uniquement pour vous authentifier avec ce flux. Les identifiants sont stockés dans une base de données sur votre appareil et ne sont jamais transmis autre part.
