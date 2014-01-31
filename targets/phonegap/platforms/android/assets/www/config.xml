@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.tegistuff.app.feedreader" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
+    <name>FeedReader</name>
+    <description>
+        A powerful cross platform RSS aggragator and pod catcher.
+    </description>
+    <author email="general@tegi-stuff.de" href="http://www.tegi-stuff.de">
+        Timo Tegtmeier
+    </author>
+    <feature name="http://api.phonegap.com/1.0/device" />
+    <preference name="permissions" value="none" />
+    <preference name="orientation" value="default" />
+    <preference name="target-device" value="universal" />
+    <preference name="fullscreen" value="true" />
+    <preference name="webviewbounce" value="true" />
+    <preference name="prerendered-icon" value="true" />
+    <preference name="stay-in-webview" value="false" />
+    <preference name="detect-data-types" value="true" />
+    <preference name="exit-on-suspend" value="false" />
+    <preference name="show-splash-screen-spinner" value="true" />
+    <preference name="auto-hide-splash-screen" value="true" />
+    <preference name="disable-cursor" value="false" />
+    <preference name="android-minSdkVersion" value="7" />
+    <preference name="android-installLocation" value="auto" />
+
+    <icon src="icon.png" />
+    <icon gap:density="ldpi" gap:platform="android" src="icon36.png" />
+    <icon gap:density="mdpi" gap:platform="android" src="icon48.png" />
+    <icon gap:density="hdpi" gap:platform="android" src="icon72.png" />
+    <icon gap:density="xhdpi" gap:platform="android" src="icon96.png" />
+    <icon gap:platform="blackberry" src="icon80.png" />
+    <icon gap:platform="blackberry" gap:state="hover" src="icon80.png" />
+
+    <access origin="http://127.0.0.1*" />
+    <content src="index.html" />
+</widget>
