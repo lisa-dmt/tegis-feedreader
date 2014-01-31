@@ -20,6 +20,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+function isFirefox() {
+    return enyo.platform.firefox || enyo.platform.firefoxOS;
+}
+
 function addBrowerClass(classes) {
 	if(isFirefox()) {
 		return classes + " mozilla";
@@ -28,12 +32,4 @@ function addBrowerClass(classes) {
 	} else {
 		return classes + " webkit";
 	}
-}
-
-function applyOSSpecific() {
-	if(isFirefox()) {
-		applyFirefoxSpecifics();
-    } else {
-        applyGenericHandlers();
-    }
 }

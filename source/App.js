@@ -38,7 +38,6 @@ enyo.kind({
 
 		// Set global constants.
         applyGlobalConstants(enyo.application);
-        enyo.Signals.send("constantsReady");
 
 		enyo.application.assert = enyo.bind(this, this.assert);
 		enyo.application.nop = function() {};

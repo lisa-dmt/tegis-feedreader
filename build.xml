@@ -8,7 +8,9 @@
     <property name="debug.dir" value="${bin.dir}/debug" />
 
     <!-- Create a Firefox OS package -->
-    <target name="Firefox OS" depends="build">
+    <target name="Firefox OS">
+        <build target="firefoxos" />
+
         <copy file="targets/firefoxos/manifest.webapp" todir="${staging.dir}" />
         <copy todir="${staging.dir}">
             <fileset dir="icons" includes="icon32.png icon60.png icon90.png icon120.png icon128.png icon256.png" />
@@ -22,43 +24,56 @@
         <delete file="${release.dir}/feedreader-fxos-${version}.zip" />
         <zip basedir="${staging.dir}" zipfile="${release.dir}/feedreader-fxos-${version}.zip" />
 
-        <antcall target="finish" />
+        <finish />
     </target>
 
     <!-- Create an Android APK -->
-    <target name="Android" depends="build">
+    <target name="Android">
 
+    </target>
+
+    <!-- Create a generic browser app -->
+    <target name="Generic">
+        <build target="generic" />
+
+        <delete file="${release.dir}/feedreader-generic-${version}.zip" />
+        <zip basedir="${staging.dir}" zipfile="${release.dir}/feedreader-generic-${version}.zip" />
+
+        <finish />
     </target>
 
     <!-- Run the enyo build process and insert correct version number -->
-    <target name="build" depends="clean">
-        <exec executable="node">
-            <arg value="enyo/tools/deploy.js" />
-            <arg value="-o" />
-            <arg value="${staging.dir}" />
-        </exec>
-        <delete file="${staging.dir}/icon.png" />
-        <replace file="${staging.dir}/build/app.js" token="$VERSION$" value="${version}" />
-        <replace file="${staging.dir}/build/app.js" token="$VERSIONINT$" value="${version.int}" />
-        <replace file="build/app.js" token="$VERSION$" value="${version}" />
-        <replace file="build/app.js" token="$VERSIONINT$" value="${version.int}" />
-    </target>
+    <macrodef name="build">
+        <attribute name="target" />
+        <sequential>
+            <mkdir dir="${debug.dir}" />
+            <mkdir dir="${release.dir}" />
+            <delete includeemptydirs="true">
+                <fileset dir="${debug.dir}" includes="*" />
+            </delete>
 
-    <!-- Clean the debug dir -->
-    <target name="clean" depends="prepare">
-        <delete includeemptydirs="true">
-            <fileset dir="${debug.dir}" includes="*" />
-        </delete>
-    </target>
-
-    <!-- Prepare the source tree -->
-    <target name="prepare">
-        <mkdir dir="${debug.dir}" />
-        <mkdir dir="${release.dir}" />
-    </target>
+            <exec executable="node">
+                <arg value="enyo/tools/deploy.js" />
+                <arg value="-p" />
+                <arg value="targets/@{target}/package.js" />
+                <arg value="-o" />
+                <arg value="${staging.dir}" />
+                <arg value="-v" />
+                <arg value="-s" />
+                <arg value="." />
+            </exec>
+            <delete file="${staging.dir}/icon.png" />
+            <replace file="${staging.dir}/build/app.js" token="$VERSION$" value="${version}" />
+            <replace file="${staging.dir}/build/app.js" token="$VERSIONINT$" value="${version.int}" />
+            <replace file="build/app.js" token="$VERSION$" value="${version}" />
+            <replace file="build/app.js" token="$VERSIONINT$" value="${version.int}" />
+        </sequential>
+    </macrodef>
 
     <!-- Do some cleanup after the build has been finished -->
-    <target name="finish">
-        <delete dir="${staging.dir}" />
-    </target>
+    <macrodef name="finish">
+        <sequential>
+            <delete dir="${staging.dir}" />
+        </sequential>
+    </macrodef>
 </project>

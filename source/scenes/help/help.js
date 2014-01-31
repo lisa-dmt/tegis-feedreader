@@ -24,14 +24,10 @@ enyo.kind({
 	name:			"HelpDialog",
     kind:			ModalDialog,
 	autoDismiss:	true,
-	caption:		$L("FeedReader Help"),
 
 	components:	[{
-        name:       "title",
-		style:		"font-weight: bold; font-size: 18px; margin-bottom: 0px;"
-	}, {
         name:       "author",
-		style:		"font-weight: bold; font-size: 15px;"
+		style:		"font-size: 15px; width: 100%; text-align: center;"
 	}, {
 		kind:		enyo.Scroller,
 		horizontal:	"hidden",
@@ -112,10 +108,7 @@ enyo.kind({
 			content:	$L("OK"),
 			ontap:		"okClicked"
 		}]
-	}, {
-        kind:               enyo.Signals,
-        onConstantsReady:   "constantsReady"
-    }],
+	}],
 
 	openFeedReaderHomepage: function(sender, event) {
 		enyo.application.openLink("http://www.tegi-stuff.de/doku.php?id=feedreader");
@@ -133,8 +126,9 @@ enyo.kind({
 		this.hide();
 	},
 
-    constantsReady: function() {
-        this.$.title.setContent(enyo.application.appName + ' v' + enyo.application.versionString);
+    show: function() {
+        this.setCaption(enyo.application.appName + ' v' + enyo.application.versionString);
         this.$.author.setContent($L("by") + " " + enyo.application.appAuthor);
+        this.inherited(arguments);
     }
 });

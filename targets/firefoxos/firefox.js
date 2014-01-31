@@ -54,7 +54,7 @@ enyo.kind({
 });
 
 enyo.kind({
-	name:   			"FirefoxAppHelper",
+	name:   			"AppHelper",
 	kind:   			enyo.Component,
 
 	hasHTMLMail:			false,
@@ -147,14 +147,42 @@ enyo.kind({
 	}
 });
 
+function fxOSHaveConnection() {
+    var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if(!connection) {
+        enyo.asyncMethod(this, onSuccess);
+    } else if(connection.bandwidth > 0) {
+        if(connection.bandwidth !== Infinity || navigator.onLine) {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+}
+
 enyo.kind({
-	name:   	"FirefoxTimer",
+    name:   "ConnectionChecker",
+    kind:   enyo.Component,
+
+    checkConnection: function(onSuccess, onFail) {
+        if(fxOSHaveConnection()) {
+            enyo.asyncMethod(this, onSuccess);
+        } else {
+            enyo.asyncMethod(this, onFail);
+        }
+    }
+});
+
+enyo.kind({
+	name:   	"Timer",
 	kind:   	enyo.Component,
 
 	cookieName:	"comtegi-stuffAppFeedReaderAlarms",
 
 	components:	[{
-		kind:	"FirefoxConnectionChecker",
+		kind:	"ConnectionChecker",
 		name:	"connChecker"
 	}],
 
@@ -221,36 +249,8 @@ enyo.kind({
 	}
 });
 
-function fxOSHaveConnection() {
-	var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-	if(!connection) {
-		enyo.asyncMethod(this, onSuccess);
-	} else if(connection.bandwidth > 0) {
-		if(connection.bandwidth !== Infinity || navigator.onLine) {
-			return true;
-		} else {
-			return false;
-		}
-	} else {
-		return false;
-	}
-}
-
 enyo.kind({
-	name:   "FirefoxConnectionChecker",
-	kind:   enyo.Component,
-
-	checkConnection: function(onSuccess, onFail) {
-		if(fxOSHaveConnection()) {
-			enyo.asyncMethod(this, onSuccess);
-		} else {
-			enyo.asyncMethod(this, onFail);
-		}
-	}
-});
-
-enyo.kind({
-	name:   "FirefoxPowerManager",
+	name:   "PowerManager",
 	kind:   enyo.Component,
 
 	enterActivity: function() {
@@ -261,7 +261,7 @@ enyo.kind({
 });
 
 enyo.kind({
-	name:	"FirefoxApplicationEvents",
+	name:	"ApplicationEvents",
 	kind:	enyo.Component,
 
 	events:	{
@@ -287,17 +287,8 @@ enyo.kind({
 	}
 });
 
-function isFirefox() {
-	return enyo.platform.firefox || enyo.platform.firefoxOS;
-}
-
-function applyFirefoxSpecifics() {
-	window.AppHelper = window.FirefoxAppHelper;
-	window.Timer = window.FirefoxTimer;
-	window.ConnectionChecker = window.FirefoxConnectionChecker;
-	window.PowerManager = window.FirefoxPowerManager;
-	window.Database = window.IndexedDB;
-	window.ApplicationEvents = window.FirefoxApplicationEvents;
+function applyOSSpecific() {
+    console.log("Running FxOS build");
 
 	enyo.xhr.getXMLHttpRequest = function(inParams) {
 		try {
