@@ -32,7 +32,7 @@ function feedOrderSort(a, b) {
 }
 
 enyo.kind({
-	name:				"IndexedDB",
+	name:				"Database",
 	kind:				enyo.Component,
 
 	indexedDb:			null,
@@ -685,16 +685,18 @@ enyo.kind({
 		request.onsuccess = function(event) {
 			var cursor = event.target.result;
 			if(cursor) {
-				if(feed.feedType != feedTypes.ftStarred || cursor.value.isStarred) {
-					if((showMode == 0) ||
-						((showMode == 1) && (!cursor.value.isRead)) ||
-						((showMode == 2) && (cursor.value.isNew))) {
-						if(noFilter ||
-							(cursor.value.title.toLowerCase().indexOf(filter) >= 0) ||
-							(cursor.value.summary.toLowerCase().indexOf(filter) >= 0))
-							data.push(self.cloneWhenNeeded(cursor.value, Story));
-					}
-				}
+                if(!cursor.value.deleted) {
+                    if(feed.feedType != feedTypes.ftStarred || cursor.value.isStarred) {
+                        if((showMode == 0) ||
+                            ((showMode == 1) && (!cursor.value.isRead)) ||
+                            ((showMode == 2) && (cursor.value.isNew))) {
+                            if(noFilter ||
+                                (cursor.value.title.toLowerCase().indexOf(filter) >= 0) ||
+                                (cursor.value.summary.toLowerCase().indexOf(filter) >= 0))
+                                data.push(self.cloneWhenNeeded(cursor.value, Story));
+                        }
+                    }
+                }
 				cursor.continue();
 			}
 		}
@@ -730,16 +732,18 @@ enyo.kind({
 		request.onsuccess = function(event) {
 			var cursor = event.target.result;
 			if(cursor) {
-				if(feed.feedType != feedTypes.ftStarred || cursor.value.isStarred) {
-					var urls = cursor.value.url;
-					for(var i = 0; i < urls.length; i++) {
-						data.push({
-							title:		cursor.value.title,
-							url:		urls[i].href,
-							pubdate:	cursor.value.pubdate
-						});
-					}
-				}
+                if(!cursor.value.deleted) {
+                    if(feed.feedType != feedTypes.ftStarred || cursor.value.isStarred) {
+                        var urls = cursor.value.url;
+                        for(var i = 0; i < urls.length; i++) {
+                            data.push({
+                                title:		cursor.value.title,
+                                url:		urls[i].href,
+                                pubdate:	cursor.value.pubdate
+                            });
+                        }
+                    }
+                }
 				cursor.continue();
 			}
 		}
@@ -961,14 +965,16 @@ enyo.kind({
 			var cursor = event.target.result;
 			if(cursor) {
 				var story = cursor.value;
-				if(story.isStarred) {
-                    if(story.isNew)
-                        deltaNew++;
-                    if(!story.isRead)
-                        deltaUnread++;
-					story.isStarred = false;
-					stories.put(self.cloneWhenNeeded(story, Story));
-				}
+                if(!story.deleted) {
+                    if(story.isStarred) {
+                        if(story.isNew)
+                            deltaNew++;
+                        if(!story.isRead)
+                            deltaUnread++;
+                        story.isStarred = false;
+                        stories.put(self.cloneWhenNeeded(story, Story));
+                    }
+                }
 				cursor.continue();
 			} else {
                 var feedupdater = enyo.bind(self, self.updateFeedCount, feeds, -deltaUnread, -deltaNew);
@@ -1077,7 +1083,7 @@ enyo.kind({
 				var story = cursor.value;
 
 				// Skip stories that should not be changed.
-				if((state == (!!story.isRead)) || ((feed.feedType == feedTypes.ftStarred) && !story.isStarred)) {
+				if((state == (!!story.isRead)) || ((feed.feedType == feedTypes.ftStarred) && !story.isStarred) || story.deleted) {
 					cursor.continue();
 					return;
 				}
@@ -1116,13 +1122,14 @@ enyo.kind({
 		var stories = transaction.objectStore("stories");
 		var feeds = transaction.objectStore("feeds");
 
+        story = this.cloneWhenNeeded(story, Story);
 		story.deleted = 1;
 		stories.put(story);
 		if(story.isNew || !story.isRead) {
 			var feedupdater = enyo.bind(this, this.updateFeedCount, feeds,
 				story.isRead ? 0 : -1, story.isNew ? -1 : 0);
 			feeds.get(story.fid).onsuccess = feedupdater;
-			feeds.index(feedType).get(feedTypes.ftAllItems).onsuccess = feedupdater;
+			feeds.index("feedType").get(feedTypes.ftAllItems).onsuccess = feedupdater;
 			if(story.isStarred)
 				feeds.index("feedType").get(feedTypes.ftStarred).onsuccess = feedupdater;
 		}
