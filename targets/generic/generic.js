@@ -21,7 +21,7 @@
  */
 
 enyo.kind({
-    name:				"GenericAppHelper",
+    name:				"AppHelper",
     kind:   			enyo.Component,
 
 	hasHTMLMail:		false,
@@ -58,7 +58,7 @@ enyo.kind({
 });
 
 enyo.kind({
-    name:   "GenericTimer",
+    name:   "Timer",
     kind:   enyo.Component,
 
     setTimer: function() {
@@ -66,7 +66,7 @@ enyo.kind({
 });
 
 enyo.kind({
-    name:   "GenericConnectionChecker",
+    name:   "ConnectionChecker",
     kind:   enyo.Component,
 
     checkConnection: function(onSuccess, onFail) {
@@ -75,7 +75,7 @@ enyo.kind({
 });
 
 enyo.kind({
-    name:   "GenericPowerManager",
+    name:   "PowerManager",
     kind:   enyo.Component,
 
     enterActivity: function() {
@@ -86,7 +86,7 @@ enyo.kind({
 });
 
 enyo.kind({
-	name:	"GenericApplicationEvents",
+	name:	"ApplicationEvents",
 	kind:	enyo.Component,
 
 	events:	{
@@ -105,13 +105,7 @@ enyo.kind({
 	}
 });
 
-function applyGenericHandlers() {
+function applyOSSpecific() {
 	// Unknown host OS/browser
 	enyo.log("OSSPECIFIC> Using generic handlers; platform unkown/unsupported or running in browser");
-	window.AppHelper = window.GenericAppHelper;
-	window.Timer = window.GenericTimer;
-	window.ConnectionChecker = window.GenericConnectionChecker;
-	window.PowerManager = window.GenericPowerManager;
-	window.Database = window.IndexedDB;
-	window.ApplicationEvents = window.GenericApplicationEvents;
 }

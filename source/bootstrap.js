@@ -1,5 +1,5 @@
 window.onload = function () {
-	window.enyo.application = {};
+    window.enyo.application = {};
 
 	applyOSSpecific();
 

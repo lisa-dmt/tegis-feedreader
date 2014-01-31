@@ -8,10 +8,6 @@ enyo.depends(
 
 	"$lib/g11n",
 
-	// OS specific stuff
-	"utils/os/generic.js",
-	"utils/os/firefox.js",
-
 	// Utility functions
 	"utils/constants.js",
 	"utils/formatting.js",
@@ -31,7 +27,6 @@ enyo.depends(
 
 	// Business logic
 	"logic/prefs.js",
-	"logic/indexeddb.js",
 	"logic/feeds.js",
 	"logic/readitlater.js",
 
