@@ -6,3 +6,5 @@ screenshots/*
 build/*
 deploy/*
 bin/*
+enyo/*
+lib/*
