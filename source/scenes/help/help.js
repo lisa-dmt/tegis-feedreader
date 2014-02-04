@@ -97,8 +97,13 @@ enyo.kind({
 						"<li>" +
 						'	<a href="mailto:mael.lavault@mailz.org"><b>Maël Lavault</b></a><br>' +
 						"	Co-author of the french locale" +
-						"</li>"
-		}]
+						"</li>" +
+                        "<li>" +
+                        '	<a href="mailto:franciscojrivash@gmail.com"><b>Francisco Rivas</b></a><br>' +
+                        "	Author of the spanish locale" +
+                        "</li>"
+
+        }]
 	}, {
 		kind:       enyo.FittableRows,
 		classes:	"center-text",
