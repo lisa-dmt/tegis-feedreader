@@ -35,3 +35,15 @@ Avec <b>FeedReader</b> vous pouvez:
 </ul>
 
 FeedReader ne requiert aucune information personnelle. Dans le cas ou vous vous authentifiez pour récupérer un flux, vos identifiants sont utilisés uniquement pour vous authentifier avec ce flux. Les identifiants sont stockés dans une base de données sur votre appareil et ne sont jamais transmis autre part.
+
+
+<b>FeedReader</b> es un ligero y poderoso lector de RSS que soporta <b>RSS, RDF</b> y <b>ATOM</b>.
+Con <b>FeedReader</b> puedes:
+<ul>
+<li>Actualizar artículos en segundo plano</li>
+<li>Descargar artículos para leer offline</li>
+<li>Escuchar tus podcasts favoritos</li>
+<li>... y mucho más!</li>
+</ul>
+
+FeedReader no solicita ningún tipo de infromación personal. La información que utilizas para actualizar los artículos es sólo utilizada para este fin. Los datos son almacenados en una base de datos en tu dispositivo y no es compartida de ninguna manera.

@@ -31,6 +31,10 @@
         "fr": {
             "name": "FeedReader",
             "description": "Un puissant agrégateur de flux RSS/ATOM"
+        },
+        "es": {
+            "name": "FeedReader",
+            "description": "Un ligero y poderoso lector de RSS"
         }
     },
 	"orientation": "portrait-primary",
