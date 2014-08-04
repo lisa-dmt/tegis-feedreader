@@ -42,13 +42,13 @@ enyo.kind({
 				name:				"feedList",
                 kind:				FeedList,
 				onOpenAppMenu:		"openAppMenu",
-                onFeedSelected:		"feedSelected",
+                onSelected:		    "feedSelected",
                 onAddFeed:			"addFeed",
                 onEditFeed:			"editFeed"
             }, {
 				name:				"storyList",
 				kind:				StoryList,
-                onStorySelected:	"storySelected",
+                onSelected:	        "storySelected",
 				onBackClick:		"backToFeedList",
 				onNextFeed:			"selectNextFeed",
 				onPrevFeed:			"selectPrevFeed"

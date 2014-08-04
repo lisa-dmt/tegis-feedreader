@@ -32,8 +32,6 @@ enyo.kind({
 	},
 
 	events:	{
-		onStorySelected:	"",
-		onStoryDeleted:		"",
 		onBackClick:		"",
 		onNextFeed:			"",
 		onPrevFeed:			""
@@ -314,20 +312,11 @@ enyo.kind({
 		this.updateOnly = false;
 	},
 
-	itemDeleted: function(sender, index) {
-		if(this.inherited(arguments)) {
-			this.doStorySelected({
-				item:		null,
-				isFirst:	true,
-				isLast: 	true
-			});
-		}
-		this.doStoryDeleted(this.deletedItem);
-		enyo.application.feeds.deleteStory(this.deletedItem);
-		this.deletedItem = null;
-
-		return true;
-	},
+    handleItemDeletion: function(index, wasSwipe) {
+        this.inherited(arguments);
+        enyo.application.feeds.deleteStory(this.deletedItem);
+        this.deletedItem = null;
+    },
 
 	itemClicked: function(sender, event) {
 		if(!this.inherited(arguments))

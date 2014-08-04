@@ -34,8 +34,6 @@ enyo.kind({
 
 	events:		{
 		onOpenAppMenu:		"",
-		onFeedSelected:		"",
-		onFeedDeleted:		"",
 		onAddFeed:			"",
 		onEditFeed:			""
 	},
@@ -348,23 +346,11 @@ enyo.kind({
         return true;
     },
 
-	itemDeleted: function(sender, index) {
-		if(this.swipedIndex === undefined)
-			throw "Missed dragstart event!";
-
-		if(this.inherited(arguments)) {
-			this.doFeedSelected({
-				item:		null,
-				isFirst:	true,
-				isLast: 	true
-			});
-		}
-		this.doFeedDeleted(this.deletedItem);
-		enyo.application.feeds.deleteFeed(this.deletedItem);
-		this.deletedItem = null;
-
-		return true;
-	},
+    handleItemDeletion: function(index, wasSwipe) {
+        this.inherited(arguments);
+        enyo.application.feeds.deleteFeed(this.deletedItem);
+        this.deletedItem = null;
+    },
 
 	setFeedSpinner: function(index, state) {
 		if(!this.waitingForData) {
@@ -410,7 +396,7 @@ enyo.kind({
 	},
 
 	menuDeleteFeed: function(sender, event) {
-		this.itemDeleted(sender, this.menuIndex);
+        this.handleItemDeletion(this.menuIndex, false);
         return true;
 	},
 
