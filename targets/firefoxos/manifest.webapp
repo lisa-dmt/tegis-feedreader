@@ -35,6 +35,10 @@
         "es": {
             "name": "FeedReader",
             "description": "Un ligero y poderoso lector de RSS"
+        },
+        "it": {
+            "name": "FeedReader",
+            "description": "TBD"
         }
     },
 	"orientation": "portrait-primary",
