@@ -102,6 +102,11 @@ enyo.kind({
 		onCancel:		"itemDeleteCanceled"
 	},
 
+    events:             {
+        onSelected:     "",
+        onDeleted:      ""
+    },
+
 	//
 	// List handling
 	//
@@ -125,21 +130,33 @@ enyo.kind({
 	},
 
 	itemDeleted: function() {
-		var index = this.swipedIndex;
-		var delSelected = this.selectedIndex === index;
-		if(delSelected) {
-			this.selectedIndex = -1;
-		}
-
-		this.$.list.finishSwiping(this.swipedIndex);
-
-		this.deletedItem = this.items[index];
-		this.items.splice(index, 1);
-		this.$.list.setCount(this.items.length);
-		this.$.list.refresh(); // Provide quick visual response.
-
-		return delSelected;
+        this.handleItemDeletion(this.swipedIndex, true);
+        return true;
 	},
+
+    handleItemDeletion: function(index, wasSwipe) {
+        var delSelected = this.selectedIndex === index;
+        if(delSelected) {
+            this.selectedIndex = -1;
+        }
+
+        if(wasSwipe)
+            this.$.list.finishSwiping(this.swipedIndex);
+
+        this.deletedItem = this.items[index];
+        this.items.splice(index, 1);
+        this.$.list.setCount(this.items.length);
+        this.$.list.refresh(); // Provide quick visual response.
+
+        if(delSelected) {
+            this.doSelected({
+                item:		null,
+                isFirst:	true,
+                isLast: 	true
+            });
+        }
+        this.doDeleted(this.deletedItem);
+    },
 
 	itemDeleteCanceled: function() {
 		if(this.swipedIndex >= 0) {
