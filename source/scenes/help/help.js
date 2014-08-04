@@ -101,6 +101,10 @@ enyo.kind({
                         "<li>" +
                         '	<a href="mailto:franciscojrivash@gmail.com"><b>Francisco Rivas</b></a><br>' +
                         "	Author of the spanish locale" +
+                        "</li>" +
+                        "<li>" +
+                        '   <a href="michael.moroni@mailoo.org"><b>Michael Moroni</b></a>' +
+                        "   Author of the italian locale" +
                         "</li>"
 
         }]
